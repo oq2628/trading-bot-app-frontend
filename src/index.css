@@ -1,0 +1,296 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  font-family: 'Outfit', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  
+  /* Harmonious Sleek Dark Palette */
+  --bg-color: #06070a;
+  --bg-dots: rgba(99, 102, 241, 0.03);
+  --panel-bg: rgba(20, 22, 33, 0.45);
+  --panel-border: rgba(255, 255, 255, 0.06);
+  --panel-glow: rgba(99, 102, 241, 0.15);
+  
+  --primary-glow: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  --primary-solid: #6366f1;
+  --secondary-glow: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  --success-color: #10b981;
+  --success-glow: rgba(16, 185, 129, 0.15);
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-color);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%),
+    radial-gradient(circle, var(--bg-dots) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 24px 24px;
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  transition: var(--transition-smooth);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.4);
+}
+
+/* Premium Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #fff;
+  line-height: 1.25;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: var(--transition-smooth);
+}
+
+/* Layout Utilities */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Glassmorphism Styles */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: var(--transition-smooth);
+}
+
+.glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 var(--panel-glow);
+}
+
+.glass-card {
+  background: rgba(20, 22, 33, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+  display: flex;
+  flex-direction: column;
+}
+
+.glass-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: 0 12px 30px 0 rgba(99, 102, 241, 0.12);
+}
+
+/* Gradient Buttons */
+.btn-primary {
+  background: var(--primary-glow);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.15);
+  opacity: 0;
+  transition: var(--transition-smooth);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 20px 2px rgba(168, 85, 247, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-primary:hover::before {
+  opacity: 1;
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: var(--transition-smooth);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+.btn-outline-gradient {
+  background: transparent;
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  background-clip: padding-box;
+  transition: var(--transition-smooth);
+}
+
+.btn-outline-gradient::after {
+  content: '';
+  position: absolute;
+  top: -1px; bottom: -1px;
+  left: -1px; right: -1px;
+  background: var(--primary-glow);
+  border-radius: 10px;
+  z-index: -1;
+  transition: var(--transition-smooth);
+}
+
+.btn-outline-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 0; right: 0;
+  background: var(--bg-color);
+  border-radius: 9px;
+  z-index: -1;
+  transition: var(--transition-smooth);
+}
+
+.btn-outline-gradient:hover {
+  transform: translateY(-2px);
+}
+
+.btn-outline-gradient:hover::before {
+  opacity: 0.85;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-control {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: var(--transition-smooth);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-solid);
+  box-shadow: 0 0 10px 0 rgba(99, 102, 241, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Responsive Grid layouts */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
