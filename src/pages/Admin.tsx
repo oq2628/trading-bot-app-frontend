@@ -82,6 +82,27 @@ interface Order {
   license?: License;
 }
 
+interface Purchase {
+  id: string;
+  user_id: string;
+  product_id: string;
+  amount_paid: number;
+  purchase_date: string;
+  status: string;
+  expires_at?: string;
+  voucher_code?: string;
+  order_code?: number;
+  variant_name?: string;
+  variant_price?: number;
+  variant_duration_days?: number;
+  variant_duration_months?: number;
+  variant_is_lifetime?: boolean;
+}
+
+interface OrderDetail extends Order {
+  purchases: Purchase[];
+}
+
 interface User {
   id: string;
   email: string;
@@ -372,8 +393,9 @@ export const Admin: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState('all');
-  const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+  const [viewingOrder, setViewingOrder] = useState<OrderDetail | null>(null);
   const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
+  const orderDetailModalHeight = 'calc(100vh - var(--navbar-bottom, 0px) - 2rem)';
 
   // 4. Users State
   const [usersList, setUsersList] = useState<User[]>([]);
@@ -822,6 +844,15 @@ export const Admin: React.FC = () => {
     }
   };
 
+  const handleViewOrderDetail = async (orderId: string) => {
+    try {
+      const data = await api.get<OrderDetail>(`/api/admin/orders/${orderId}`);
+      setViewingOrder(data);
+    } catch (err: any) {
+      setToast({ message: err.message || 'Failed to fetch order details.', type: 'error' });
+    }
+  };
+
   // Orders Status Transition
   const handleUpdateOrderStatus = async (purchaseId: string, newStatus: string) => {
     setUpdatingOrderStatus(true);
@@ -831,7 +862,7 @@ export const Admin: React.FC = () => {
       // Update local state lists
       setOrders(orders.map(o => o.id === purchaseId ? { ...o, status: newStatus } : o));
       if (viewingOrder && viewingOrder.id === purchaseId) {
-        setViewingOrder({ ...viewingOrder, status: newStatus });
+        handleViewOrderDetail(purchaseId);
       }
     } catch (err: any) {
       setToast({ message: err.message || 'Failed to update order status.', type: 'error' });
@@ -1539,7 +1570,7 @@ export const Admin: React.FC = () => {
                           </td>
                           <td style={{ padding: '1rem 0.5rem', textAlign: 'right' }}>
                             <button
-                              onClick={() => setViewingOrder(o)}
+                              onClick={() => handleViewOrderDetail(o.id)}
                               className="btn-secondary"
                               style={{ padding: '0.45rem 0.85rem', fontSize: '0.85rem', height: '34px' }}
                             >
@@ -2158,11 +2189,11 @@ export const Admin: React.FC = () => {
       {/* MODAL: VIEW ORDER DETAILS */}
       {viewingOrder && (
         <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          position: 'fixed', top: 'var(--navbar-bottom, 0px)', left: 0, right: 0, bottom: 0,
           background: 'rgba(6, 7, 10, 0.85)', backdropFilter: 'blur(8px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem'
+          display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 90, padding: '1rem'
         }}>
-          <div className="glass-panel animate-fade-in" style={{ padding: '2rem', maxWidth: '600px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div className="glass-panel animate-fade-in" style={{ padding: '2rem', maxWidth: '600px', width: '100%', maxHeight: orderDetailModalHeight, overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Order Details & Parameters</h2>
               <button onClick={() => setViewingOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
@@ -2240,6 +2271,69 @@ export const Admin: React.FC = () => {
                   <strong>{viewingOrder.expires_at ? new Date(viewingOrder.expires_at).toLocaleDateString() : 'Không thời hạn (Lifetime)'}</strong>
                 </div>
               </div>
+            </div>
+
+            <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '0.9rem', color: '#fff', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem', marginBottom: '0.75rem' }}>
+                Lịch sử giao dịch (Purchases)
+              </h3>
+              {viewingOrder.purchases && viewingOrder.purchases.length > 0 ? (
+                <div style={{ overflowX: 'auto', maxHeight: '200px', overflowY: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid var(--panel-border)', color: 'var(--text-secondary)' }}>
+                        <th style={{ padding: '0.5rem' }}>Gói / Variant</th>
+                        <th style={{ padding: '0.5rem' }}>Số tiền</th>
+                        <th style={{ padding: '0.5rem' }}>Mã PayOS</th>
+                        <th style={{ padding: '0.5rem' }}>Trạng thái</th>
+                        <th style={{ padding: '0.5rem' }}>Ngày thanh toán</th>
+                        <th style={{ padding: '0.5rem' }}>Ngày hết hạn</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {viewingOrder.purchases.map((p) => (
+                        <tr key={p.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                          <td style={{ padding: '0.5rem' }}>
+                            <span style={{ fontWeight: 600 }}>{p.variant_name || 'Mặc định'}</span>
+                          </td>
+                          <td style={{ padding: '0.5rem', fontWeight: 600 }}>
+                            ${p.amount_paid.toFixed(2)}
+                            {p.voucher_code && (
+                              <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--success-color)' }}>
+                                Voucher: {p.voucher_code}
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ padding: '0.5rem', fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                            {p.order_code || 'N/A'}
+                          </td>
+                          <td style={{ padding: '0.5rem' }}>
+                            <span style={{
+                              fontSize: '0.7rem',
+                              fontWeight: 800,
+                              padding: '0.1rem 0.4rem',
+                              borderRadius: '4px',
+                              background: p.status === 'completed' ? 'rgba(16, 185, 129, 0.15)' : p.status === 'pending' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                              color: p.status === 'completed' ? 'var(--success-color)' : p.status === 'pending' ? 'var(--warning-color)' : 'var(--error-color)',
+                              textTransform: 'uppercase'
+                            }}>
+                              {p.status}
+                            </span>
+                          </td>
+                          <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>
+                            {new Date(p.purchase_date).toLocaleString()}
+                          </td>
+                          <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>
+                            {p.expires_at ? new Date(p.expires_at).toLocaleDateString() : 'Không thời hạn (Lifetime)'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Chưa có giao dịch nào.</p>
+              )}
             </div>
 
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>

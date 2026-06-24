@@ -9,6 +9,7 @@ export const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -23,13 +24,37 @@ export const Navbar: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const updateNavbarBottom = () => {
+      if (!navRef.current) return;
+      const { bottom } = navRef.current.getBoundingClientRect();
+      document.documentElement.style.setProperty('--navbar-bottom', `${Math.max(0, bottom)}px`);
+    };
+
+    updateNavbarBottom();
+
+    const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateNavbarBottom) : null;
+    if (resizeObserver && navRef.current) {
+      resizeObserver.observe(navRef.current);
+    }
+
+    window.addEventListener('resize', updateNavbarBottom);
+    window.addEventListener('scroll', updateNavbarBottom, { passive: true });
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener('resize', updateNavbarBottom);
+      window.removeEventListener('scroll', updateNavbarBottom);
+    };
+  }, []);
+
   const handleLogout = () => {
     logout();
     navigate('/');
   };
 
   return (
-    <nav className="glass-panel" style={{
+    <nav ref={navRef} className="glass-panel" style={{
       position: 'sticky',
       top: '1rem',
       zIndex: 100,
