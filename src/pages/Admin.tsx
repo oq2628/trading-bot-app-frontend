@@ -111,6 +111,186 @@ interface Voucher {
   created_at: string;
 }
 
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface CustomSelectProps {
+  value: string;
+  onChange: (value: string) => void;
+  options: SelectOption[];
+  className?: string;
+  style?: React.CSSProperties;
+  id?: string;
+}
+
+const CustomSelect: React.FC<CustomSelectProps> = ({
+  value,
+  onChange,
+  options,
+  className = "",
+  style = {},
+  id
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+
+  const selectedOption = options.find(opt => opt.value === value) || options[0];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!isOpen) {
+        setIsOpen(true);
+        const index = options.findIndex(opt => opt.value === value);
+        setHighlightedIndex(index >= 0 ? index : 0);
+      } else {
+        if (highlightedIndex >= 0 && highlightedIndex < options.length) {
+          onChange(options[highlightedIndex].value);
+          setIsOpen(false);
+        }
+      }
+    } else if (e.key === 'Escape') {
+      setIsOpen(false);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (!isOpen) {
+        setIsOpen(true);
+        setHighlightedIndex(0);
+      } else {
+        setHighlightedIndex(prev => (prev + 1) % options.length);
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!isOpen) {
+        setIsOpen(true);
+        setHighlightedIndex(options.length - 1);
+      } else {
+        setHighlightedIndex(prev => (prev - 1 + options.length) % options.length);
+      }
+    } else if (e.key === 'Tab') {
+      setIsOpen(false);
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className={`custom-select-container ${className}`}
+      style={{
+        position: 'relative',
+        width: '100%',
+        cursor: 'pointer',
+        userSelect: 'none',
+        ...style
+      }}
+      id={id}
+    >
+      <div
+        className="form-control"
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          const index = options.findIndex(opt => opt.value === value);
+          setHighlightedIndex(index >= 0 ? index : 0);
+        }}
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: 'rgba(255, 255, 255, 0.03)',
+          border: '1px solid var(--panel-border)',
+          borderRadius: '8px',
+          padding: style.padding || '0.75rem 1rem',
+          fontSize: style.fontSize || '0.95rem',
+          color: '#fff',
+          transition: 'none'
+        }}
+      >
+        <span>{selectedOption ? selectedOption.label : ''}</span>
+        <span style={{
+          borderLeft: '5px solid transparent',
+          borderRight: '5px solid transparent',
+          borderTop: '5px solid #fff',
+          display: 'inline-block',
+          marginLeft: '8px',
+          verticalAlign: 'middle',
+          transform: isOpen ? 'rotate(180deg)' : 'none',
+          transition: 'transform 0.2s ease'
+        }} />
+      </div>
+
+      {isOpen && (
+        <ul
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            marginTop: '4px',
+            padding: '4px 0',
+            listStyle: 'none',
+            background: '#141621',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '8px',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.5)',
+            zIndex: 1000,
+            maxHeight: '200px',
+            overflowY: 'auto'
+          }}
+          role="listbox"
+        >
+          {options.map((option, index) => {
+            const isSelected = option.value === value;
+            const isHighlighted = index === highlightedIndex;
+            return (
+              <li
+                key={option.value}
+                onClick={() => {
+                  onChange(option.value);
+                  setIsOpen(false);
+                }}
+                onMouseEnter={() => setHighlightedIndex(index)}
+                style={{
+                  padding: '0.6rem 1rem',
+                  fontSize: style.fontSize || '0.9rem',
+                  color: isSelected || isHighlighted ? '#fff' : 'var(--text-secondary)',
+                  background: isSelected
+                    ? 'var(--primary-solid)'
+                    : isHighlighted
+                    ? 'rgba(255, 255, 255, 0.05)'
+                    : 'transparent',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.15s ease'
+                }}
+                role="option"
+                aria-selected={isSelected}
+              >
+                {option.label}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+};
+
 export const Admin: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -1629,11 +1809,16 @@ export const Admin: React.FC = () => {
 
               <div className="form-group">
                 <label className="form-label">Phân loại *</label>
-                <select value={productCategory} onChange={e => setProductCategory(e.target.value)} className="form-control admin-select-contrast" style={{ background: 'rgba(255,255,255,0.03)', appearance: 'none' }}>
-                  <option value="EA">Expert Advisor (EA)</option>
-                  <option value="Indicator">Technical Indicator</option>
-                  <option value="Script">Execution Script</option>
-                </select>
+                <CustomSelect
+                  value={productCategory}
+                  onChange={setProductCategory}
+                  options={[
+                    { value: "EA", label: "Expert Advisor (EA)" },
+                    { value: "Indicator", label: "Technical Indicator" },
+                    { value: "Script", label: "Execution Script" }
+                  ]}
+                  style={{ background: 'rgba(255,255,255,0.03)' }}
+                />
               </div>
 
               {productCategory === 'EA' && (
@@ -1709,11 +1894,16 @@ export const Admin: React.FC = () => {
                   </div>
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>Duration Type</label>
-                    <select value={newVariantDurationType} onChange={e => setNewVariantDurationType(e.target.value as any)} className="form-control admin-select-contrast" style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', background: 'rgba(255,255,255,0.03)' }}>
-                      <option value="lifetime">Lifetime</option>
-                      <option value="days">Days</option>
-                      <option value="months">Calendar Months</option>
-                    </select>
+                    <CustomSelect
+                      value={newVariantDurationType}
+                      onChange={(val) => setNewVariantDurationType(val as 'lifetime' | 'days' | 'months')}
+                      options={[
+                        { value: "lifetime", label: "Lifetime" },
+                        { value: "days", label: "Days" },
+                        { value: "months", label: "Calendar Months" }
+                      ]}
+                      style={{ background: 'rgba(255,255,255,0.03)', fontSize: '0.85rem', padding: '0.4rem 0.75rem' }}
+                    />
                   </div>
                 </div>
 
