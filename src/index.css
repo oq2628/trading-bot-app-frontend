@@ -419,3 +419,14 @@ a {
   }
 }
 
+/* Scoped select override for dark contrast compatibility */
+.admin-select-contrast {
+  background-color: #141621 !important;
+  color: var(--text-primary) !important;
+}
+
+.admin-select-contrast option {
+  background-color: #141621 !important;
+  color: #ffffff !important;
+}
+

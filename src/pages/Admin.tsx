@@ -599,12 +599,12 @@ export const Admin: React.FC = () => {
       });
 
       setToast({ message: 'Product variant created successfully!', type: 'success' });
-      
+
       // Reset form fields
       setNewVariantName('');
       setNewVariantPrice('');
       setNewVariantDurationValue('');
-      
+
       // Refresh product data in modal and main inventory
       const updatedProduct = await api.get<Product>(`/api/products/${editingProduct.id}`);
       setEditingProduct(updatedProduct);
@@ -628,7 +628,7 @@ export const Admin: React.FC = () => {
       setDeletingVariantId(variantId);
       await api.delete(`/api/admin/products/${editingProduct.id}/variants/${variantId}`);
       setToast({ message: 'Product variant deleted successfully!', type: 'success' });
-      
+
       // Refresh product data in modal and main inventory
       const updatedProduct = await api.get<Product>(`/api/products/${editingProduct.id}`);
       setEditingProduct(updatedProduct);
@@ -1629,7 +1629,7 @@ export const Admin: React.FC = () => {
 
               <div className="form-group">
                 <label className="form-label">Phân loại *</label>
-                <select value={productCategory} onChange={e => setProductCategory(e.target.value)} className="form-control" style={{ background: 'rgba(255,255,255,0.03)', appearance: 'none' }}>
+                <select value={productCategory} onChange={e => setProductCategory(e.target.value)} className="form-control admin-select-contrast" style={{ background: 'rgba(255,255,255,0.03)', appearance: 'none' }}>
                   <option value="EA">Expert Advisor (EA)</option>
                   <option value="Indicator">Technical Indicator</option>
                   <option value="Script">Execution Script</option>
@@ -1709,7 +1709,7 @@ export const Admin: React.FC = () => {
                   </div>
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>Duration Type</label>
-                    <select value={newVariantDurationType} onChange={e => setNewVariantDurationType(e.target.value as any)} className="form-control" style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', background: 'rgba(255,255,255,0.03)' }}>
+                    <select value={newVariantDurationType} onChange={e => setNewVariantDurationType(e.target.value as any)} className="form-control admin-select-contrast" style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', background: 'rgba(255,255,255,0.03)' }}>
                       <option value="lifetime">Lifetime</option>
                       <option value="days">Days</option>
                       <option value="months">Calendar Months</option>
@@ -1830,8 +1830,8 @@ export const Admin: React.FC = () => {
 
               {/* COLLAPSIBLE SECTION: PRODUCT VARIANTS */}
               <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '1.5rem', border: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(0, 0, 0, 0.15)' }}>
-                <div 
-                  onClick={() => setShowVariantsSection(!showVariantsSection)} 
+                <div
+                  onClick={() => setShowVariantsSection(!showVariantsSection)}
                   style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
                 >
                   <h3 style={{ fontSize: '1rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#fff' }}>
@@ -1880,7 +1880,7 @@ export const Admin: React.FC = () => {
                     {/* Form to add a new variant */}
                     <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '1rem' }}>
                       <h4 style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Add New Variant</h4>
-                      
+
                       <div className="form-group" style={{ marginBottom: '0.75rem' }}>
                         <label className="form-label" style={{ fontSize: '0.75rem' }}>Variant Name *</label>
                         <input
