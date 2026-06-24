@@ -83,9 +83,16 @@ a {
 
 /* Layout Utilities */
 .container {
-  max-width: 1280px;
+  width: 100%;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 2rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
 }
 
 /* Glassmorphism Styles */
@@ -294,3 +301,121 @@ a {
     gap: 1.5rem;
   }
 }
+
+/* Responsive Grid Helpers */
+.responsive-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .responsive-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.product-detail-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .product-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.dashboard-purchase-item {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .dashboard-purchase-item {
+    grid-template-columns: 100px 1fr;
+    gap: 1rem;
+  }
+  .dashboard-purchase-item .purchase-cta {
+    grid-column: span 2;
+    width: 100%;
+  }
+  .dashboard-purchase-item .purchase-cta button {
+    width: 100%;
+  }
+}
+
+/* Responsive Navbar styles */
+.nav-links-desktop {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-menu-mobile-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+.nav-links-mobile {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(15, 17, 23, 0.95);
+  border: 1px solid var(--panel-border);
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+.nav-links-mobile.open {
+  display: flex;
+}
+
+@media (max-width: 768px) {
+  .nav-links-desktop {
+    display: none;
+  }
+  .nav-menu-mobile-btn {
+    display: flex;
+  }
+}
+
+/* Toast Notification Stack Container */
+.toast-container {
+  position: fixed;
+  top: 7.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 2rem);
+  max-width: 1600px;
+  padding: 0 2rem;
+  pointer-events: none;
+  z-index: 2000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .toast-container {
+    padding: 0 1rem;
+    width: calc(100% - 1.5rem);
+    top: 5.5rem;
+  }
+}
+

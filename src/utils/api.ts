@@ -54,6 +54,19 @@ export const api = {
     return response.json();
   },
 
+  async putForm<T>(path: string, formData: FormData): Promise<T> {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      method: 'PUT',
+      headers: getHeaders(true),
+      body: formData,
+    });
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({ detail: 'Request failed' }));
+      throw new Error(errData.detail || 'An error occurred');
+    }
+    return response.json();
+  },
+
   async put<T>(path: string, body: any): Promise<T> {
     const response = await fetch(`${API_BASE_URL}${path}`, {
       method: 'PUT',
@@ -97,9 +110,20 @@ export const api = {
 
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
+    
+    let finalFilename = filename;
+    const contentDisposition = response.headers.get('Content-Disposition');
+    if (contentDisposition) {
+      // RegEx to parse filename parameter from Content-Disposition header
+      const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (filenameMatch && filenameMatch[1]) {
+        finalFilename = filenameMatch[1].replace(/['"]/g, '');
+      }
+    }
+
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', filename);
+    link.setAttribute('download', finalFilename);
     document.body.appendChild(link);
     link.click();
     link.parentNode?.removeChild(link);

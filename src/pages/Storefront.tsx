@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
-import { Search, ArrowUpRight, Cpu, LineChart, FileCode } from 'lucide-react';
+import { Search, ArrowUpRight, Cpu, LineChart, FileCode, AlertTriangle } from 'lucide-react';
+import { shortestVariant } from '../utils/variants';
+
+interface ProductVariant {
+  id: string;
+  name: string;
+  price: number;
+  duration_days: number | null;
+  duration_months: number | null;
+  is_lifetime: boolean;
+  is_deleted: boolean;
+}
 
 interface Product {
   id: string;
   title: string;
   description: string;
-  price: number;
   category: string;
   image_url: string;
   created_at: string;
+  variants?: ProductVariant[];
 }
 
 export const Storefront: React.FC = () => {
@@ -20,6 +31,15 @@ export const Storefront: React.FC = () => {
   const [error, setError] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const [showAlert, setShowAlert] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  
+  const alertEvent = {
+    title: "High Gold Volatility Warning: US CPI Inflation Data Today",
+    severity: "high", // high -> error-red, medium -> warning-orange
+    details: "The US Consumer Price Index (CPI) inflation report is scheduled for release today at 13:30 UTC. Extreme price spikes and spread widening are anticipated on Gold (XAUUSD). We highly recommend pausing any active EAs 30 minutes before and after the release to mitigate slippage risks."
+  };
 
   const loadProducts = async () => {
     try {
@@ -70,6 +90,101 @@ export const Storefront: React.FC = () => {
 
   return (
     <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .alert-banner-title {
+            font-size: 0.8rem !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 65vw;
+          }
+        }
+      `}</style>
+
+      {/* News Alerts Banner */}
+      {showAlert && (
+        <div className="glass-panel" style={{
+          marginTop: '1.5rem',
+          borderRadius: '12px',
+          border: alertEvent.severity === 'high' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(245, 158, 11, 0.3)',
+          background: alertEvent.severity === 'high' ? 'rgba(239, 68, 68, 0.08)' : 'rgba(245, 158, 11, 0.08)',
+          boxShadow: alertEvent.severity === 'high' ? '0 8px 32px 0 rgba(239, 68, 68, 0.05)' : '0 8px 32px 0 rgba(245, 158, 11, 0.05)',
+          overflow: 'hidden',
+          transition: 'all 0.3s ease',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0.85rem 1.25rem',
+            cursor: 'pointer',
+          }} onClick={() => setIsCollapsed(!isCollapsed)}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0 }}>
+              <AlertTriangle size={18} color={alertEvent.severity === 'high' ? 'var(--error-color)' : 'var(--warning-color)'} style={{ flexShrink: 0 }} />
+              <span className="alert-banner-title" style={{
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                color: '#fff',
+              }}>
+                {alertEvent.title}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
+              <button 
+                onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }} 
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  transition: 'transform 0.2s',
+                  transform: isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)',
+                }}
+              >
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); setShowAlert(false); }} 
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
+                  fontSize: '1.2rem',
+                  padding: '0 4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  fontWeight: 'bold',
+                  lineHeight: 1
+                }}
+                aria-label="Close Alert"
+              >
+                &times;
+              </button>
+            </div>
+          </div>
+          
+          {!isCollapsed && (
+            <div style={{
+              padding: '0.75rem 1.25rem 1.25rem 2.75rem',
+              fontSize: '0.85rem',
+              color: 'var(--text-secondary)',
+              lineHeight: 1.6,
+              borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+              paddingTop: '0.75rem'
+            }}>
+              {alertEvent.details}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Hero Header */}
       <header style={{ textAlign: 'center', margin: '3rem 0 4rem' }}>
         <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '1rem', background: 'linear-gradient(135deg, #fff 30%, var(--text-secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
@@ -151,7 +266,9 @@ export const Storefront: React.FC = () => {
         </div>
       ) : (
         <div className="product-grid">
-          {filteredProducts.map((product) => (
+          {filteredProducts.map((product) => {
+            const displayVariant = shortestVariant(product.variants);
+            return (
             <div key={product.id} className="glass-card">
               {/* Product Thumbnail */}
               <div style={{ height: '180px', overflow: 'hidden', position: 'relative' }}>
@@ -197,9 +314,15 @@ export const Storefront: React.FC = () => {
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       Price
                     </span>
-                    <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>
-                      ${product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
+                    {displayVariant ? (
+                      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>
+                        ${displayVariant.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--error-color)' }}>
+                        No package
+                      </span>
+                    )}
                   </div>
 
                   <Link to={`/products/${product.id}`} className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', borderRadius: '8px' }}>
@@ -209,7 +332,8 @@ export const Storefront: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
