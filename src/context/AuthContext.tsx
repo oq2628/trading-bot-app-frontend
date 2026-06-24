@@ -6,6 +6,10 @@ interface User {
   email: string;
   full_name: string;
   role: string;
+  balance: number;
+  phone_number?: string;
+  date_of_birth?: string;
+  address?: string;
   created_at: string;
 }
 
@@ -14,6 +18,7 @@ interface AuthContextType {
   loading: boolean;
   login: (token: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -55,8 +60,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(false);
   };
 
+  const refreshUser = async () => {
+    try {
+      const data = await api.get<User>('/api/auth/me');
+      setUser(data);
+    } catch (err) {
+      console.error('Failed to refresh user profile:', err);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
