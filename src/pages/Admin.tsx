@@ -82,6 +82,27 @@ interface Order {
   license?: License;
 }
 
+interface Purchase {
+  id: string;
+  user_id: string;
+  product_id: string;
+  amount_paid: number;
+  purchase_date: string;
+  status: string;
+  expires_at?: string;
+  voucher_code?: string;
+  order_code?: number;
+  variant_name?: string;
+  variant_price?: number;
+  variant_duration_days?: number;
+  variant_duration_months?: number;
+  variant_is_lifetime?: boolean;
+}
+
+interface OrderDetail extends Order {
+  purchases: Purchase[];
+}
+
 interface User {
   id: string;
   email: string;
@@ -110,6 +131,188 @@ interface Voucher {
   product_scope?: string;
   created_at: string;
 }
+
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface CustomSelectProps {
+  value: string;
+  onChange: (value: string) => void;
+  options: SelectOption[];
+  className?: string;
+  style?: React.CSSProperties;
+  id?: string;
+}
+
+const CustomSelect: React.FC<CustomSelectProps> = ({
+  value,
+  onChange,
+  options,
+  className = "",
+  style = {},
+  id
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+
+  const selectedOption = options.find(opt => opt.value === value) || options[0];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!isOpen) {
+        setIsOpen(true);
+        const index = options.findIndex(opt => opt.value === value);
+        setHighlightedIndex(index >= 0 ? index : 0);
+      } else {
+        if (highlightedIndex >= 0 && highlightedIndex < options.length) {
+          onChange(options[highlightedIndex].value);
+          setIsOpen(false);
+        }
+      }
+    } else if (e.key === 'Escape') {
+      setIsOpen(false);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (!isOpen) {
+        setIsOpen(true);
+        setHighlightedIndex(0);
+      } else {
+        setHighlightedIndex(prev => (prev + 1) % options.length);
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!isOpen) {
+        setIsOpen(true);
+        setHighlightedIndex(options.length - 1);
+      } else {
+        setHighlightedIndex(prev => (prev - 1 + options.length) % options.length);
+      }
+    } else if (e.key === 'Tab') {
+      setIsOpen(false);
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className={`custom-select-container ${className}`}
+      style={{
+        position: 'relative',
+        width: '100%',
+        cursor: 'pointer',
+        userSelect: 'none'
+      }}
+      id={id}
+    >
+      <div
+        className="form-control"
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          const index = options.findIndex(opt => opt.value === value);
+          setHighlightedIndex(index >= 0 ? index : 0);
+        }}
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: 'rgba(255, 255, 255, 0.03)',
+          border: '1px solid var(--panel-border)',
+          borderRadius: '8px',
+          padding: '0.75rem 1rem',
+          fontSize: '0.95rem',
+          color: '#fff',
+          transition: 'none',
+          boxSizing: 'border-box',
+          width: '100%',
+          ...style
+        }}
+      >
+        <span>{selectedOption ? selectedOption.label : ''}</span>
+        <span style={{
+          borderLeft: '5px solid transparent',
+          borderRight: '5px solid transparent',
+          borderTop: '5px solid #fff',
+          display: 'inline-block',
+          marginLeft: '8px',
+          verticalAlign: 'middle',
+          transform: isOpen ? 'rotate(180deg)' : 'none',
+          transition: 'transform 0.2s ease'
+        }} />
+      </div>
+
+      {isOpen && (
+        <ul
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            marginTop: '4px',
+            padding: '4px 0',
+            listStyle: 'none',
+            background: '#141621',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '8px',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.5)',
+            zIndex: 1000,
+            maxHeight: '200px',
+            overflowY: 'auto'
+          }}
+          role="listbox"
+        >
+          {options.map((option, index) => {
+            const isSelected = option.value === value;
+            const isHighlighted = index === highlightedIndex;
+            return (
+              <li
+                key={option.value}
+                onClick={() => {
+                  onChange(option.value);
+                  setIsOpen(false);
+                }}
+                onMouseEnter={() => setHighlightedIndex(index)}
+                style={{
+                  padding: '0.6rem 1rem',
+                  fontSize: style.fontSize || '0.9rem',
+                  color: isSelected || isHighlighted ? '#fff' : 'var(--text-secondary)',
+                  background: isSelected
+                    ? 'var(--primary-solid)'
+                    : isHighlighted
+                    ? 'rgba(255, 255, 255, 0.05)'
+                    : 'transparent',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.15s ease'
+                }}
+                role="option"
+                aria-selected={isSelected}
+              >
+                {option.label}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 export const Admin: React.FC = () => {
   const { user } = useAuth();
@@ -190,8 +393,9 @@ export const Admin: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState('all');
-  const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+  const [viewingOrder, setViewingOrder] = useState<OrderDetail | null>(null);
   const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
+  const orderDetailModalHeight = 'calc(100vh - var(--navbar-bottom, 0px) - 2rem)';
 
   // 4. Users State
   const [usersList, setUsersList] = useState<User[]>([]);
@@ -599,12 +803,12 @@ export const Admin: React.FC = () => {
       });
 
       setToast({ message: 'Product variant created successfully!', type: 'success' });
-      
+
       // Reset form fields
       setNewVariantName('');
       setNewVariantPrice('');
       setNewVariantDurationValue('');
-      
+
       // Refresh product data in modal and main inventory
       const updatedProduct = await api.get<Product>(`/api/products/${editingProduct.id}`);
       setEditingProduct(updatedProduct);
@@ -628,7 +832,7 @@ export const Admin: React.FC = () => {
       setDeletingVariantId(variantId);
       await api.delete(`/api/admin/products/${editingProduct.id}/variants/${variantId}`);
       setToast({ message: 'Product variant deleted successfully!', type: 'success' });
-      
+
       // Refresh product data in modal and main inventory
       const updatedProduct = await api.get<Product>(`/api/products/${editingProduct.id}`);
       setEditingProduct(updatedProduct);
@@ -637,6 +841,15 @@ export const Admin: React.FC = () => {
       setToast({ message: err.message || 'Failed to delete product variant.', type: 'error' });
     } finally {
       setDeletingVariantId(null);
+    }
+  };
+
+  const handleViewOrderDetail = async (orderId: string) => {
+    try {
+      const data = await api.get<OrderDetail>(`/api/admin/orders/${orderId}`);
+      setViewingOrder(data);
+    } catch (err: any) {
+      setToast({ message: err.message || 'Failed to fetch order details.', type: 'error' });
     }
   };
 
@@ -649,7 +862,7 @@ export const Admin: React.FC = () => {
       // Update local state lists
       setOrders(orders.map(o => o.id === purchaseId ? { ...o, status: newStatus } : o));
       if (viewingOrder && viewingOrder.id === purchaseId) {
-        setViewingOrder({ ...viewingOrder, status: newStatus });
+        handleViewOrderDetail(purchaseId);
       }
     } catch (err: any) {
       setToast({ message: err.message || 'Failed to update order status.', type: 'error' });
@@ -1357,7 +1570,7 @@ export const Admin: React.FC = () => {
                           </td>
                           <td style={{ padding: '1rem 0.5rem', textAlign: 'right' }}>
                             <button
-                              onClick={() => setViewingOrder(o)}
+                              onClick={() => handleViewOrderDetail(o.id)}
                               className="btn-secondary"
                               style={{ padding: '0.45rem 0.85rem', fontSize: '0.85rem', height: '34px' }}
                             >
@@ -1629,11 +1842,16 @@ export const Admin: React.FC = () => {
 
               <div className="form-group">
                 <label className="form-label">Phân loại *</label>
-                <select value={productCategory} onChange={e => setProductCategory(e.target.value)} className="form-control" style={{ background: 'rgba(255,255,255,0.03)', appearance: 'none' }}>
-                  <option value="EA">Expert Advisor (EA)</option>
-                  <option value="Indicator">Technical Indicator</option>
-                  <option value="Script">Execution Script</option>
-                </select>
+                <CustomSelect
+                  value={productCategory}
+                  onChange={setProductCategory}
+                  options={[
+                    { value: "EA", label: "Expert Advisor (EA)" },
+                    { value: "Indicator", label: "Technical Indicator" },
+                    { value: "Script", label: "Execution Script" }
+                  ]}
+                  style={{ background: 'rgba(255,255,255,0.03)' }}
+                />
               </div>
 
               {productCategory === 'EA' && (
@@ -1709,11 +1927,16 @@ export const Admin: React.FC = () => {
                   </div>
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>Duration Type</label>
-                    <select value={newVariantDurationType} onChange={e => setNewVariantDurationType(e.target.value as any)} className="form-control" style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', background: 'rgba(255,255,255,0.03)' }}>
-                      <option value="lifetime">Lifetime</option>
-                      <option value="days">Days</option>
-                      <option value="months">Calendar Months</option>
-                    </select>
+                    <CustomSelect
+                      value={newVariantDurationType}
+                      onChange={(val) => setNewVariantDurationType(val as 'lifetime' | 'days' | 'months')}
+                      options={[
+                        { value: "lifetime", label: "Lifetime" },
+                        { value: "days", label: "Days" },
+                        { value: "months", label: "Calendar Months" }
+                      ]}
+                      style={{ background: 'rgba(255,255,255,0.03)', fontSize: '0.85rem', padding: '0.4rem 0.75rem' }}
+                    />
                   </div>
                 </div>
 
@@ -1830,8 +2053,8 @@ export const Admin: React.FC = () => {
 
               {/* COLLAPSIBLE SECTION: PRODUCT VARIANTS */}
               <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '1.5rem', border: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(0, 0, 0, 0.15)' }}>
-                <div 
-                  onClick={() => setShowVariantsSection(!showVariantsSection)} 
+                <div
+                  onClick={() => setShowVariantsSection(!showVariantsSection)}
                   style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
                 >
                   <h3 style={{ fontSize: '1rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#fff' }}>
@@ -1880,7 +2103,7 @@ export const Admin: React.FC = () => {
                     {/* Form to add a new variant */}
                     <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '1rem' }}>
                       <h4 style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Add New Variant</h4>
-                      
+
                       <div className="form-group" style={{ marginBottom: '0.75rem' }}>
                         <label className="form-label" style={{ fontSize: '0.75rem' }}>Variant Name *</label>
                         <input
@@ -1966,11 +2189,11 @@ export const Admin: React.FC = () => {
       {/* MODAL: VIEW ORDER DETAILS */}
       {viewingOrder && (
         <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          position: 'fixed', top: 'var(--navbar-bottom, 0px)', left: 0, right: 0, bottom: 0,
           background: 'rgba(6, 7, 10, 0.85)', backdropFilter: 'blur(8px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem'
+          display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 90, padding: '1rem'
         }}>
-          <div className="glass-panel animate-fade-in" style={{ padding: '2rem', maxWidth: '600px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div className="glass-panel animate-fade-in" style={{ padding: '2rem', maxWidth: '600px', width: '100%', maxHeight: orderDetailModalHeight, overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Order Details & Parameters</h2>
               <button onClick={() => setViewingOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
@@ -2048,6 +2271,69 @@ export const Admin: React.FC = () => {
                   <strong>{viewingOrder.expires_at ? new Date(viewingOrder.expires_at).toLocaleDateString() : 'Không thời hạn (Lifetime)'}</strong>
                 </div>
               </div>
+            </div>
+
+            <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '0.9rem', color: '#fff', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem', marginBottom: '0.75rem' }}>
+                Lịch sử giao dịch (Purchases)
+              </h3>
+              {viewingOrder.purchases && viewingOrder.purchases.length > 0 ? (
+                <div style={{ overflowX: 'auto', maxHeight: '200px', overflowY: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid var(--panel-border)', color: 'var(--text-secondary)' }}>
+                        <th style={{ padding: '0.5rem' }}>Gói / Variant</th>
+                        <th style={{ padding: '0.5rem' }}>Số tiền</th>
+                        <th style={{ padding: '0.5rem' }}>Mã PayOS</th>
+                        <th style={{ padding: '0.5rem' }}>Trạng thái</th>
+                        <th style={{ padding: '0.5rem' }}>Ngày thanh toán</th>
+                        <th style={{ padding: '0.5rem' }}>Ngày hết hạn</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {viewingOrder.purchases.map((p) => (
+                        <tr key={p.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                          <td style={{ padding: '0.5rem' }}>
+                            <span style={{ fontWeight: 600 }}>{p.variant_name || 'Mặc định'}</span>
+                          </td>
+                          <td style={{ padding: '0.5rem', fontWeight: 600 }}>
+                            ${p.amount_paid.toFixed(2)}
+                            {p.voucher_code && (
+                              <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--success-color)' }}>
+                                Voucher: {p.voucher_code}
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ padding: '0.5rem', fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                            {p.order_code || 'N/A'}
+                          </td>
+                          <td style={{ padding: '0.5rem' }}>
+                            <span style={{
+                              fontSize: '0.7rem',
+                              fontWeight: 800,
+                              padding: '0.1rem 0.4rem',
+                              borderRadius: '4px',
+                              background: p.status === 'completed' ? 'rgba(16, 185, 129, 0.15)' : p.status === 'pending' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                              color: p.status === 'completed' ? 'var(--success-color)' : p.status === 'pending' ? 'var(--warning-color)' : 'var(--error-color)',
+                              textTransform: 'uppercase'
+                            }}>
+                              {p.status}
+                            </span>
+                          </td>
+                          <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>
+                            {new Date(p.purchase_date).toLocaleString()}
+                          </td>
+                          <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>
+                            {p.expires_at ? new Date(p.expires_at).toLocaleDateString() : 'Không thời hạn (Lifetime)'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Chưa có giao dịch nào.</p>
+              )}
             </div>
 
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
