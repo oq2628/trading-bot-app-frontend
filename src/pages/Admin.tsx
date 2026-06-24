@@ -195,8 +195,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         position: 'relative',
         width: '100%',
         cursor: 'pointer',
-        userSelect: 'none',
-        ...style
+        userSelect: 'none'
       }}
       id={id}
     >
@@ -216,10 +215,13 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
           background: 'rgba(255, 255, 255, 0.03)',
           border: '1px solid var(--panel-border)',
           borderRadius: '8px',
-          padding: style.padding || '0.75rem 1rem',
-          fontSize: style.fontSize || '0.95rem',
+          padding: '0.75rem 1rem',
+          fontSize: '0.95rem',
           color: '#fff',
-          transition: 'none'
+          transition: 'none',
+          boxSizing: 'border-box',
+          width: '100%',
+          ...style
         }}
       >
         <span>{selectedOption ? selectedOption.label : ''}</span>
