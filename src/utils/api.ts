@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000';
+export const API_BASE_URL = 'http://localhost:8000';
 
 function getHeaders(isMultipart = false): HeadersInit {
   const token = localStorage.getItem('token');

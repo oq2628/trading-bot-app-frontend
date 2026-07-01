@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { TrendingUp, LogOut, FolderLock, LayoutDashboard, LogIn, Settings, Menu, X } from 'lucide-react';
+import { TrendingUp, LogOut, FolderLock, LayoutDashboard, LogIn, Settings, Menu, X, Coins } from 'lucide-react';
+
 
 
 export const Navbar: React.FC = () => {
@@ -226,7 +227,7 @@ export const Navbar: React.FC = () => {
                         ${user.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                       <Link 
-                        to="/profile" 
+                        to="/top-ups" 
                         onClick={() => setShowDropdown(false)}
                         style={{ 
                           fontSize: '0.75rem', 
@@ -240,6 +241,7 @@ export const Navbar: React.FC = () => {
                       >
                         Top Up
                       </Link>
+
                     </div>
                   </div>
                 </div>
@@ -292,6 +294,29 @@ export const Navbar: React.FC = () => {
                     <LayoutDashboard size={15} />
                     My orders
                   </Link>
+
+                  <Link 
+                    to="/top-ups" 
+                    onClick={() => setShowDropdown(false)}
+                    style={{ 
+                      fontSize: '0.85rem', 
+                      fontWeight: 500, 
+                      color: 'var(--text-secondary)', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '0.65rem',
+                      padding: '0.6rem 0.8rem',
+                      borderRadius: '8px',
+                      transition: 'var(--transition-smooth)',
+                      textDecoration: 'none'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <Coins size={15} />
+                    My TopUps
+                  </Link>
+
 
                   {user.role === 'admin' && (
                     <Link 

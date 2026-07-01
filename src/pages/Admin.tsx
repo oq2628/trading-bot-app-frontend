@@ -5,7 +5,8 @@ import api from '../utils/api';
 import {
   Upload, Trash2, History, Plus, FileCode, CreditCard,
   DollarSign, Edit, Eye, EyeOff, Search, Users, Tag,
-  Calendar, ShoppingBag, RefreshCw, X, AlertTriangle
+  Calendar, ShoppingBag, RefreshCw, X, AlertTriangle, Coins
+
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Toast } from '../components/Toast';
@@ -315,7 +316,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 };
 
 export const Admin: React.FC = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
 
   // Guard routing
@@ -326,7 +327,8 @@ export const Admin: React.FC = () => {
   }, [user]);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'vouchers'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'vouchers' | 'topups'>('dashboard');
+
 
   // Common Loading & Error States
   const [loading, setLoading] = useState(true);
@@ -432,6 +434,42 @@ export const Admin: React.FC = () => {
   const [voucherIsActive, setVoucherIsActive] = useState(true);
   const [submittingVoucher, setSubmittingVoucher] = useState(false);
 
+  // 6. TopUps State
+  interface TopUpAdmin {
+    id: string;
+    user_id: string;
+    amount: number;
+    amount_vnd: number;
+    currency: string;
+    status: string;
+    error_message: string | null;
+    payment_reference: string;
+    acb_transaction_id: string | null;
+    qr_code: string | null;
+    qr_image_base64: string | null;
+    created_at: string;
+    updated_at: string;
+    paid_at: string | null;
+    user?: User;
+  }
+  const [topUpsList, setTopUpsList] = useState<TopUpAdmin[]>([]);
+  const [topUpsSearch, setTopUpsSearch] = useState('');
+  const [topUpsStatusFilter, setTopUpsStatusFilter] = useState('all');
+  const [viewingTopUp, setViewingTopUp] = useState<TopUpAdmin | null>(null);
+  const [editingTopUp, setEditingTopUp] = useState<TopUpAdmin | null>(null);
+  const [showAddTopUpModal, setShowAddTopUpModal] = useState(false);
+  const [topUpTargetUserId, setTopUpTargetUserId] = useState('');
+  const [topUpAmount, setTopUpAmount] = useState('');
+  const [submittingTopUp, setSubmittingTopUp] = useState(false);
+
+  // Edit form states
+  const [editTopUpStatus, setEditTopUpStatus] = useState('pending');
+  const [editTopUpErrorMessage, setEditTopUpErrorMessage] = useState('');
+  const [editTopUpTransactionId, setEditTopUpTransactionId] = useState('');
+  const [editTopUpPaidAt, setEditTopUpPaidAt] = useState('');
+  const [updatingTopUp, setUpdatingTopUp] = useState(false);
+
+
   // Fetching data functions
   const loadDashboardData = async () => {
     try {
@@ -484,6 +522,15 @@ export const Admin: React.FC = () => {
     }
   };
 
+  const loadTopUpsData = async () => {
+    try {
+      const data = await api.get<TopUpAdmin[]>('/api/admin/top-ups');
+      setTopUpsList(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch top-up transactions.');
+    }
+  };
+
   const loadAllData = async () => {
     setLoading(true);
     setError('');
@@ -493,12 +540,14 @@ export const Admin: React.FC = () => {
       else if (activeTab === 'orders') await loadOrdersData();
       else if (activeTab === 'users') await loadUsersData();
       else if (activeTab === 'vouchers') await loadVouchersData();
+      else if (activeTab === 'topups') await loadTopUpsData();
     } catch (err) {
       // Caught inside subfunctions
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     loadAllData();
@@ -1017,6 +1066,139 @@ export const Admin: React.FC = () => {
     }
   };
 
+  // Top-Up Management Handlers
+  const handleCreateTopUpAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!topUpTargetUserId || !topUpAmount) {
+      setToast({ message: 'Please select a user and enter an amount.', type: 'error' });
+      return;
+    }
+    const amt = parseFloat(topUpAmount);
+    if (isNaN(amt) || amt <= 0) {
+      setToast({ message: 'Amount must be a positive number.', type: 'error' });
+      return;
+    }
+    setSubmittingTopUp(true);
+    try {
+      await api.post('/api/admin/top-ups', {
+        user_id: topUpTargetUserId,
+        amount: amt
+      });
+      setToast({ message: 'Top-up request created successfully!', type: 'success' });
+      setShowAddTopUpModal(false);
+      setTopUpTargetUserId('');
+      setTopUpAmount('');
+      loadTopUpsData();
+    } catch (err: any) {
+      setToast({ message: err.message || 'Failed to create top-up.', type: 'error' });
+    } finally {
+      setSubmittingTopUp(false);
+    }
+  };
+
+  const handleStartEditTopUp = (t: TopUpAdmin) => {
+    setEditingTopUp(t);
+    setEditTopUpStatus(t.status);
+    setEditTopUpErrorMessage(t.error_message || '');
+    setEditTopUpTransactionId(t.acb_transaction_id || '');
+    setEditTopUpPaidAt(t.paid_at ? t.paid_at.substring(0, 16) : '');
+  };
+
+  const handleUpdateTopUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTopUp) return;
+    setUpdatingTopUp(true);
+    try {
+      const payload: any = {
+        status: editTopUpStatus,
+        error_message: editTopUpErrorMessage || null,
+        acb_transaction_id: editTopUpTransactionId || null,
+        paid_at: editTopUpPaidAt ? new Date(editTopUpPaidAt).toISOString() : null
+      };
+      const updated = await api.put<TopUpAdmin>(`/api/admin/top-ups/${editingTopUp.id}`, payload);
+      setToast({ message: 'Top-up request updated successfully!', type: 'success' });
+      setTopUpsList(topUpsList.map(t => t.id === editingTopUp.id ? updated : t));
+      if (viewingTopUp && viewingTopUp.id === editingTopUp.id) {
+        setViewingTopUp(updated);
+      }
+      setEditingTopUp(null);
+    } catch (err: any) {
+      setToast({ message: err.message || 'Failed to update top-up request.', type: 'error' });
+    } finally {
+      setUpdatingTopUp(false);
+    }
+  };
+
+  const handleCancelTopUpAdmin = async (topUpId: string) => {
+    if (!confirm('Are you sure you want to cancel this top-up?')) return;
+    try {
+      const updated = await api.post<TopUpAdmin>(`/api/admin/top-ups/${topUpId}/cancel`, {});
+      setToast({ message: 'Top-up cancelled successfully!', type: 'success' });
+      setTopUpsList(topUpsList.map(t => t.id === topUpId ? updated : t));
+      if (viewingTopUp && viewingTopUp.id === topUpId) {
+        setViewingTopUp(updated);
+      }
+    } catch (err: any) {
+      setToast({ message: err.message || 'Failed to cancel top-up.', type: 'error' });
+    }
+  };
+
+  const handleManualCreditTopUp = async (topUpId: string) => {
+    if (!confirm("CRITICAL WARNING: This will credit the user's wallet balance and mark this top-up as completed. Are you absolutely sure you want to execute manual credit?")) {
+      return;
+    }
+    try {
+      const updated = await api.post<TopUpAdmin>(`/api/admin/top-ups/${topUpId}/manual-credit`, {});
+      setToast({ message: 'Top-up manually credited and user balance updated successfully!', type: 'success' });
+      setTopUpsList(topUpsList.map(t => t.id === topUpId ? updated : t));
+      if (viewingTopUp && viewingTopUp.id === topUpId) {
+        setViewingTopUp(updated);
+      }
+      
+      // Update balance in local user states to avoid needing a reload
+      if (updated.user) {
+        setUsersList(prev => prev.map(u => u.id === updated.user_id ? { ...u, balance: updated.user!.balance } : u));
+        if (viewingUser && viewingUser.id === updated.user_id) {
+          setViewingUser(prev => prev ? { ...prev, balance: updated.user!.balance } : null);
+        }
+        // If the credited user is the logged-in admin themselves, refresh their auth context
+        if (user && user.id === updated.user_id) {
+          refreshUser();
+        }
+      }
+    } catch (err: any) {
+      setToast({ message: err.message || 'Failed to manually credit top-up.', type: 'error' });
+    }
+  };
+
+  const handleDeleteTopUp = async (topUpId: string) => {
+    if (!confirm('Are you sure you want to delete this top-up request record?')) return;
+    try {
+      await api.delete(`/api/admin/top-ups/${topUpId}`);
+      setToast({ message: 'Top-up request record deleted successfully!', type: 'success' });
+      setTopUpsList(topUpsList.filter(t => t.id !== topUpId));
+      if (viewingTopUp && viewingTopUp.id === topUpId) {
+        setViewingTopUp(null);
+      }
+    } catch (err: any) {
+      setToast({ message: err.message || 'Failed to delete top-up record.', type: 'error' });
+    }
+  };
+
+  const handleManualRefresh = async (topUpId: string) => {
+    try {
+      const updated = await api.get<TopUpAdmin>(`/api/admin/top-ups/${topUpId}`);
+      setTopUpsList(topUpsList.map(t => t.id === topUpId ? updated : t));
+      if (viewingTopUp && viewingTopUp.id === topUpId) {
+        setViewingTopUp(updated);
+      }
+      setToast({ message: 'Refreshed transaction status successfully.', type: 'success' });
+    } catch (err: any) {
+      setToast({ message: err.message || 'Failed to refresh transaction.', type: 'error' });
+    }
+  };
+
+
   // Helper sensitive masking
   const toggleShowSensitive = (field: string) => {
     setShowSensitives(prev => ({ ...prev, [field]: !prev[field] }));
@@ -1047,6 +1229,21 @@ export const Admin: React.FC = () => {
     u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
     u.role.toLowerCase().includes(userSearch.toLowerCase())
   );
+
+  // Filtered TopUps List
+  const filteredTopUps = topUpsList.filter(t => {
+    const email = t.user?.email || '';
+    const name = t.user?.full_name || '';
+    const ref = t.payment_reference || '';
+    const matchesSearch =
+      email.toLowerCase().includes(topUpsSearch.toLowerCase()) ||
+      name.toLowerCase().includes(topUpsSearch.toLowerCase()) ||
+      ref.toLowerCase().includes(topUpsSearch.toLowerCase());
+
+    if (topUpsStatusFilter === 'all') return matchesSearch;
+    return matchesSearch && t.status.toLowerCase() === topUpsStatusFilter.toLowerCase();
+  });
+
 
   if (!user || user.role !== 'admin') {
     return (
@@ -1125,7 +1322,16 @@ export const Admin: React.FC = () => {
           <Tag size={14} />
           Chiến dịch sale / voucher
         </button>
+        <button
+          onClick={() => setActiveTab('topups')}
+          className={activeTab === 'topups' ? 'btn-primary' : 'btn-secondary'}
+          style={{ padding: '0.6rem 1.25rem', fontSize: '0.85rem', borderRadius: '8px', transform: 'none', boxShadow: 'none' }}
+        >
+          <Coins size={14} />
+          Quản lý TopUps
+        </button>
       </div>
+
 
       {/* Global Error Banner */}
       {error && (
@@ -1794,8 +2000,170 @@ export const Admin: React.FC = () => {
             </div>
           )}
 
+          {/* TAB 6: TOPUPS */}
+          {activeTab === 'topups' && (
+            <div className="glass-panel" style={{ padding: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <div style={{ position: 'relative', width: '320px' }}>
+                    <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)' }} />
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Search by buyer email or reference..."
+                      value={topUpsSearch}
+                      onChange={e => setTopUpsSearch(e.target.value)}
+                      style={{ paddingLeft: '2.5rem', height: '40px' }}
+                    />
+                  </div>
+                  <select
+                    className="form-control"
+                    value={topUpsStatusFilter}
+                    onChange={e => setTopUpsStatusFilter(e.target.value)}
+                    style={{ background: 'rgba(255,255,255,0.03)', appearance: 'none', width: '150px', height: '40px' }}
+                  >
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="pending">Pending</option>
+                    <option value="completed">Completed</option>
+                    <option value="failed">Failed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+                <button onClick={() => { setShowAddTopUpModal(true); }} className="btn-primary" style={{ height: '40px' }}>
+                  <Plus size={16} /> Tạo Top-Up mới
+                </button>
+              </div>
+
+              {filteredTopUps.length === 0 ? (
+                <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '3rem 0' }}>No top-up transactions matching criteria found.</p>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '950px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid var(--panel-border)', color: 'var(--text-secondary)', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+                        <th style={{ padding: '1rem 0.5rem' }}>Khách Hàng / Email</th>
+                        <th style={{ padding: '1rem 0.5rem', textAlign: 'right' }}>Amount (USD)</th>
+                        <th style={{ padding: '1rem 0.5rem', textAlign: 'right' }}>Amount (VND)</th>
+                        <th style={{ padding: '1rem 0.5rem' }}>Reference</th>
+                        <th style={{ padding: '1rem 0.5rem' }}>ACB Trans ID</th>
+                        <th style={{ padding: '1rem 0.5rem' }}>Ngày Tạo</th>
+                        <th style={{ padding: '1rem 0.5rem' }}>Ngày Thanh Toán</th>
+                        <th style={{ padding: '1rem 0.5rem' }}>Trạng Thái</th>
+                        <th style={{ padding: '1rem 0.5rem', textAlign: 'right' }}>Hành động</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredTopUps.map((t) => {
+                        const statusLower = t.status.toLowerCase();
+                        return (
+                          <tr key={t.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                            <td style={{ padding: '1rem 0.5rem' }}>
+                              <strong style={{ display: 'block', fontSize: '0.9rem', color: '#fff' }}>{t.user?.full_name || 'Guest'}</strong>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t.user?.email || 'N/A'}</span>
+                            </td>
+                            <td style={{ padding: '1rem 0.5rem', textAlign: 'right', fontWeight: 600 }}>
+                              ${t.amount.toFixed(2)}
+                            </td>
+                            <td style={{ padding: '1rem 0.5rem', textAlign: 'right', fontWeight: 600, color: 'var(--success-color)' }}>
+                              {t.amount_vnd.toLocaleString()} đ
+                            </td>
+                            <td style={{ padding: '1rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>
+                              {t.payment_reference}
+                            </td>
+                            <td style={{ padding: '1rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>
+                              {t.acb_transaction_id || '-'}
+                            </td>
+                            <td style={{ padding: '1rem 0.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                              {new Date(t.created_at).toLocaleDateString(undefined, { dateStyle: 'short' })}
+                            </td>
+                            <td style={{ padding: '1rem 0.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                              {t.paid_at ? new Date(t.paid_at).toLocaleDateString(undefined, { dateStyle: 'short' }) : '-'}
+                            </td>
+                            <td style={{ padding: '1rem 0.5rem' }}>
+                              <span style={{
+                                fontSize: '0.7rem',
+                                fontWeight: 800,
+                                padding: '0.2rem 0.5rem',
+                                borderRadius: '10px',
+                                background: statusLower === 'completed' ? 'rgba(16, 185, 129, 0.15)' : statusLower === 'cancelled' ? 'rgba(255, 255, 255, 0.05)' : statusLower === 'failed' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                                color: statusLower === 'completed' ? 'var(--success-color)' : statusLower === 'cancelled' ? 'var(--text-muted)' : statusLower === 'failed' ? 'var(--error-color)' : 'var(--warning-color)',
+                                textTransform: 'uppercase'
+                              }}>
+                                {t.status}
+                              </span>
+                            </td>
+                            <td style={{ padding: '1rem 0.5rem', textAlign: 'right' }}>
+                              <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
+                                <button
+                                  onClick={() => setViewingTopUp(t)}
+                                  className="btn-secondary"
+                                  style={{ padding: '0.45rem', height: '34px' }}
+                                  title="Xem chi tiết"
+                                >
+                                  <Eye size={14} />
+                                </button>
+                                <button
+                                  onClick={() => handleStartEditTopUp(t)}
+                                  className="btn-secondary"
+                                  style={{ padding: '0.45rem', height: '34px', borderColor: 'rgba(99,102,241,0.2)' }}
+                                  title="Chỉnh sửa trạng thái"
+                                >
+                                  <Edit size={14} color="var(--primary-solid)" />
+                                </button>
+                                {statusLower === 'pending' && (
+                                  <>
+                                    <button
+                                      onClick={() => handleManualRefresh(t.id)}
+                                      className="btn-secondary"
+                                      style={{ padding: '0.45rem', height: '34px', borderColor: 'rgba(16, 185, 129, 0.2)' }}
+                                      title="Kiểm tra thanh toán"
+                                    >
+                                      <RefreshCw size={14} color="var(--success-color)" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleManualCreditTopUp(t.id)}
+                                      className="btn-secondary"
+                                      style={{ padding: '0.45rem', height: '34px', borderColor: 'rgba(99, 102, 241, 0.4)' }}
+                                      title="Cộng tiền thủ công (Audited)"
+                                    >
+                                      <Coins size={14} color="var(--primary-solid)" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleCancelTopUpAdmin(t.id)}
+                                      className="btn-secondary"
+                                      style={{ padding: '0.45rem', height: '34px', borderColor: 'rgba(239, 68, 68, 0.2)' }}
+                                      title="Hủy giao dịch"
+                                    >
+                                      <X size={14} color="var(--error-color)" />
+                                    </button>
+                                  </>
+                                )}
+                                {statusLower !== 'completed' && (
+                                  <button
+                                    onClick={() => handleDeleteTopUp(t.id)}
+                                    className="btn-secondary"
+                                    style={{ padding: '0.45rem', height: '34px', borderColor: 'rgba(239,68,68,0.2)' }}
+                                    title="Xóa bản ghi"
+                                  >
+                                    <Trash2 size={14} color="var(--error-color)" />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
+
+
+
 
       {/* ----------------- MODALS ----------------- */}
 
@@ -2661,7 +3029,227 @@ export const Admin: React.FC = () => {
         </div>
       )}
 
+      {/* MODAL: VIEW TOP UP DETAILS */}
+      {viewingTopUp && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(6, 7, 10, 0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-panel animate-fade-in" style={{ padding: '2rem', maxWidth: '600px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Top-Up Detail (Admin View)</h2>
+              <button onClick={() => setViewingTopUp(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="responsive-grid-2" style={{ gap: '1.5rem', marginBottom: '1.5rem' }}>
+              <div>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>Giao Dịch ID</span>
+                <strong style={{ fontSize: '0.9rem', fontFamily: 'monospace' }}>{viewingTopUp.id}</strong>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>Trạng thái</span>
+                <span style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '10px',
+                  background: viewingTopUp.status === 'completed' ? 'rgba(16, 185, 129, 0.15)' : viewingTopUp.status === 'pending' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                  color: viewingTopUp.status === 'completed' ? 'var(--success-color)' : viewingTopUp.status === 'pending' ? 'var(--warning-color)' : 'var(--error-color)',
+                  textTransform: 'uppercase',
+                  display: 'inline-block',
+                  marginTop: '0.25rem'
+                }}>
+                  {viewingTopUp.status}
+                </span>
+              </div>
+
+              <div>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>Khách Hàng</span>
+                <strong style={{ fontSize: '0.95rem' }}>{viewingTopUp.user?.full_name || 'Guest'}</strong>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block' }}>{viewingTopUp.user?.email}</span>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>Ngày Tạo</span>
+                <strong style={{ fontSize: '0.95rem' }}>{new Date(viewingTopUp.created_at).toLocaleString()}</strong>
+              </div>
+
+              <div>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>Reference Content</span>
+                <strong style={{ fontSize: '0.95rem', fontFamily: 'monospace', color: 'var(--primary-glow)' }}>{viewingTopUp.payment_reference}</strong>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>ACB Transaction ID</span>
+                <strong style={{ fontSize: '0.95rem', fontFamily: 'monospace' }}>{viewingTopUp.acb_transaction_id || 'N/A'}</strong>
+              </div>
+
+              <div>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>Số Tiền USD</span>
+                <strong style={{ fontSize: '1.1rem' }}>${viewingTopUp.amount.toFixed(2)}</strong>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>Số Tiền Quy Đổi VND</span>
+                <strong style={{ fontSize: '1.1rem', color: 'var(--success-color)' }}>{viewingTopUp.amount_vnd.toLocaleString()} đ</strong>
+              </div>
+            </div>
+
+            {viewingTopUp.error_message && (
+              <div style={{ padding: '0.75rem 1rem', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.15)', borderRadius: '8px', fontSize: '0.85rem', color: 'var(--error-color)', marginBottom: '1.5rem' }}>
+                <strong>Lỗi/Lưu chú:</strong> {viewingTopUp.error_message}
+              </div>
+            )}
+
+            {/* Actions for Pending state */}
+            {viewingTopUp.status === 'pending' && (
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
+                <button
+                  onClick={() => handleManualCreditTopUp(viewingTopUp.id)}
+                  className="btn-primary"
+                  style={{ flex: 1.5, justifyContent: 'center', background: 'var(--success-color)' }}
+                >
+                  Cộng tiền thủ công (Audited)
+                </button>
+                <button
+                  onClick={() => handleCancelTopUpAdmin(viewingTopUp.id)}
+                  className="btn-secondary"
+                  style={{ flex: 1, justifyContent: 'center', borderColor: 'var(--error-color)', color: 'var(--error-color)' }}
+                >
+                  Hủy Giao Dịch
+                </button>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', width: '100%' }}>
+              <button
+                onClick={() => { setViewingTopUp(null); handleStartEditTopUp(viewingTopUp); }}
+                className="btn-secondary"
+                style={{ flex: 1, justifyContent: 'center' }}
+              >
+                Chỉnh Sửa Trạng Thái
+              </button>
+              <button
+                onClick={() => setViewingTopUp(null)}
+                className="btn-secondary"
+                style={{ flex: 1, justifyContent: 'center' }}
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: EDIT TOP UP FIELDS */}
+      {editingTopUp && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(6, 7, 10, 0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-panel animate-fade-in" style={{ padding: '2rem', maxWidth: '500px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Chỉnh sửa giao dịch Top-Up</h2>
+              <button onClick={() => setEditingTopUp(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateTopUp} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div className="form-group">
+                <label className="form-label">Trạng thái giao dịch</label>
+                <select value={editTopUpStatus} onChange={e => setEditTopUpStatus(e.target.value)} className="form-control" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                  <option value="pending">Pending</option>
+                  <option value="completed">Completed</option>
+                  <option value="failed">Failed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+                <span style={{ fontSize: '0.72rem', color: 'var(--warning-color)', marginTop: '0.25rem', display: 'block' }}>
+                  * Lưu ý: Thay đổi trạng thái tại đây sẽ KHÔNG tự động cộng/trừ số dư ví của khách hàng. Hãy dùng chức năng "Cộng tiền thủ công" bên ngoài nếu muốn thực hiện cộng ví.
+                </span>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">ACB Transaction ID</label>
+                <input type="text" value={editTopUpTransactionId} onChange={e => setEditTopUpTransactionId(e.target.value)} className="form-control" placeholder="e.g. FT12345678" />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Thời gian thanh toán</label>
+                <input type="datetime-local" value={editTopUpPaidAt} onChange={e => setEditTopUpPaidAt(e.target.value)} className="form-control" />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Lưu chú lỗi / Ghi chú</label>
+                <textarea rows={3} value={editTopUpErrorMessage} onChange={e => setEditTopUpErrorMessage(e.target.value)} className="form-control" placeholder="Ghi chú lý do thất bại hoặc nguồn giao dịch..." style={{ resize: 'vertical' }} />
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                <button type="button" onClick={() => setEditingTopUp(null)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>Hủy</button>
+                <button type="submit" disabled={updatingTopUp} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
+                  {updatingTopUp ? 'Đang lưu...' : 'Lưu Thay Đổi'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD TOP UP (ADMIN) */}
+      {showAddTopUpModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(6, 7, 10, 0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-panel animate-fade-in" style={{ padding: '2rem', maxWidth: '500px', width: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Tạo giao dịch Top-Up mới</h2>
+              <button onClick={() => setShowAddTopUpModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateTopUpAdmin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div className="form-group">
+                <label className="form-label">Chọn Khách Hàng *</label>
+                <select 
+                  required 
+                  value={topUpTargetUserId} 
+                  onChange={e => setTopUpTargetUserId(e.target.value)} 
+                  className="form-control" 
+                  style={{ background: 'rgba(255,255,255,0.03)' }}
+                >
+                  <option value="">-- Chọn khách hàng --</option>
+                  {usersList.map(u => (
+                    <option key={u.id} value={u.id}>
+                      {u.full_name} ({u.email}) - Ví: ${u.balance.toFixed(2)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Số tiền nạp (USD) *</label>
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  min="0.01" 
+                  required 
+                  placeholder="0.00" 
+                  value={topUpAmount} 
+                  onChange={e => setTopUpAmount(e.target.value)} 
+                  className="form-control" 
+                />
+                {topUpAmount && !isNaN(parseFloat(topUpAmount)) && (
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'block' }}>
+                    Quy đổi: <strong style={{ color: 'var(--success-color)' }}>{(parseFloat(topUpAmount) * 25000).toLocaleString()} VND</strong>
+                  </span>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                <button type="button" onClick={() => setShowAddTopUpModal(false)} className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>Hủy</button>
+                <button type="submit" disabled={submittingTopUp} className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
+                  {submittingTopUp ? 'Đang tạo...' : 'Tạo Top-Up'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <ConfirmationDialog
+
         open={!!confirmingProductDelete}
         title="Xác nhận xóa sản phẩm"
         message={

@@ -12,6 +12,8 @@ import { Support } from './pages/Support';
 import { About } from './pages/About';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
+import { MyTopUps } from './pages/MyTopUps';
+
 
 // Protected Route wrapper for regular users/buyers
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -99,6 +101,16 @@ const AppContent: React.FC = () => {
               </PrivateRoute>
             } 
           />
+          
+          <Route 
+            path="/top-ups" 
+            element={
+              <PrivateRoute>
+                <MyTopUps />
+              </PrivateRoute>
+            } 
+          />
+
           
           <Route 
             path="/admin" 
