@@ -1285,7 +1285,8 @@ export const Admin: React.FC = () => {
   }
 
   return (
-    <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
+    <>
+      <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
 
       {/* Title Section */}
       <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
@@ -2199,6 +2200,8 @@ export const Admin: React.FC = () => {
 
 
 
+
+      </div>
 
       {/* ----------------- MODALS ----------------- */}
 
@@ -3389,7 +3392,7 @@ export const Admin: React.FC = () => {
       />
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-    </div>
+    </>
   );
 };
 export default Admin;

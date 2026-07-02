@@ -129,7 +129,8 @@ export const ProductDetail: React.FC = () => {
   }
 
   return (
-    <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
+    <>
+      <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
       <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', marginBottom: '2rem', fontWeight: 500 }} className="nav-link">
         <ArrowLeft size={16} />
         Back to Catalog
@@ -310,7 +311,9 @@ export const ProductDetail: React.FC = () => {
          </div>
        </div>
  
-       {/* Checkout Modal Simulation */}
+       </div>
+
+      {/* Checkout Modal Simulation */}
        {showCheckoutModal && (
          <div style={{
            position: 'fixed',
@@ -383,7 +386,7 @@ export const ProductDetail: React.FC = () => {
         </div>
       )}
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-    </div>
+    </>
   );
 };
 export default ProductDetail;

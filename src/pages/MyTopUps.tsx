@@ -215,7 +215,8 @@ export const MyTopUps: React.FC = () => {
   };
 
   return (
-    <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
+    <>
+      <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
 
       {/* Page Header */}
       <div className="glass-panel" style={{
@@ -370,6 +371,8 @@ export const MyTopUps: React.FC = () => {
             </div>
           )}
         </div>
+      </div>
+
       </div>
 
       {/* MODAL: CREATE TOP UP */}
@@ -584,7 +587,7 @@ export const MyTopUps: React.FC = () => {
           if (!confirmingTopUpCancelLoading) setConfirmingTopUpCancel(null);
         }}
       />
-    </div>
+    </>
   );
 };
 export default MyTopUps;

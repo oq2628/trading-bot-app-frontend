@@ -317,7 +317,8 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
+    <>
+      <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
       {/* Header Profile Dashboard */}
       <div className="glass-panel" style={{
         padding: '2rem',
@@ -803,6 +804,8 @@ export const Dashboard: React.FC = () => {
           })}
         </div>
       )}
+      </div>
+
       {/* Renewal / Extension Modal */}
       {showRenewModal && renewingOrder && (
         <div style={{
@@ -940,7 +943,7 @@ export const Dashboard: React.FC = () => {
         </div>
       )}
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-    </div>
+    </>
   );
 };
 export default Dashboard;
