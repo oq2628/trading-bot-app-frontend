@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { Toast } from '../components/Toast';
-import { User, Wallet, Save, ArrowUpRight, ArrowDownLeft, Calendar, MapPin, Phone, X, RefreshCw } from 'lucide-react';
+import { User, Wallet, Save, ArrowUpRight, Calendar, MapPin, Phone, X, RefreshCw } from 'lucide-react';
 
 export const Profile: React.FC = () => {
   const { user, refreshUser } = useAuth();
@@ -112,45 +112,24 @@ export const Profile: React.FC = () => {
     }
   };
 
-  const handleTransaction = async (type: 'deposit' | 'withdraw') => {
+  const handleTransaction = async () => {
     const numAmount = parseFloat(amount);
     if (isNaN(numAmount) || numAmount <= 0) {
       setToast({ message: 'Please enter a valid amount greater than $0.', type: 'error' });
       return;
     }
 
-    if (type === 'deposit') {
-      try {
-        setTransacting(true);
-        const data = await api.post<any>('/api/top-ups', { amount: numAmount });
-        setActiveTopUp(data);
-        setAmount('');
-        setToast({ message: 'Top-up QR code generated successfully. Please pay to proceed.', type: 'success' });
-        startPolling(data.id);
-      } catch (err: any) {
-        setToast({ message: err.message || 'Failed to generate QR Code.', type: 'error' });
-      } finally {
-        setTransacting(false);
-      }
-    } else {
-      if (numAmount > user.balance) {
-        setToast({ message: 'Insufficient funds for withdrawal request.', type: 'error' });
-        return;
-      }
-      try {
-        setTransacting(true);
-        await api.put<any>('/api/auth/update', { balance: user.balance - numAmount });
-        await refreshUser();
-        setAmount('');
-        setToast({
-          message: `Withdrew ${numAmount.toLocaleString(undefined, { style: 'currency', currency: 'USD' })} successfully.`,
-          type: 'success'
-        });
-      } catch (err: any) {
-        setToast({ message: err.message || 'Transaction failed.', type: 'error' });
-      } finally {
-        setTransacting(false);
-      }
+    try {
+      setTransacting(true);
+      const data = await api.post<any>('/api/top-ups', { amount: numAmount });
+      setActiveTopUp(data);
+      setAmount('');
+      setToast({ message: 'Top-up QR code generated successfully. Please pay to proceed.', type: 'success' });
+      startPolling(data.id);
+    } catch (err: any) {
+      setToast({ message: err.message || 'Failed to generate QR Code.', type: 'error' });
+    } finally {
+      setTransacting(false);
     }
   };
 
@@ -580,11 +559,11 @@ export const Profile: React.FC = () => {
                 </div>
               </div>
 
-              <div className="responsive-grid-2">
+              <div style={{ display: 'flex', width: '100%' }}>
                 <button
                   type="button"
                   disabled={transacting}
-                  onClick={() => handleTransaction('deposit')}
+                  onClick={() => handleTransaction()}
                   style={{
                     background: 'rgba(16, 185, 129, 0.08)',
                     border: '1px solid rgba(16, 185, 129, 0.15)',
@@ -598,6 +577,7 @@ export const Profile: React.FC = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.4rem',
+                    width: '100%',
                     transition: 'var(--transition-smooth)'
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)'; }}
@@ -605,32 +585,6 @@ export const Profile: React.FC = () => {
                 >
                   <ArrowUpRight size={16} />
                   Top Up
-                </button>
-
-                <button
-                  type="button"
-                  disabled={transacting}
-                  onClick={() => handleTransaction('withdraw')}
-                  style={{
-                    background: 'rgba(239, 68, 68, 0.08)',
-                    border: '1px solid rgba(239, 68, 68, 0.15)',
-                    borderRadius: '8px',
-                    color: '#f87171',
-                    padding: '0.75rem',
-                    fontSize: '0.9rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.4rem',
-                    transition: 'var(--transition-smooth)'
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)'; }}
-                >
-                  <ArrowDownLeft size={16} />
-                  Withdraw
                 </button>
               </div>
             </div>

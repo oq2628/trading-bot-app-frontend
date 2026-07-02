@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { Coins, Plus, RefreshCw, X, CreditCard, CheckCircle2, AlertTriangle, XCircle, ArrowRight } from 'lucide-react';
 import { Toast } from '../components/Toast';
+import { ConfirmationDialog } from '../components/ConfirmationDialog';
 
 interface TopUp {
   id: string;
@@ -36,6 +37,8 @@ export const MyTopUps: React.FC = () => {
   const [activeTopUp, setActiveTopUp] = useState<TopUp | null>(null);
   const [polling, setPolling] = useState(false);
   const pollingRef = useRef<any>(null);
+  const [confirmingTopUpCancel, setConfirmingTopUpCancel] = useState<TopUp | null>(null);
+  const [confirmingTopUpCancelLoading, setConfirmingTopUpCancelLoading] = useState(false);
 
   const loadTopUps = async (showLoading = true) => {
     if (showLoading) setLoading(true);
@@ -125,18 +128,31 @@ export const MyTopUps: React.FC = () => {
     }
   };
 
-  const handleCancelTopUp = async (topUpId: string) => {
-    if (!confirm('Are you sure you want to cancel this top-up request?')) return;
+  const handleCancelTopUp = (topUp: TopUp) => {
+    setConfirmingTopUpCancel(topUp);
+  };
+
+  const handleConfirmCancelTopUp = async () => {
+    if (!confirmingTopUpCancel || confirmingTopUpCancelLoading) return;
+    const topUp = confirmingTopUpCancel;
     try {
-      const data = await api.post<TopUp>(`/api/top-ups/${topUpId}/cancel`, {});
-      setToast({ message: 'Top-up request cancelled successfully.', type: 'success' });
-      loadTopUps(false);
-      if (activeTopUp && activeTopUp.id === topUpId) {
+      setConfirmingTopUpCancelLoading(true);
+      const data = await api.post<TopUp>(`/api/top-ups/${topUp.id}/cancel`, {});
+      setToast({ message: 'Top-up request cancelled successfully!', type: 'success' });
+      
+      // Update topUps list
+      setTopUps(prev => prev.map(t => t.id === topUp.id ? data : t));
+      
+      // Update active detail modal if open
+      if (activeTopUp && activeTopUp.id === topUp.id) {
         setActiveTopUp(data);
         stopPolling();
       }
+      setConfirmingTopUpCancel(null);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to cancel top-up request.', type: 'error' });
+      setToast({ message: err.message || 'Failed to cancel top-up.', type: 'error' });
+    } finally {
+      setConfirmingTopUpCancelLoading(false);
     }
   };
 
@@ -200,7 +216,7 @@ export const MyTopUps: React.FC = () => {
 
   return (
     <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
-      
+
       {/* Page Header */}
       <div className="glass-panel" style={{
         padding: '2rem',
@@ -237,16 +253,16 @@ export const MyTopUps: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button 
-            onClick={() => loadTopUps()} 
+          <button
+            onClick={() => loadTopUps()}
             className="btn-secondary"
             style={{ height: '42px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
             <RefreshCw size={15} />
             Refresh
           </button>
-          <button 
-            onClick={() => setShowCreateModal(true)} 
+          <button
+            onClick={() => setShowCreateModal(true)}
             className="btn-primary"
             style={{ height: '42px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
@@ -258,7 +274,7 @@ export const MyTopUps: React.FC = () => {
 
       {/* Grid Layout */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '2rem' }}>
-        
+
         {/* Balance Status Card */}
         <div className="glass-panel" style={{ gridColumn: 'span 4', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', height: 'fit-content' }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem' }}>
@@ -285,7 +301,7 @@ export const MyTopUps: React.FC = () => {
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', margin: 0 }}>
             Transaction History
           </h2>
-          
+
           {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
               <div style={{ width: '32px', height: '32px', border: '2px solid rgba(99, 102, 241, 0.1)', borderTopColor: 'var(--primary-solid)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
@@ -329,7 +345,7 @@ export const MyTopUps: React.FC = () => {
                       </td>
                       <td style={{ padding: '0.85rem 0.5rem', textAlign: 'right' }}>
                         <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
-                          <button 
+                          <button
                             onClick={() => handleOpenDetail(t)}
                             className="btn-secondary"
                             style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', height: '28px' }}
@@ -337,8 +353,8 @@ export const MyTopUps: React.FC = () => {
                             Details
                           </button>
                           {t.status === 'pending' && (
-                            <button 
-                              onClick={() => handleCancelTopUp(t.id)}
+                            <button
+                              onClick={() => handleCancelTopUp(t)}
                               className="btn-secondary"
                               style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', height: '28px', borderColor: 'rgba(239,68,68,0.2)', color: 'var(--error-color)' }}
                             >
@@ -372,16 +388,16 @@ export const MyTopUps: React.FC = () => {
                 <label className="form-label" style={{ fontSize: '0.8rem' }}>Amount in USD *</label>
                 <div style={{ position: 'relative' }}>
                   <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 700, color: 'var(--text-muted)' }}>$</span>
-                  <input 
-                    type="number" 
-                    step="0.01" 
-                    min="1" 
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="1"
                     max="10000"
                     required
-                    placeholder="e.g. 50.00" 
-                    value={newAmount} 
-                    onChange={e => setNewAmount(e.target.value)} 
-                    className="form-control" 
+                    placeholder="e.g. 50.00"
+                    value={newAmount}
+                    onChange={e => setNewAmount(e.target.value)}
+                    className="form-control"
                     style={{ paddingLeft: '2rem' }}
                   />
                 </div>
@@ -410,9 +426,9 @@ export const MyTopUps: React.FC = () => {
       {activeTopUp && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(6, 7, 10, 0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
           <div className="glass-panel animate-fade-in" style={{ padding: '2rem', maxWidth: '480px', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.25rem', alignItems: 'center', position: 'relative' }}>
-            
-            <button 
-              onClick={handleCloseDetail} 
+
+            <button
+              onClick={handleCloseDetail}
               style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}
             >
               <X size={20} />
@@ -427,9 +443,9 @@ export const MyTopUps: React.FC = () => {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', width: '100%' }}>
                 {activeTopUp.qr_image_base64 ? (
                   <div style={{ padding: '8px', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
-                    <img 
-                      src={activeTopUp.qr_image_base64} 
-                      alt="ACB VietQR Code" 
+                    <img
+                      src={activeTopUp.qr_image_base64}
+                      alt="ACB VietQR Code"
                       style={{ width: '180px', height: '180px', display: 'block' }}
                     />
                   </div>
@@ -515,29 +531,29 @@ export const MyTopUps: React.FC = () => {
 
             {/* Action Buttons */}
             <div style={{ display: 'flex', gap: '0.75rem', width: '100%', marginTop: '0.5rem' }}>
-              <button 
-                type="button" 
-                onClick={handleCloseDetail} 
-                className="btn-secondary" 
+              <button
+                type="button"
+                onClick={handleCloseDetail}
+                className="btn-secondary"
                 style={{ flex: 1, justifyContent: 'center' }}
               >
-                Close Window
+                Close
               </button>
               {activeTopUp.status === 'pending' && (
                 <>
-                  <button 
-                    type="button" 
-                    onClick={() => handleManualRefresh(activeTopUp.id)} 
-                    className="btn-primary" 
+                  <button
+                    type="button"
+                    onClick={() => handleManualRefresh(activeTopUp.id)}
+                    className="btn-primary"
                     style={{ flex: 1.2, justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                   >
                     <RefreshCw size={14} className={polling ? 'animate-spin' : ''} />
                     Verify Payment
                   </button>
-                  <button 
-                    type="button" 
-                    onClick={() => handleCancelTopUp(activeTopUp.id)} 
-                    className="btn-secondary" 
+                  <button
+                    type="button"
+                    onClick={() => handleCancelTopUp(activeTopUp)}
+                    className="btn-secondary"
                     style={{ flex: 0.8, justifyContent: 'center', borderColor: 'rgba(239,68,68,0.2)', color: 'var(--error-color)' }}
                   >
                     Cancel
@@ -551,6 +567,23 @@ export const MyTopUps: React.FC = () => {
       )}
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      <ConfirmationDialog
+        open={!!confirmingTopUpCancel}
+        title="Cancel top-up request?"
+        message={
+          <>
+            Are you sure you want to cancel this top-up request? (Reference: <strong style={{ color: '#fff' }}>{confirmingTopUpCancel?.payment_reference}</strong>)
+          </>
+        }
+        confirmLabel="Yes, Cancel"
+        cancelLabel="No"
+        loading={confirmingTopUpCancelLoading}
+        onConfirm={handleConfirmCancelTopUp}
+        onCancel={() => {
+          if (!confirmingTopUpCancelLoading) setConfirmingTopUpCancel(null);
+        }}
+      />
     </div>
   );
 };

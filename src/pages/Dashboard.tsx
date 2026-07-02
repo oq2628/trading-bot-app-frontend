@@ -91,7 +91,7 @@ export const Dashboard: React.FC = () => {
   const [selectedVariantId, setSelectedVariantId] = useState<string>('');
   const [showRenewModal, setShowRenewModal] = useState(false);
   const [renewing, setRenewing] = useState(false);
-  const [renewPaymentMethod, setRenewPaymentMethod] = useState<'payos' | 'momo'>('payos');
+
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -225,41 +225,27 @@ export const Dashboard: React.FC = () => {
     if (!renewingOrder || !selectedVariantId) return;
     try {
       setRenewing(true);
-      if (renewPaymentMethod === 'payos') {
-        const response = await api.post<{ checkout_url: string; order_code: number; purchase_id: string }>(
-          '/api/purchases/checkout-payment',
-          {
-            product_id: renewingOrder.product.id,
-            variant_id: selectedVariantId,
-            cancel_url: window.location.href,
-            return_url: `${window.location.origin}/dashboard?payment=success`
-          }
-        );
-        window.location.href = response.checkout_url;
-      } else {
-        setToast({ message: "Processing MoMo payment...", type: "info" });
-        const purchase = await api.post<Purchase>('/api/purchases/checkout', {
-          product_id: renewingOrder.product.id,
-          variant_id: selectedVariantId
-        });
-        if (purchase.status === 'pending') {
-          await api.post<Purchase>(`/api/purchases/${purchase.id}/pay`, {});
-        }
-        
-        try {
-          const detail = await api.get<OrderDetail>(`/api/orders/${renewingOrder.id}`);
-          setOrderDetails(prev => ({ ...prev, [renewingOrder.id]: detail.purchases }));
-        } catch (detailErr) {
-          console.error("Failed to refresh order details:", detailErr);
-        }
-
-        await refreshUser();
-        setShowRenewModal(false);
-        setToast({ message: "License renewed successfully!", type: "success" });
-        setRenewingOrder(null);
-        setSelectedVariantId('');
-        await loadOrders();
+      const purchase = await api.post<Purchase>('/api/purchases/checkout', {
+        product_id: renewingOrder.product.id,
+        variant_id: selectedVariantId
+      });
+      if (purchase.status === 'pending') {
+        await api.post<Purchase>(`/api/purchases/${purchase.id}/pay`, {});
       }
+      
+      try {
+        const detail = await api.get<OrderDetail>(`/api/orders/${renewingOrder.id}`);
+        setOrderDetails(prev => ({ ...prev, [renewingOrder.id]: detail.purchases }));
+      } catch (detailErr) {
+        console.error("Failed to refresh order details:", detailErr);
+      }
+
+      await refreshUser();
+      setShowRenewModal(false);
+      setToast({ message: "License renewed successfully!", type: "success" });
+      setRenewingOrder(null);
+      setSelectedVariantId('');
+      await loadOrders();
     } catch (err: any) {
       setToast({ message: err.message || 'Checkout failed.', type: 'error' });
     } finally {
@@ -932,88 +918,7 @@ export const Dashboard: React.FC = () => {
               </p>
             )}
 
-            {/* Select Payment Method */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Select Payment Method
-              </label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }} role="radiogroup" aria-label="Payment Method Selector">
-                {/* PayOS card */}
-                <div 
-                  onClick={() => setRenewPaymentMethod('payos')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.6rem 0.85rem',
-                    borderRadius: '8px',
-                    border: renewPaymentMethod === 'payos' ? '1px solid var(--primary-solid)' : '1px solid var(--panel-border)',
-                    background: renewPaymentMethod === 'payos' ? 'rgba(99, 102, 241, 0.08)' : 'rgba(255, 255, 255, 0.01)',
-                    cursor: 'pointer',
-                    minHeight: '40px',
-                    transition: 'all 0.2s ease'
-                  }}
-                  role="radio"
-                  aria-checked={renewPaymentMethod === 'payos'}
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') setRenewPaymentMethod('payos'); }}
-                >
-                  <input 
-                    type="radio" 
-                    id="renew-payos-radio"
-                    name="renew-payment-method" 
-                    checked={renewPaymentMethod === 'payos'} 
-                    onChange={() => setRenewPaymentMethod('payos')}
-                    style={{ cursor: 'pointer', accentColor: 'var(--primary-solid)' }} 
-                  />
-                  <label htmlFor="renew-payos-radio" style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer', flex: 1, margin: 0 }}>
-                    <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#fff' }}>PayOS (VietQR / Credit Card)</span>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Scan VietQR or pay with credit cards</span>
-                  </label>
-                </div>
-
-                {/* MoMo card */}
-                <div 
-                  onClick={() => setRenewPaymentMethod('momo')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.6rem 0.85rem',
-                    borderRadius: '8px',
-                    border: renewPaymentMethod === 'momo' ? '1px solid var(--primary-solid)' : '1px solid var(--panel-border)',
-                    background: renewPaymentMethod === 'momo' ? 'rgba(99, 102, 241, 0.08)' : 'rgba(255, 255, 255, 0.01)',
-                    cursor: 'pointer',
-                    minHeight: '40px',
-                    transition: 'all 0.2s ease'
-                  }}
-                  role="radio"
-                  aria-checked={renewPaymentMethod === 'momo'}
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') setRenewPaymentMethod('momo'); }}
-                >
-                  <input 
-                    type="radio" 
-                    id="renew-momo-radio"
-                    name="renew-payment-method" 
-                    checked={renewPaymentMethod === 'momo'} 
-                    onChange={() => setRenewPaymentMethod('momo')}
-                    style={{ cursor: 'pointer', accentColor: 'var(--primary-solid)' }} 
-                  />
-                  <label htmlFor="renew-momo-radio" style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer', flex: 1, margin: 0 }}>
-                    <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#fff' }}>MoMo Wallet</span>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Scan MoMo QR code (Demo Checkout)</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              <ShieldCheck size={12} color="var(--success-color)" />
-              Fixed exchange rate: 1 USD = 25,000 VND. Webhooks verify and process payments.
-            </p>
-
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
               <button 
                 onClick={() => setShowRenewModal(false)} 
                 className="btn-secondary" 
@@ -1028,7 +933,7 @@ export const Dashboard: React.FC = () => {
                 style={{ flex: 1, justifyContent: 'center' }}
                 disabled={renewing || !selectedVariantId}
               >
-                {renewing ? 'Processing...' : (renewPaymentMethod === 'payos' ? 'Pay Now (Redirect)' : 'Confirm Pay')}
+                {renewing ? 'Processing...' : 'Confirm Pay'}
               </button>
             </div>
           </div>

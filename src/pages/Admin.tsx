@@ -468,6 +468,12 @@ export const Admin: React.FC = () => {
   const [editTopUpTransactionId, setEditTopUpTransactionId] = useState('');
   const [editTopUpPaidAt, setEditTopUpPaidAt] = useState('');
   const [updatingTopUp, setUpdatingTopUp] = useState(false);
+  const [confirmingTopUpManualCredit, setConfirmingTopUpManualCredit] = useState<TopUpAdmin | null>(null);
+  const [confirmingTopUpManualCreditLoading, setConfirmingTopUpManualCreditLoading] = useState(false);
+  const [confirmingTopUpCancel, setConfirmingTopUpCancel] = useState<TopUpAdmin | null>(null);
+  const [confirmingTopUpCancelLoading, setConfirmingTopUpCancelLoading] = useState(false);
+  const [confirmingTopUpDelete, setConfirmingTopUpDelete] = useState<TopUpAdmin | null>(null);
+  const [confirmingTopUpDeleteLoading, setConfirmingTopUpDeleteLoading] = useState(false);
 
 
   // Fetching data functions
@@ -1129,29 +1135,38 @@ export const Admin: React.FC = () => {
     }
   };
 
-  const handleCancelTopUpAdmin = async (topUpId: string) => {
-    if (!confirm('Are you sure you want to cancel this top-up?')) return;
+  const handleCancelTopUpAdmin = (topUp: TopUpAdmin) => {
+    setConfirmingTopUpCancel(topUp);
+  };
+
+  const handleConfirmCancelTopUpAdmin = async () => {
+    if (!confirmingTopUpCancel || confirmingTopUpCancelLoading) return;
+    const topUp = confirmingTopUpCancel;
     try {
-      const updated = await api.post<TopUpAdmin>(`/api/admin/top-ups/${topUpId}/cancel`, {});
+      setConfirmingTopUpCancelLoading(true);
+      const updated = await api.post<TopUpAdmin>(`/api/admin/top-ups/${topUp.id}/cancel`, {});
       setToast({ message: 'Top-up cancelled successfully!', type: 'success' });
-      setTopUpsList(topUpsList.map(t => t.id === topUpId ? updated : t));
-      if (viewingTopUp && viewingTopUp.id === topUpId) {
+      setTopUpsList(topUpsList.map(t => t.id === topUp.id ? updated : t));
+      if (viewingTopUp && viewingTopUp.id === topUp.id) {
         setViewingTopUp(updated);
       }
+      setConfirmingTopUpCancel(null);
     } catch (err: any) {
       setToast({ message: err.message || 'Failed to cancel top-up.', type: 'error' });
+    } finally {
+      setConfirmingTopUpCancelLoading(false);
     }
   };
 
-  const handleManualCreditTopUp = async (topUpId: string) => {
-    if (!confirm("CRITICAL WARNING: This will credit the user's wallet balance and mark this top-up as completed. Are you absolutely sure you want to execute manual credit?")) {
-      return;
-    }
+  const handleConfirmManualCreditTopUp = async () => {
+    if (!confirmingTopUpManualCredit || confirmingTopUpManualCreditLoading) return;
+    const topUp = confirmingTopUpManualCredit;
     try {
-      const updated = await api.post<TopUpAdmin>(`/api/admin/top-ups/${topUpId}/manual-credit`, {});
+      setConfirmingTopUpManualCreditLoading(true);
+      const updated = await api.post<TopUpAdmin>(`/api/admin/top-ups/${topUp.id}/manual-credit`, {});
       setToast({ message: 'Top-up manually credited and user balance updated successfully!', type: 'success' });
-      setTopUpsList(topUpsList.map(t => t.id === topUpId ? updated : t));
-      if (viewingTopUp && viewingTopUp.id === topUpId) {
+      setTopUpsList(topUpsList.map(t => t.id === topUp.id ? updated : t));
+      if (viewingTopUp && viewingTopUp.id === topUp.id) {
         setViewingTopUp(updated);
       }
       
@@ -1166,22 +1181,38 @@ export const Admin: React.FC = () => {
           refreshUser();
         }
       }
+      setConfirmingTopUpManualCredit(null);
     } catch (err: any) {
       setToast({ message: err.message || 'Failed to manually credit top-up.', type: 'error' });
+    } finally {
+      setConfirmingTopUpManualCreditLoading(false);
     }
   };
 
-  const handleDeleteTopUp = async (topUpId: string) => {
-    if (!confirm('Are you sure you want to delete this top-up request record?')) return;
+  const handleManualCreditTopUp = (topUp: TopUpAdmin) => {
+    setConfirmingTopUpManualCredit(topUp);
+  };
+
+  const handleDeleteTopUp = (topUp: TopUpAdmin) => {
+    setConfirmingTopUpDelete(topUp);
+  };
+
+  const handleConfirmDeleteTopUp = async () => {
+    if (!confirmingTopUpDelete || confirmingTopUpDeleteLoading) return;
+    const topUp = confirmingTopUpDelete;
     try {
-      await api.delete(`/api/admin/top-ups/${topUpId}`);
+      setConfirmingTopUpDeleteLoading(true);
+      await api.delete(`/api/admin/top-ups/${topUp.id}`);
       setToast({ message: 'Top-up request record deleted successfully!', type: 'success' });
-      setTopUpsList(topUpsList.filter(t => t.id !== topUpId));
-      if (viewingTopUp && viewingTopUp.id === topUpId) {
+      setTopUpsList(topUpsList.filter(t => t.id !== topUp.id));
+      if (viewingTopUp && viewingTopUp.id === topUp.id) {
         setViewingTopUp(null);
       }
+      setConfirmingTopUpDelete(null);
     } catch (err: any) {
       setToast({ message: err.message || 'Failed to delete top-up record.', type: 'error' });
+    } finally {
+      setConfirmingTopUpDeleteLoading(false);
     }
   };
 
@@ -2121,7 +2152,7 @@ export const Admin: React.FC = () => {
                                       <RefreshCw size={14} color="var(--success-color)" />
                                     </button>
                                     <button
-                                      onClick={() => handleManualCreditTopUp(t.id)}
+                                      onClick={() => handleManualCreditTopUp(t)}
                                       className="btn-secondary"
                                       style={{ padding: '0.45rem', height: '34px', borderColor: 'rgba(99, 102, 241, 0.4)' }}
                                       title="Cộng tiền thủ công (Audited)"
@@ -2129,7 +2160,7 @@ export const Admin: React.FC = () => {
                                       <Coins size={14} color="var(--primary-solid)" />
                                     </button>
                                     <button
-                                      onClick={() => handleCancelTopUpAdmin(t.id)}
+                                      onClick={() => handleCancelTopUpAdmin(t)}
                                       className="btn-secondary"
                                       style={{ padding: '0.45rem', height: '34px', borderColor: 'rgba(239, 68, 68, 0.2)' }}
                                       title="Hủy giao dịch"
@@ -2140,7 +2171,7 @@ export const Admin: React.FC = () => {
                                 )}
                                 {statusLower !== 'completed' && (
                                   <button
-                                    onClick={() => handleDeleteTopUp(t.id)}
+                                    onClick={() => handleDeleteTopUp(t)}
                                     className="btn-secondary"
                                     style={{ padding: '0.45rem', height: '34px', borderColor: 'rgba(239,68,68,0.2)' }}
                                     title="Xóa bản ghi"
@@ -2652,7 +2683,7 @@ export const Admin: React.FC = () => {
                       <tr style={{ borderBottom: '1px solid var(--panel-border)', color: 'var(--text-secondary)' }}>
                         <th style={{ padding: '0.5rem' }}>Gói / Variant</th>
                         <th style={{ padding: '0.5rem' }}>Số tiền</th>
-                        <th style={{ padding: '0.5rem' }}>Mã PayOS</th>
+                        <th style={{ padding: '0.5rem' }}>Mã giao dịch</th>
                         <th style={{ padding: '0.5rem' }}>Trạng thái</th>
                         <th style={{ padding: '0.5rem' }}>Ngày thanh toán</th>
                         <th style={{ padding: '0.5rem' }}>Ngày hết hạn</th>
@@ -3101,14 +3132,14 @@ export const Admin: React.FC = () => {
             {viewingTopUp.status === 'pending' && (
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
                 <button
-                  onClick={() => handleManualCreditTopUp(viewingTopUp.id)}
+                  onClick={() => handleManualCreditTopUp(viewingTopUp)}
                   className="btn-primary"
                   style={{ flex: 1.5, justifyContent: 'center', background: 'var(--success-color)' }}
                 >
                   Cộng tiền thủ công (Audited)
                 </button>
                 <button
-                  onClick={() => handleCancelTopUpAdmin(viewingTopUp.id)}
+                  onClick={() => handleCancelTopUpAdmin(viewingTopUp)}
                   className="btn-secondary"
                   style={{ flex: 1, justifyContent: 'center', borderColor: 'var(--error-color)', color: 'var(--error-color)' }}
                 >
@@ -3278,6 +3309,60 @@ export const Admin: React.FC = () => {
         onConfirm={handleConfirmToggleSoftDeleteUser}
         onCancel={() => {
           if (!confirmingUserActionLoading) setConfirmingUserAction(null);
+        }}
+      />
+
+      <ConfirmationDialog
+        open={!!confirmingTopUpManualCredit}
+        title="Cộng tiền thủ công?"
+        message={
+          <>
+            <strong>CRITICAL WARNING:</strong> Thao tác này sẽ cộng tiền trực tiếp vào tài khoản ví của người dùng với số tiền là 
+            <span style={{ color: 'var(--success-color)', fontWeight: 'bold' }}> ${confirmingTopUpManualCredit?.amount.toFixed(2)}</span> và đánh dấu giao dịch này là hoàn tất.
+            <br />
+            Bạn có chắc chắn muốn thực hiện cộng tiền thủ công?
+          </>
+        }
+        confirmLabel="Có"
+        cancelLabel="Hủy"
+        loading={confirmingTopUpManualCreditLoading}
+        onConfirm={handleConfirmManualCreditTopUp}
+        onCancel={() => {
+          if (!confirmingTopUpManualCreditLoading) setConfirmingTopUpManualCredit(null);
+        }}
+      />
+
+      <ConfirmationDialog
+        open={!!confirmingTopUpCancel}
+        title="Hủy giao dịch Top-Up?"
+        message={
+          <>
+            Bạn có chắc chắn muốn hủy yêu cầu nạp tiền này? (Mã: <strong style={{ color: '#fff' }}>{confirmingTopUpCancel?.payment_reference}</strong>)
+          </>
+        }
+        confirmLabel="Có"
+        cancelLabel="Hủy"
+        loading={confirmingTopUpCancelLoading}
+        onConfirm={handleConfirmCancelTopUpAdmin}
+        onCancel={() => {
+          if (!confirmingTopUpCancelLoading) setConfirmingTopUpCancel(null);
+        }}
+      />
+
+      <ConfirmationDialog
+        open={!!confirmingTopUpDelete}
+        title="Xóa bản ghi Top-Up?"
+        message={
+          <>
+            Bạn có chắc chắn muốn xóa bản ghi yêu cầu nạp tiền này không? Hành động này không thể hoàn tác.
+          </>
+        }
+        confirmLabel="Xóa"
+        cancelLabel="Hủy"
+        loading={confirmingTopUpDeleteLoading}
+        onConfirm={handleConfirmDeleteTopUp}
+        onCancel={() => {
+          if (!confirmingTopUpDeleteLoading) setConfirmingTopUpDelete(null);
         }}
       />
 

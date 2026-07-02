@@ -43,7 +43,6 @@ export const ProductDetail: React.FC = () => {
   const [owned, setOwned] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'payos' | 'momo'>('payos');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   const loadProductAndOwnership = async () => {
@@ -81,31 +80,17 @@ export const ProductDetail: React.FC = () => {
     }
     try {
       setPurchasing(true);
-      if (paymentMethod === 'payos') {
-        const response = await api.post<{ checkout_url: string; order_code: number; purchase_id: string }>(
-          '/api/purchases/checkout-payment',
-          {
-            product_id: product.id,
-            variant_id: selectedVariantId,
-            cancel_url: window.location.href,
-            return_url: `${window.location.origin}/dashboard?payment=success`
-          }
-        );
-        window.location.href = response.checkout_url;
-      } else {
-        setToast({ message: "Processing MoMo payment...", type: "info" });
-        const purchase = await api.post<Purchase>('/api/purchases/checkout', {
-          product_id: product.id,
-          variant_id: selectedVariantId
-        });
-        if (purchase.status === 'pending') {
-          await api.post<Purchase>(`/api/purchases/${purchase.id}/pay`, {});
-        }
-        setOwned(true);
-        setShowCheckoutModal(false);
-        await refreshUser();
-        navigate('/dashboard?payment=success');
+      const purchase = await api.post<Purchase>('/api/purchases/checkout', {
+        product_id: product.id,
+        variant_id: selectedVariantId
+      });
+      if (purchase.status === 'pending') {
+        await api.post<Purchase>(`/api/purchases/${purchase.id}/pay`, {});
       }
+      setOwned(true);
+      setShowCheckoutModal(false);
+      await refreshUser();
+      navigate('/dashboard?payment=success');
     } catch (err: any) {
       setToast({ message: err.message || 'Checkout failed.', type: 'error' });
     } finally {
@@ -344,7 +329,7 @@ export const ProductDetail: React.FC = () => {
                Secure Checkout
              </h2>
              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-               Confirm your mock transaction details below.
+               Confirm your transaction details below.
              </p>
  
              {(() => {
@@ -376,83 +361,6 @@ export const ProductDetail: React.FC = () => {
                );
              })()}
 
-
-            {/* Select Payment Method */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Select Payment Method
-              </label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }} role="radiogroup" aria-label="Payment Method Selector">
-                {/* PayOS card */}
-                <div 
-                  onClick={() => setPaymentMethod('payos')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.75rem 1rem',
-                    borderRadius: '10px',
-                    border: paymentMethod === 'payos' ? '1px solid var(--primary-solid)' : '1px solid var(--panel-border)',
-                    background: paymentMethod === 'payos' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(255, 255, 255, 0.02)',
-                    cursor: 'pointer',
-                    minHeight: '48px',
-                    transition: 'all 0.2s ease'
-                  }}
-                  role="radio"
-                  aria-checked={paymentMethod === 'payos'}
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') setPaymentMethod('payos'); }}
-                >
-                  <input 
-                    type="radio" 
-                    id="payos-radio"
-                    name="payment-method" 
-                    checked={paymentMethod === 'payos'} 
-                    onChange={() => setPaymentMethod('payos')}
-                    style={{ cursor: 'pointer', accentColor: 'var(--primary-solid)' }} 
-                  />
-                  <label htmlFor="payos-radio" style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer', flex: 1 }}>
-                    <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#fff' }}>PayOS (VietQR / Credit Card)</span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Scan QR code or pay with bank card</span>
-                  </label>
-                </div>
-
-                {/* MoMo card */}
-                <div 
-                  onClick={() => setPaymentMethod('momo')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.75rem 1rem',
-                    borderRadius: '10px',
-                    border: paymentMethod === 'momo' ? '1px solid var(--primary-solid)' : '1px solid var(--panel-border)',
-                    background: paymentMethod === 'momo' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(255, 255, 255, 0.02)',
-                    cursor: 'pointer',
-                    minHeight: '48px',
-                    transition: 'all 0.2s ease'
-                  }}
-                  role="radio"
-                  aria-checked={paymentMethod === 'momo'}
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') setPaymentMethod('momo'); }}
-                >
-                  <input 
-                    type="radio" 
-                    id="momo-radio"
-                    name="payment-method" 
-                    checked={paymentMethod === 'momo'} 
-                    onChange={() => setPaymentMethod('momo')}
-                    style={{ cursor: 'pointer', accentColor: 'var(--primary-solid)' }} 
-                  />
-                  <label htmlFor="momo-radio" style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer', flex: 1 }}>
-                    <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#fff' }}>MoMo Wallet</span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Scan MoMo QR code (Demo Checkout)</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button 
                 onClick={() => setShowCheckoutModal(false)} 
@@ -468,7 +376,7 @@ export const ProductDetail: React.FC = () => {
                 style={{ flex: 1, justifyContent: 'center' }}
                 disabled={purchasing}
               >
-                {purchasing ? 'Processing...' : (paymentMethod === 'payos' ? 'Pay Now (Redirect)' : 'Confirm Buy')}
+                {purchasing ? 'Processing...' : 'Confirm Buy'}
               </button>
             </div>
           </div>
