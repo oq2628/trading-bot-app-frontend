@@ -1800,8 +1800,8 @@ export const Admin: React.FC = () => {
                               fontWeight: 800,
                               padding: '0.2rem 0.5rem',
                               borderRadius: '10px',
-                              background: o.status === 'completed' ? 'rgba(16, 185, 129, 0.15)' : o.status === 'pending' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                              color: o.status === 'completed' ? 'var(--success-color)' : o.status === 'pending' ? 'var(--warning-color)' : 'var(--error-color)',
+                              background: (o.status === 'completed' || o.status === 'active') ? 'rgba(16, 185, 129, 0.15)' : o.status === 'pending' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                              color: (o.status === 'completed' || o.status === 'active') ? 'var(--success-color)' : o.status === 'pending' ? 'var(--warning-color)' : 'var(--error-color)',
                               textTransform: 'uppercase'
                             }}>
                               {o.status}
@@ -2621,8 +2621,8 @@ export const Admin: React.FC = () => {
                   fontWeight: 800,
                   padding: '0.2rem 0.5rem',
                   borderRadius: '10px',
-                  background: viewingOrder.status === 'completed' ? 'rgba(16, 185, 129, 0.15)' : viewingOrder.status === 'pending' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                  color: viewingOrder.status === 'completed' ? 'var(--success-color)' : viewingOrder.status === 'pending' ? 'var(--warning-color)' : 'var(--error-color)',
+                  background: (viewingOrder.status === 'completed' || viewingOrder.status === 'active') ? 'rgba(16, 185, 129, 0.15)' : viewingOrder.status === 'pending' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                  color: (viewingOrder.status === 'completed' || viewingOrder.status === 'active') ? 'var(--success-color)' : viewingOrder.status === 'pending' ? 'var(--warning-color)' : 'var(--error-color)',
                   textTransform: 'uppercase',
                   display: 'inline-block',
                   marginTop: '0.25rem'
@@ -3153,7 +3153,7 @@ export const Admin: React.FC = () => {
                 <button
                   onClick={() => handleManualCreditTopUp(viewingTopUp)}
                   className="btn-primary"
-                  style={{ flex: 1.5, justifyContent: 'center', background: 'var(--success-color)' }}
+                  style={{ flex: 1, justifyContent: 'center', background: 'var(--success-color)' }}
                 >
                   Cộng tiền thủ công (Audited)
                 </button>

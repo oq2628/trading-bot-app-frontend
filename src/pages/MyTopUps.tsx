@@ -545,7 +545,7 @@ export const MyTopUps: React.FC = () => {
                     type="button"
                     onClick={() => handleManualRefresh(activeTopUp.id)}
                     className="btn-primary"
-                    style={{ flex: 1.2, justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                    style={{ flex: 1, justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                   >
                     <RefreshCw size={14} className={polling ? 'animate-spin' : ''} />
                     Verify Payment
@@ -554,7 +554,7 @@ export const MyTopUps: React.FC = () => {
                     type="button"
                     onClick={() => handleCancelTopUp(activeTopUp)}
                     className="btn-secondary"
-                    style={{ flex: 0.8, justifyContent: 'center', borderColor: 'rgba(239,68,68,0.2)', color: 'var(--error-color)' }}
+                    style={{ flex: 1, justifyContent: 'center', borderColor: 'rgba(239,68,68,0.2)', color: 'var(--error-color)' }}
                   >
                     Cancel
                   </button>
