@@ -1748,7 +1748,7 @@ export const Admin: React.FC = () => {
                         { value: 'pending', label: 'Pending' },
                         { value: 'failed', label: 'Failed' }
                       ]}
-                      style={{ background: 'rgba(255,255,255,0.03)' }}
+                      style={{ background: 'rgba(255,255,255,0.03)', height: '40px', padding: '0 1rem' }}
                     />
                   </div>
                 </div>
@@ -2060,7 +2060,7 @@ export const Admin: React.FC = () => {
                         { value: 'failed', label: 'Failed' },
                         { value: 'cancelled', label: 'Cancelled' }
                       ]}
-                      style={{ background: 'rgba(255,255,255,0.03)' }}
+                      style={{ background: 'rgba(255,255,255,0.03)', height: '40px', padding: '0 1rem' }}
                     />
                   </div>
                 </div>
