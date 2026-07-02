@@ -1738,17 +1738,19 @@ export const Admin: React.FC = () => {
 
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Trạng Thái:</span>
-                  <select
-                    className="form-control"
-                    value={orderStatusFilter}
-                    onChange={e => setOrderStatusFilter(e.target.value)}
-                    style={{ background: 'rgba(255,255,255,0.03)', appearance: 'none', width: '150px', height: '40px' }}
-                  >
-                    <option value="all">Tất cả</option>
-                    <option value="completed">Completed</option>
-                    <option value="pending">Pending</option>
-                    <option value="failed">Failed</option>
-                  </select>
+                  <div style={{ width: '150px' }}>
+                    <CustomSelect
+                      value={orderStatusFilter}
+                      onChange={setOrderStatusFilter}
+                      options={[
+                        { value: 'all', label: 'Tất cả' },
+                        { value: 'completed', label: 'Completed' },
+                        { value: 'pending', label: 'Pending' },
+                        { value: 'failed', label: 'Failed' }
+                      ]}
+                      style={{ background: 'rgba(255,255,255,0.03)' }}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -2047,18 +2049,20 @@ export const Admin: React.FC = () => {
                       style={{ paddingLeft: '2.5rem', height: '40px' }}
                     />
                   </div>
-                  <select
-                    className="form-control"
-                    value={topUpsStatusFilter}
-                    onChange={e => setTopUpsStatusFilter(e.target.value)}
-                    style={{ background: 'rgba(255,255,255,0.03)', appearance: 'none', width: '150px', height: '40px' }}
-                  >
-                    <option value="all">Tất cả trạng thái</option>
-                    <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
-                    <option value="failed">Failed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
+                  <div style={{ width: '170px' }}>
+                    <CustomSelect
+                      value={topUpsStatusFilter}
+                      onChange={setTopUpsStatusFilter}
+                      options={[
+                        { value: 'all', label: 'Tất cả trạng thái' },
+                        { value: 'pending', label: 'Pending' },
+                        { value: 'completed', label: 'Completed' },
+                        { value: 'failed', label: 'Failed' },
+                        { value: 'cancelled', label: 'Cancelled' }
+                      ]}
+                      style={{ background: 'rgba(255,255,255,0.03)' }}
+                    />
+                  </div>
                 </div>
                 <button onClick={() => { setShowAddTopUpModal(true); }} className="btn-primary" style={{ height: '40px' }}>
                   <Plus size={16} /> Tạo Top-Up mới
@@ -2407,11 +2411,16 @@ export const Admin: React.FC = () => {
 
               <div className="form-group">
                 <label className="form-label">Phân loại *</label>
-                <select value={productCategory} onChange={e => setProductCategory(e.target.value)} className="form-control" style={{ background: 'rgba(255,255,255,0.03)', appearance: 'none' }}>
-                  <option value="EA">Expert Advisor (EA)</option>
-                  <option value="Indicator">Technical Indicator</option>
-                  <option value="Script">Execution Script</option>
-                </select>
+                <CustomSelect
+                  value={productCategory}
+                  onChange={setProductCategory}
+                  options={[
+                    { value: 'EA', label: 'Expert Advisor (EA)' },
+                    { value: 'Indicator', label: 'Technical Indicator' },
+                    { value: 'Script', label: 'Execution Script' }
+                  ]}
+                  style={{ background: 'rgba(255,255,255,0.03)' }}
+                />
               </div>
 
               {productCategory === 'EA' && (
@@ -2531,16 +2540,16 @@ export const Admin: React.FC = () => {
                         </div>
                         <div className="form-group">
                           <label className="form-label" style={{ fontSize: '0.75rem' }}>Duration Type</label>
-                          <select
+                          <CustomSelect
                             value={newVariantDurationType}
-                            onChange={e => setNewVariantDurationType(e.target.value as any)}
-                            className="form-control"
+                            onChange={(val) => setNewVariantDurationType(val as any)}
+                            options={[
+                              { value: 'months', label: 'Months' },
+                              { value: 'days', label: 'Days' },
+                              { value: 'lifetime', label: 'Lifetime' }
+                            ]}
                             style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', background: 'rgba(255, 255, 255, 0.03)' }}
-                          >
-                            <option value="months">Months</option>
-                            <option value="days">Days</option>
-                            <option value="lifetime">Lifetime</option>
-                          </select>
+                          />
                         </div>
                       </div>
 
@@ -2924,10 +2933,15 @@ export const Admin: React.FC = () => {
               <div className="responsive-grid-2">
                 <div className="form-group">
                   <label className="form-label">Vai trò *</label>
-                  <select value={editUserRole} onChange={e => setEditUserRole(e.target.value)} className="form-control" style={{ background: 'rgba(255,255,255,0.03)', appearance: 'none' }}>
-                    <option value="user">User (Khách mua)</option>
-                    <option value="admin">Admin (Quản trị viên)</option>
-                  </select>
+                  <CustomSelect
+                    value={editUserRole}
+                    onChange={setEditUserRole}
+                    options={[
+                      { value: 'user', label: 'User (Khách mua)' },
+                      { value: 'admin', label: 'Admin (Quản trị viên)' }
+                    ]}
+                    style={{ background: 'rgba(255,255,255,0.03)' }}
+                  />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Số dư ví (USD) *</label>
@@ -3003,10 +3017,15 @@ export const Admin: React.FC = () => {
               <div className="responsive-grid-2">
                 <div className="form-group">
                   <label className="form-label">Loại chiết khấu *</label>
-                  <select value={voucherDiscountType} onChange={e => setVoucherDiscountType(e.target.value)} className="form-control" style={{ background: 'rgba(255,255,255,0.03)', appearance: 'none' }}>
-                    <option value="percentage">Phần trăm (%)</option>
-                    <option value="fixed">Số tiền mặt định mức ($)</option>
-                  </select>
+                  <CustomSelect
+                    value={voucherDiscountType}
+                    onChange={setVoucherDiscountType}
+                    options={[
+                      { value: 'percentage', label: 'Phần trăm (%)' },
+                      { value: 'fixed', label: 'Số tiền mặt định mức ($)' }
+                    ]}
+                    style={{ background: 'rgba(255,255,255,0.03)' }}
+                  />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Giá trị giảm *</label>
@@ -3182,12 +3201,17 @@ export const Admin: React.FC = () => {
             <form onSubmit={handleUpdateTopUp} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div className="form-group">
                 <label className="form-label">Trạng thái giao dịch</label>
-                <select value={editTopUpStatus} onChange={e => setEditTopUpStatus(e.target.value)} className="form-control" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                  <option value="pending">Pending</option>
-                  <option value="completed">Completed</option>
-                  <option value="failed">Failed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
+                <CustomSelect
+                  value={editTopUpStatus}
+                  onChange={setEditTopUpStatus}
+                  options={[
+                    { value: 'pending', label: 'Pending' },
+                    { value: 'completed', label: 'Completed' },
+                    { value: 'failed', label: 'Failed' },
+                    { value: 'cancelled', label: 'Cancelled' }
+                  ]}
+                  style={{ background: 'rgba(255,255,255,0.03)' }}
+                />
                 <span style={{ fontSize: '0.72rem', color: 'var(--warning-color)', marginTop: '0.25rem', display: 'block' }}>
                   * Lưu ý: Thay đổi trạng thái tại đây sẽ KHÔNG tự động cộng/trừ số dư ví của khách hàng. Hãy dùng chức năng "Cộng tiền thủ công" bên ngoài nếu muốn thực hiện cộng ví.
                 </span>
@@ -3233,20 +3257,18 @@ export const Admin: React.FC = () => {
             <form onSubmit={handleCreateTopUpAdmin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div className="form-group">
                 <label className="form-label">Chọn Khách Hàng *</label>
-                <select 
-                  required 
-                  value={topUpTargetUserId} 
-                  onChange={e => setTopUpTargetUserId(e.target.value)} 
-                  className="form-control" 
+                <CustomSelect
+                  value={topUpTargetUserId}
+                  onChange={setTopUpTargetUserId}
+                  options={[
+                    { value: '', label: '-- Chọn khách hàng --' },
+                    ...usersList.map(u => ({
+                      value: u.id,
+                      label: `${u.full_name} (${u.email}) - Ví: $${u.balance.toFixed(2)}`
+                    }))
+                  ]}
                   style={{ background: 'rgba(255,255,255,0.03)' }}
-                >
-                  <option value="">-- Chọn khách hàng --</option>
-                  {usersList.map(u => (
-                    <option key={u.id} value={u.id}>
-                      {u.full_name} ({u.email}) - Ví: ${u.balance.toFixed(2)}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
 
               <div className="form-group">
