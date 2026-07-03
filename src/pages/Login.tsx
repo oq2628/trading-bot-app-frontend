@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import { LogIn, UserPlus, Mail, Key, User, Phone, Shield } from 'lucide-react';
+import { LogIn, UserPlus, Mail, Key, User } from 'lucide-react';
 import { Box, Container, Typography, Button, InputBase, CircularProgress } from '@mui/material';
-import { glassPanelSx, btnPrimarySx, btnSecondarySx } from '../theme';
+import { glassPanelSx, btnPrimarySx } from '../theme';
 
 interface LoginResponse {
   access_token: string;
@@ -30,19 +30,14 @@ export const Login: React.FC = () => {
     }
   }, [user, authLoading, navigate]);
 
-  // Mode can be: 'email' (Email Sign In), 'phone' (Phone Sign In), 'register' (Email Register)
-  const [mode, setMode] = useState<'email' | 'phone' | 'register'>('email');
+  // Mode can be: 'email' (Email Sign In), 'register' (Email Register)
+  const [mode, setMode] = useState<'email' | 'register'>('email');
   
   // Credentials
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
-  // OTP Phone
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otpCode, setOtpCode] = useState('');
-  const [otpRequested, setOtpRequested] = useState(false);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -55,48 +50,6 @@ export const Login: React.FC = () => {
       </Box>
     );
   }
-
-  const handleRequestOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    if (!phoneNumber.trim()) {
-      setError('Phone number is required.');
-      return;
-    }
-    setLoading(true);
-    try {
-      await api.post('/api/auth/otp/request', { phone_number: phoneNumber.trim() });
-      setOtpRequested(true);
-      setSuccess('Verification code generated. Retrieve OTP from backend console logs.');
-    } catch (err: any) {
-      setError(err.message || 'Failed to request OTP code.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    if (!otpCode.trim() || otpCode.trim().length !== 6) {
-      setError('Please enter a valid 6-digit OTP code.');
-      return;
-    }
-    setLoading(true);
-    try {
-      const data = await api.post<LoginResponse>('/api/auth/otp/verify', {
-        phone_number: phoneNumber.trim(),
-        code: otpCode.trim()
-      });
-      await login(data.access_token);
-    } catch (err: any) {
-      setError(err.message || 'OTP verification failed.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -222,24 +175,6 @@ export const Login: React.FC = () => {
             Email Sign In
           </Button>
           <Button
-            onClick={() => { setMode('phone'); setError(''); setSuccess(''); setOtpRequested(false); setOtpCode(''); }}
-            sx={{
-              flex: 1,
-              background: 'none',
-              border: 'none',
-              color: mode === 'phone' ? '#fff' : 'text.secondary',
-              fontSize: '0.9rem',
-              fontWeight: 700,
-              padding: '0.75rem 0',
-              borderRadius: 0,
-              minWidth: 'auto',
-              borderBottom: mode === 'phone' ? '2px solid #6366f1' : 'none',
-              '&:hover': { background: 'none', color: '#fff' }
-            }}
-          >
-            Phone OTP
-          </Button>
-          <Button
             onClick={() => { setMode('register'); setError(''); setSuccess(''); }}
             sx={{
               flex: 1,
@@ -295,100 +230,6 @@ export const Login: React.FC = () => {
         )}
 
         {/* Auth form conditional on mode */}
-        {mode === 'phone' ? (
-          <Box>
-            {!otpRequested ? (
-              <Box component="form" onSubmit={handleRequestOTP}>
-                <Box sx={{ marginBottom: '1.5rem' }}>
-                  <Typography component="label" sx={labelSx}>Phone Number</Typography>
-                  <Box sx={{ position: 'relative' }}>
-                    <Phone size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
-                    <InputBase
-                      type="tel"
-                      required
-                      placeholder="e.g. +1234567890"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      sx={{
-                        ...inputSx,
-                        paddingLeft: '2.5rem',
-                      }}
-                    />
-                  </Box>
-                </Box>
-
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  sx={{
-                    ...btnPrimarySx,
-                    width: '100%',
-                    justifyContent: 'center',
-                    padding: '1rem'
-                  }}
-                >
-                  {loading ? 'Requesting...' : 'Request OTP Code'}
-                </Button>
-              </Box>
-            ) : (
-              <Box component="form" onSubmit={handleVerifyOTP}>
-                <Box sx={{ marginBottom: '1rem', fontSize: '0.85rem', color: 'text.secondary' }}>
-                  Verification code sent to: <strong style={{ color: '#fff' }}>{phoneNumber}</strong>
-                </Box>
-
-                <Box sx={{ marginBottom: '1.5rem' }}>
-                  <Typography component="label" sx={labelSx}>6-Digit OTP Code</Typography>
-                  <Box sx={{ position: 'relative' }}>
-                    <Shield size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
-                    <InputBase
-                      type="text"
-                      slotProps={{ input: { maxLength: 6 } }}
-                      required
-                      placeholder="e.g. 123456"
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                      sx={{
-                        ...inputSx,
-                        paddingLeft: '2.5rem',
-                        letterSpacing: '0.2em',
-                        fontSize: '1.1rem',
-                        fontWeight: 'bold'
-                      }}
-                    />
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: 'flex', gap: '1rem', width: '100%' }}>
-                  <Button
-                    type="button"
-                    onClick={() => { setOtpRequested(false); setOtpCode(''); setError(''); setSuccess(''); }}
-                    sx={{
-                      ...btnSecondarySx,
-                      flex: 1,
-                      padding: '0.75rem',
-                      fontSize: '0.85rem'
-                    }}
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    sx={{
-                      ...btnPrimarySx,
-                      flex: 2,
-                      justifyContent: 'center',
-                      padding: '0.75rem',
-                      fontSize: '0.85rem'
-                    }}
-                  >
-                    {loading ? 'Verifying...' : 'Verify & Sign In'}
-                  </Button>
-                </Box>
-              </Box>
-            )}
-          </Box>
-        ) : (
           <Box component="form" onSubmit={handleSubmitEmail}>
             {mode === 'register' && (
               <Box sx={{ marginBottom: '1rem' }}>
@@ -509,7 +350,6 @@ export const Login: React.FC = () => {
               )}
             </Button>
           </Box>
-        )}
         
         {/* Bootstrap Hint */}
         {mode === 'email' && (

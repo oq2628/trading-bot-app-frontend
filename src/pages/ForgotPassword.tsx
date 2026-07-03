@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
-import { Mail, Phone, ArrowLeft, Send } from 'lucide-react';
+import { Mail, ArrowLeft, Send } from 'lucide-react';
 import { Toast } from '../components/Toast';
 import { Box, Container, Typography, Button, InputBase } from '@mui/material';
 import { glassPanelSx, btnPrimarySx, btnSecondarySx } from '../theme';
 
 export const ForgotPassword: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'email' | 'phone'>('email');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -106,59 +105,11 @@ export const ForgotPassword: React.FC = () => {
           Forgot Password
         </Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.9rem', marginBottom: '2rem' }}>
-          Select how you want to recover your password credentials.
+          Enter your email below to recover your password credentials.
         </Typography>
 
-        {/* Tabs switcher */}
-        <Box
-          sx={{
-            display: 'flex',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-            marginBottom: '2rem',
-            gap: '0.5rem',
-          }}
-        >
-          <Button
-            onClick={() => { setActiveTab('email'); setSubmitted(false); }}
-            sx={{
-              flex: 1,
-              background: 'none',
-              border: 'none',
-              color: activeTab === 'email' ? '#fff' : 'text.secondary',
-              fontSize: '0.9rem',
-              fontWeight: 700,
-              padding: '0.75rem 0',
-              borderRadius: 0,
-              minWidth: 'auto',
-              borderBottom: activeTab === 'email' ? '2px solid #6366f1' : 'none',
-              '&:hover': { background: 'none', color: '#fff' }
-            }}
-          >
-            Email Link
-          </Button>
-          <Button
-            onClick={() => setActiveTab('phone')}
-            sx={{
-              flex: 1,
-              background: 'none',
-              border: 'none',
-              color: activeTab === 'phone' ? '#fff' : 'text.secondary',
-              fontSize: '0.9rem',
-              fontWeight: 700,
-              padding: '0.75rem 0',
-              borderRadius: 0,
-              minWidth: 'auto',
-              borderBottom: activeTab === 'phone' ? '2px solid #6366f1' : 'none',
-              '&:hover': { background: 'none', color: '#fff' }
-            }}
-          >
-            Phone OTP
-          </Button>
-        </Box>
-
         {/* Tab content */}
-        {activeTab === 'email' ? (
-          <Box>
+        <Box>
             {submitted ? (
               <Box sx={{ textAlign: 'center', padding: '1rem 0' }}>
                 <Box
@@ -252,31 +203,6 @@ export const ForgotPassword: React.FC = () => {
               </Box>
             )}
           </Box>
-        ) : (
-          <Box sx={{ textAlign: 'center', padding: '2rem 1rem' }}>
-            <Box
-              sx={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: 'rgba(245, 158, 11, 0.1)',
-                border: '1px solid rgba(245, 158, 11, 0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 1.25rem',
-              }}
-            >
-              <Phone size={22} color="#f59e0b" />
-            </Box>
-            <Typography variant="h3" sx={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>
-              Coming Soon
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: 0 }}>
-              Phone OTP reset is coming soon. Please use the Email reset link tab in the meantime to recover your credentials.
-            </Typography>
-          </Box>
-        )}
       </Box>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </Container>
