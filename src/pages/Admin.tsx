@@ -354,8 +354,20 @@ export const Admin: React.FC = () => {
     }
   };
 
-  const loadAllData = async () => {
-    setLoading(true);
+  const loadAllData = async (silent = false) => {
+    const hasData = 
+      (activeTab === 'dashboard' && dashboardStats) ||
+      (activeTab === 'products' && products.length > 0) ||
+      (activeTab === 'orders' && orders.length > 0) ||
+      (activeTab === 'users' && usersList.length > 0) ||
+      (activeTab === 'vouchers' && vouchers.length > 0) ||
+      (activeTab === 'topups' && topUpsList.length > 0);
+
+    const shouldShowSpinner = !silent && !hasData;
+
+    if (shouldShowSpinner) {
+      setLoading(true);
+    }
     setError('');
     try {
       if (activeTab === 'dashboard') await loadDashboardData();
@@ -367,7 +379,9 @@ export const Admin: React.FC = () => {
     } catch (err) {
       // Caught inside subfunctions
     } finally {
-      setLoading(false);
+      if (shouldShowSpinner) {
+        setLoading(false);
+      }
     }
   };
 
@@ -378,19 +392,17 @@ export const Admin: React.FC = () => {
   // Handle Date range filter
   const handleFilterDashboard = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    loadDashboardData().finally(() => setLoading(false));
+    loadDashboardData();
   };
 
   const handleResetDashboard = () => {
     setStartDate('');
     setEndDate('');
-    setLoading(true);
     api.get<any>('/api/admin/dashboard').then((stats) => {
       setDashboardStats(stats);
     }).catch((err) => {
       setError(err.message || 'Failed to fetch dashboard metrics.');
-    }).finally(() => setLoading(false));
+    });
   };
 
   // Image Upload helpers for creating product
@@ -1136,7 +1148,14 @@ export const Admin: React.FC = () => {
               System stats, products inventory, logs checkouts ledger, user accounts directory, and voucher campaigns.
             </Typography>
           </Box>
-          <Button onClick={loadAllData} sx={{ ...btnSecondarySx, height: '42px', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <Button 
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              loadAllData();
+            }} 
+            sx={{ ...btnSecondarySx, height: '42px', display: 'flex', gap: '0.5rem', alignItems: 'center' }}
+          >
             <RefreshCw size={16} />
             Sync Data
           </Button>

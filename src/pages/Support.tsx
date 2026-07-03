@@ -121,6 +121,7 @@ export const Support: React.FC = () => {
             <Button
               component="a"
               href="#"
+              onClick={(e) => e.preventDefault()}
               sx={{
                 ...btnSecondarySx,
                 marginTop: 'auto',
@@ -221,6 +222,7 @@ export const Support: React.FC = () => {
             <Button
               component="a"
               href="#"
+              onClick={(e) => e.preventDefault()}
               sx={{
                 ...btnSecondarySx,
                 marginTop: 'auto',

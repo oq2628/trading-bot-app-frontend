@@ -135,7 +135,7 @@ export const Dashboard: React.FC = () => {
       await api.post('/api/license/bind', { license_id: licenseId, mt5_account: val });
       setToast({ message: 'License successfully bound to MT4/MT5 account.', type: 'success' });
       setBindInputs(prev => ({ ...prev, [licenseId]: '' }));
-      loadOrders();
+      loadOrders(true);
     } catch (err: any) {
       setToast({ message: err.message || 'Failed to bind account.', type: 'error' });
     } finally {
@@ -149,7 +149,7 @@ export const Dashboard: React.FC = () => {
       await api.post('/api/license/reset', { license_id: licenseId });
       setToast({ message: 'License bindings cleared successfully.', type: 'success' });
       setBindInputs(prev => ({ ...prev, [licenseId]: '' }));
-      loadOrders();
+      loadOrders(true);
     } catch (err: any) {
       setToast({ message: err.message || 'Failed to reset license bindings.', type: 'error' });
     } finally {
@@ -163,7 +163,7 @@ export const Dashboard: React.FC = () => {
       setRemovingAccountKey(loadingKey);
       await api.delete(`/api/license/${licenseId}/bindings/${encodeURIComponent(account)}`);
       setToast({ message: 'MT4/MT5 account binding removed successfully.', type: 'success' });
-      loadOrders();
+      loadOrders(true);
     } catch (err: unknown) {
       setToast({ message: err instanceof Error ? err.message : 'Failed to remove account binding.', type: 'error' });
     } finally {
@@ -246,7 +246,7 @@ export const Dashboard: React.FC = () => {
       setToast({ message: "License renewed successfully!", type: "success" });
       setRenewingOrder(null);
       setSelectedVariantId('');
-      await loadOrders();
+      await loadOrders(true);
     } catch (err: any) {
       setToast({ message: err.message || 'Checkout failed.', type: 'error' });
     } finally {
@@ -254,16 +254,20 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const loadOrders = async () => {
+  const loadOrders = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) {
+        setLoading(true);
+      }
       setError('');
       const data = await api.get<Order[]>('/api/orders/my-orders');
       setOrders(data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch purchased tools ledger.');
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   };
 
@@ -347,7 +351,11 @@ export const Dashboard: React.FC = () => {
             </Typography>
           </Box>
           <Button
-            onClick={loadOrders}
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              loadOrders();
+            }}
             sx={{
               ...btnSecondarySx,
               display: 'flex',
@@ -556,9 +564,14 @@ export const Dashboard: React.FC = () => {
                             <Box component="code" sx={{ background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.5rem', borderRadius: '4px', color: 'primary.main', fontWeight: 600, fontSize: '0.8rem', wordBreak: 'break-all' }}>
                               {order.license.key_recoverable ? 'Stored encrypted' : 'Legacy key unavailable'}
                             </Box>
-                            {order.license.key_recoverable ? (
+                             {order.license.key_recoverable ? (
                               <Button
-                                onClick={() => handleCopyLicenseKey(order.license!.id)}
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleCopyLicenseKey(order.license!.id);
+                                }}
                                 disabled={copyingKeyId === order.license.id}
                                 sx={{
                                   ...btnSecondarySx,
@@ -586,7 +599,12 @@ export const Dashboard: React.FC = () => {
                             </Box> | {isLifetime ? 'Lifetime (Never Expires)' : `Expires: ${expiresAt ? expiresAt.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : ''}`} {!isLifetime && !isExpired && `(${daysRemaining} days left)`}
                           </Typography>
                           <Button
-                            onClick={() => handleOpenRenewModal(order)}
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleOpenRenewModal(order);
+                            }}
                             sx={{
                               ...(isExpired ? btnPrimarySx : btnSecondarySx),
                               padding: '0.4rem 0.85rem',
@@ -635,9 +653,14 @@ export const Dashboard: React.FC = () => {
                                     Account: {account}
                                     <Box
                                       component="button"
+                                      type="button"
                                       title={`Remove account ${account}`}
                                       aria-label={`Remove account ${account}`}
-                                      onClick={() => handleRemoveAccountBinding(order.license!.id, account)}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleRemoveAccountBinding(order.license!.id, account);
+                                      }}
                                       disabled={isExpired || removingAccountKey === `${order.license!.id}:${account}`}
                                       sx={{
                                         background: 'transparent',
@@ -692,7 +715,12 @@ export const Dashboard: React.FC = () => {
                                   }}
                                 />
                                 <Button
-                                  onClick={() => handleBindLicense(order.license!.id)}
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleBindLicense(order.license!.id);
+                                  }}
                                   disabled={isExpired || !bindInputs[order.license.id] || !!bindErrors[order.license.id] || bindingId === order.license.id}
                                   sx={{
                                     ...btnPrimarySx,
@@ -722,7 +750,12 @@ export const Dashboard: React.FC = () => {
 
                             {(boundAccounts.length > 0 || order.license.device_id) && (
                               <Button
-                                onClick={() => handleResetLicense(order.license!.id)}
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleResetLicense(order.license!.id);
+                                }}
                                 disabled={isExpired || resettingId === order.license.id}
                                 sx={{
                                   ...btnSecondarySx,
