@@ -226,6 +226,9 @@ export const Admin: React.FC = () => {
 
   // Replacing file for product directly in catalog
   const [replacingProductId, setReplacingProductId] = useState<string | null>(null);
+  const [replacingFileDragOver, setReplacingFileDragOver] = useState(false);
+  const [replacingSelectedFile, setReplacingSelectedFile] = useState<File | null>(null);
+  const [uploadingReplacingFile, setUploadingReplacingFile] = useState(false);
 
   // 3. Orders State
   const [orders, setOrders] = useState<Order[]>([]);
@@ -1475,7 +1478,7 @@ export const Admin: React.FC = () => {
                                   <Button
                                     onClick={() => {
                                       setReplacingProductId(p.id);
-                                      replaceFileInputRef.current?.click();
+                                      setReplacingSelectedFile(null);
                                     }}
                                     sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: isPending ? 'rgba(245, 158, 11, 0.3)' : 'rgba(255,255,255,0.08)' }}
                                     title={isPending ? "Tải lên file code" : "Thay thế file code"}
@@ -1502,17 +1505,7 @@ export const Admin: React.FC = () => {
                       </TableBody>
                     </Table>
 
-                    <input
-                      type="file"
-                      ref={replaceFileInputRef}
-                      style={{ display: 'none' }}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file && replacingProductId) {
-                          handleUploadFileDirect(replacingProductId, file);
-                        }
-                      }}
-                    />
+
                   </Box>
                 )}
               </Box>
@@ -1996,7 +1989,15 @@ export const Admin: React.FC = () => {
             <X size={20} />
           </Box>
         </DialogTitle>
-        <DialogContent sx={{ padding: 0 }}>
+        <DialogContent sx={{
+          padding: 0,
+          overflowY: 'auto',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
+        }}>
           <Box component="form" onSubmit={handleCreateProduct} sx={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <Box>
               <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>Tên sản phẩm *</Typography>
@@ -2170,7 +2171,15 @@ export const Admin: React.FC = () => {
             <X size={20} />
           </Box>
         </DialogTitle>
-        <DialogContent sx={{ padding: 0 }}>
+        <DialogContent sx={{
+          padding: 0,
+          overflowY: 'auto',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
+        }}>
           {editingProduct && (
             <Box component="form" onSubmit={handleUpdateProduct} sx={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <Box>
@@ -3035,6 +3044,159 @@ export const Admin: React.FC = () => {
               <Button type="button" onClick={() => setShowAddTopUpModal(false)} sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center' }}>Hủy</Button>
               <Button type="submit" disabled={submittingTopUp} sx={{ ...btnPrimarySx, flex: 1, justifyContent: 'center' }}>
                 {submittingTopUp ? 'Đang tạo...' : 'Tạo Top-Up'}
+              </Button>
+            </Box>
+          </Box>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODAL: REPLACE PHYSICAL CODE FILE */}
+      <Dialog
+        open={!!replacingProductId}
+        onClose={() => {
+          if (!uploadingReplacingFile) {
+            setReplacingProductId(null);
+            setReplacingSelectedFile(null);
+          }
+        }}
+        slotProps={{ paper: { sx: {
+            ...glassPanelSx,
+            padding: '2rem',
+            maxWidth: '500px',
+            width: '100%',
+            background: 'rgba(20, 22, 33, 0.95)',
+            backgroundImage: 'none',
+            maxHeight: '90vh'
+          } } }}
+      >
+        <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontFamily: '"Outfit", sans-serif' }}>
+          <Typography variant="h2" sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>
+            Thay thế file code / binary
+          </Typography>
+          <Box component="button" onClick={() => {
+            if (!uploadingReplacingFile) {
+              setReplacingProductId(null);
+              setReplacingSelectedFile(null);
+            }
+          }} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
+            <X size={20} />
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{
+          padding: 0,
+          overflowY: 'auto',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
+        }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <Box
+              onDragOver={(e) => {
+                e.preventDefault();
+                setReplacingFileDragOver(true);
+              }}
+              onDragLeave={() => setReplacingFileDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setReplacingFileDragOver(false);
+                const file = e.dataTransfer.files?.[0];
+                if (file) {
+                  setReplacingSelectedFile(file);
+                }
+              }}
+              onClick={() => replaceFileInputRef.current?.click()}
+              sx={{
+                border: '2px dashed',
+                borderColor: replacingFileDragOver ? 'primary.main' : 'rgba(255,255,255,0.1)',
+                padding: '2rem',
+                textAlign: 'center',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                background: replacingFileDragOver ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.1)',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  background: 'rgba(99,102,241,0.04)'
+                }
+              }}
+            >
+              <Upload size={32} style={{ marginBottom: '0.75rem', color: '#6b7280' }} />
+              <Typography sx={{ fontSize: '0.9rem', color: '#fff', fontWeight: 600, marginBottom: '0.25rem' }}>
+                Kéo thả file vào đây
+              </Typography>
+              <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                hoặc click để chọn file từ máy tính (.ex5, .mq5, .zip)
+              </Typography>
+            </Box>
+
+            <input
+              type="file"
+              ref={replaceFileInputRef}
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setReplacingSelectedFile(file);
+                }
+              }}
+            />
+
+            {replacingSelectedFile && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '0.75rem' }}>
+                <FileCode size={24} color="#6366f1" />
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{ fontSize: '0.85rem', color: '#fff', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {replacingSelectedFile.name}
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
+                    {(replacingSelectedFile.size / 1024).toFixed(1)} KB
+                  </Typography>
+                </Box>
+                <Button
+                  type="button"
+                  onClick={() => setReplacingSelectedFile(null)}
+                  disabled={uploadingReplacingFile}
+                  sx={{ ...btnSecondarySx, padding: '0.35rem 0.6rem', fontSize: '0.75rem', height: '30px' }}
+                >
+                  Xóa
+                </Button>
+              </Box>
+            )}
+
+            <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+              <Button
+                type="button"
+                onClick={() => {
+                  setReplacingProductId(null);
+                  setReplacingSelectedFile(null);
+                }}
+                disabled={uploadingReplacingFile}
+                sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center' }}
+              >
+                Hủy
+              </Button>
+              <Button
+                type="button"
+                onClick={async () => {
+                  if (replacingSelectedFile && replacingProductId) {
+                    try {
+                      setUploadingReplacingFile(true);
+                      await handleUploadFileDirect(replacingProductId, replacingSelectedFile);
+                      setReplacingProductId(null);
+                      setReplacingSelectedFile(null);
+                    } catch (err) {
+                      // Handled by handleUploadFileDirect
+                    } finally {
+                      setUploadingReplacingFile(false);
+                    }
+                  }
+                }}
+                disabled={!replacingSelectedFile || uploadingReplacingFile}
+                sx={{ ...btnPrimarySx, flex: 1, justifyContent: 'center' }}
+              >
+                {uploadingReplacingFile ? 'Đang tải lên...' : 'Tải lên'}
               </Button>
             </Box>
           </Box>
