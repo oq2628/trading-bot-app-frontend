@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { LogIn, UserPlus, Mail, Key, User, Phone, Shield } from 'lucide-react';
+import { Box, Container, Typography, Button, InputBase, CircularProgress } from '@mui/material';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx } from '../theme';
 
 interface LoginResponse {
   access_token: string;
@@ -48,16 +50,9 @@ export const Login: React.FC = () => {
 
   if (authLoading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          border: '3px solid rgba(99, 102, 241, 0.1)',
-          borderTopColor: 'var(--primary-solid)',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }}></div>
-      </div>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <CircularProgress color="primary" />
+      </Box>
     );
   }
 
@@ -139,268 +134,365 @@ export const Login: React.FC = () => {
     }
   };
 
+  const inputSx = {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    border: '1px solid rgba(255, 255, 255, 0.06)',
+    borderRadius: '8px',
+    padding: '0.75rem 1rem',
+    color: '#fff',
+    fontSize: '0.95rem',
+    fontFamily: '"Outfit", sans-serif',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    '&.Mui-focused': {
+      borderColor: '#6366f1',
+      boxShadow: '0 0 10px 0 rgba(99, 102, 241, 0.2)',
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    '& input': {
+      padding: 0,
+      '&::placeholder': {
+        color: '#6b7280',
+        opacity: 1,
+      }
+    }
+  };
+
+  const labelSx = {
+    display: 'block',
+    fontSize: '0.85rem',
+    fontWeight: 600,
+    color: 'text.secondary',
+    marginBottom: '0.5rem',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+  };
+
   return (
-    <div className="container animate-fade-in" style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: 'calc(100vh - 160px)',
-      padding: '2rem 1rem'
-    }}>
-      <div className="glass-panel" style={{
-        maxWidth: '460px',
-        width: '100%',
-        padding: '2.5rem',
-        border: '1px solid rgba(99, 102, 241, 0.2)'
-      }}>
-        
+    <Container
+      maxWidth="xl"
+      sx={{
+        maxWidth: '1600px !important',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 'calc(100vh - 160px)',
+        padding: '2rem 1rem',
+        animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        '@keyframes fadeIn': {
+          from: { opacity: 0, transform: 'translateY(10px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+        },
+      }}
+    >
+      <Box
+        sx={{
+          ...glassPanelSx,
+          maxWidth: '460px',
+          width: '100%',
+          padding: '2.5rem',
+          border: '1px solid rgba(99, 102, 241, 0.2)'
+        }}
+      >
         {/* Toggle tabs */}
-        <div style={{
-          display: 'flex',
-          borderBottom: '1px solid var(--panel-border)',
-          marginBottom: '2rem',
-          gap: '0.5rem'
-        }}>
-          <button
+        <Box
+          sx={{
+            display: 'flex',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+            marginBottom: '2rem',
+            gap: '0.5rem'
+          }}
+        >
+          <Button
             onClick={() => { setMode('email'); setError(''); setSuccess(''); }}
-            style={{
+            sx={{
               flex: 1,
               background: 'none',
               border: 'none',
-              color: mode === 'email' ? '#fff' : 'var(--text-muted)',
+              color: mode === 'email' ? '#fff' : 'text.secondary',
               fontSize: '0.9rem',
               fontWeight: 700,
               padding: '0.75rem 0',
-              cursor: 'pointer',
-              borderBottom: mode === 'email' ? '2px solid var(--primary-solid)' : 'none',
-              transition: 'var(--transition-smooth)'
+              borderRadius: 0,
+              minWidth: 'auto',
+              borderBottom: mode === 'email' ? '2px solid #6366f1' : 'none',
+              '&:hover': { background: 'none', color: '#fff' }
             }}
           >
             Email Sign In
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => { setMode('phone'); setError(''); setSuccess(''); setOtpRequested(false); setOtpCode(''); }}
-            style={{
+            sx={{
               flex: 1,
               background: 'none',
               border: 'none',
-              color: mode === 'phone' ? '#fff' : 'var(--text-muted)',
+              color: mode === 'phone' ? '#fff' : 'text.secondary',
               fontSize: '0.9rem',
               fontWeight: 700,
               padding: '0.75rem 0',
-              cursor: 'pointer',
-              borderBottom: mode === 'phone' ? '2px solid var(--primary-solid)' : 'none',
-              transition: 'var(--transition-smooth)'
+              borderRadius: 0,
+              minWidth: 'auto',
+              borderBottom: mode === 'phone' ? '2px solid #6366f1' : 'none',
+              '&:hover': { background: 'none', color: '#fff' }
             }}
           >
             Phone OTP
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => { setMode('register'); setError(''); setSuccess(''); }}
-            style={{
+            sx={{
               flex: 1,
               background: 'none',
               border: 'none',
-              color: mode === 'register' ? '#fff' : 'var(--text-muted)',
+              color: mode === 'register' ? '#fff' : 'text.secondary',
               fontSize: '0.9rem',
               fontWeight: 700,
               padding: '0.75rem 0',
-              cursor: 'pointer',
-              borderBottom: mode === 'register' ? '2px solid var(--primary-solid)' : 'none',
-              transition: 'var(--transition-smooth)'
+              borderRadius: 0,
+              minWidth: 'auto',
+              borderBottom: mode === 'register' ? '2px solid #6366f1' : 'none',
+              '&:hover': { background: 'none', color: '#fff' }
             }}
           >
             Register
-          </button>
-        </div>
+          </Button>
+        </Box>
 
         {/* Messaging Panels */}
         {error && (
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: '8px',
-            padding: '0.75rem 1rem',
-            color: 'var(--error-color)',
-            fontSize: '0.85rem',
-            fontWeight: 500,
-            marginBottom: '1.5rem'
-          }}>
+          <Box
+            sx={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: '8px',
+              padding: '0.75rem 1rem',
+              color: 'error.main',
+              fontSize: '0.85rem',
+              fontWeight: 500,
+              marginBottom: '1.5rem'
+            }}
+          >
             {error}
-          </div>
+          </Box>
         )}
 
         {success && (
-          <div style={{
-            background: 'rgba(16, 185, 129, 0.1)',
-            border: '1px solid rgba(16, 185, 129, 0.2)',
-            borderRadius: '8px',
-            padding: '0.75rem 1rem',
-            color: 'var(--success-color)',
-            fontSize: '0.85rem',
-            fontWeight: 500,
-            marginBottom: '1.5rem'
-          }}>
+          <Box
+            sx={{
+              background: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(16, 185, 129, 0.2)',
+              borderRadius: '8px',
+              padding: '0.75rem 1rem',
+              color: 'success.main',
+              fontSize: '0.85rem',
+              fontWeight: 500,
+              marginBottom: '1.5rem'
+            }}
+          >
             {success}
-          </div>
+          </Box>
         )}
 
         {/* Auth form conditional on mode */}
         {mode === 'phone' ? (
-          <div>
+          <Box>
             {!otpRequested ? (
-              <form onSubmit={handleRequestOTP}>
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Phone Number</label>
-                  <div style={{ position: 'relative' }}>
-                    <Phone size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                    <input
+              <Box component="form" onSubmit={handleRequestOTP}>
+                <Box sx={{ marginBottom: '1.5rem' }}>
+                  <Typography component="label" sx={labelSx}>Phone Number</Typography>
+                  <Box sx={{ position: 'relative' }}>
+                    <Phone size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
+                    <InputBase
                       type="tel"
                       required
-                      className="form-control"
                       placeholder="e.g. +1234567890"
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
-                      style={{ paddingLeft: '2.5rem' }}
+                      sx={{
+                        ...inputSx,
+                        paddingLeft: '2.5rem',
+                      }}
                     />
-                  </div>
-                </div>
+                  </Box>
+                </Box>
 
-                <button
+                <Button
                   type="submit"
                   disabled={loading}
-                  className="btn-primary"
-                  style={{ width: '100%', justifyContent: 'center', padding: '1rem' }}
+                  sx={{
+                    ...btnPrimarySx,
+                    width: '100%',
+                    justifyContent: 'center',
+                    padding: '1rem'
+                  }}
                 >
                   {loading ? 'Requesting...' : 'Request OTP Code'}
-                </button>
-              </form>
+                </Button>
+              </Box>
             ) : (
-              <form onSubmit={handleVerifyOTP}>
-                <div style={{ marginBottom: '1rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              <Box component="form" onSubmit={handleVerifyOTP}>
+                <Box sx={{ marginBottom: '1rem', fontSize: '0.85rem', color: 'text.secondary' }}>
                   Verification code sent to: <strong style={{ color: '#fff' }}>{phoneNumber}</strong>
-                </div>
+                </Box>
 
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">6-Digit OTP Code</label>
-                  <div style={{ position: 'relative' }}>
-                    <Shield size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                    <input
+                <Box sx={{ marginBottom: '1.5rem' }}>
+                  <Typography component="label" sx={labelSx}>6-Digit OTP Code</Typography>
+                  <Box sx={{ position: 'relative' }}>
+                    <Shield size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
+                    <InputBase
                       type="text"
-                      maxLength={6}
+                      slotProps={{ input: { maxLength: 6 } }}
                       required
-                      className="form-control"
                       placeholder="e.g. 123456"
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                      style={{ paddingLeft: '2.5rem', letterSpacing: '0.2em', fontSize: '1.1rem', fontWeight: 'bold' }}
+                      sx={{
+                        ...inputSx,
+                        paddingLeft: '2.5rem',
+                        letterSpacing: '0.2em',
+                        fontSize: '1.1rem',
+                        fontWeight: 'bold'
+                      }}
                     />
-                  </div>
-                </div>
+                  </Box>
+                </Box>
 
-                <div style={{ display: 'flex', gap: '1rem', width: '100%' }}>
-                  <button
+                <Box sx={{ display: 'flex', gap: '1rem', width: '100%' }}>
+                  <Button
                     type="button"
                     onClick={() => { setOtpRequested(false); setOtpCode(''); setError(''); setSuccess(''); }}
-                    className="btn-secondary"
-                    style={{ flex: 1, padding: '0.75rem', fontSize: '0.85rem' }}
+                    sx={{
+                      ...btnSecondarySx,
+                      flex: 1,
+                      padding: '0.75rem',
+                      fontSize: '0.85rem'
+                    }}
                   >
                     Back
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
                     disabled={loading}
-                    className="btn-primary"
-                    style={{ flex: 2, justifyContent: 'center', padding: '0.75rem', fontSize: '0.85rem' }}
+                    sx={{
+                      ...btnPrimarySx,
+                      flex: 2,
+                      justifyContent: 'center',
+                      padding: '0.75rem',
+                      fontSize: '0.85rem'
+                    }}
                   >
                     {loading ? 'Verifying...' : 'Verify & Sign In'}
-                  </button>
-                </div>
-              </form>
+                  </Button>
+                </Box>
+              </Box>
             )}
-          </div>
+          </Box>
         ) : (
-          <form onSubmit={handleSubmitEmail}>
+          <Box component="form" onSubmit={handleSubmitEmail}>
             {mode === 'register' && (
-              <div className="form-group">
-                <label className="form-label">Full Name</label>
-                <div style={{ position: 'relative' }}>
-                  <User size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input
+              <Box sx={{ marginBottom: '1rem' }}>
+                <Typography component="label" sx={labelSx}>Full Name</Typography>
+                <Box sx={{ position: 'relative' }}>
+                  <User size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
+                  <InputBase
                     type="text"
                     required
-                    className="form-control"
                     placeholder="e.g. John Doe"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    style={{ paddingLeft: '2.5rem' }}
+                    sx={{
+                      ...inputSx,
+                      paddingLeft: '2.5rem',
+                    }}
                   />
-                </div>
-              </div>
+                </Box>
+              </Box>
             )}
 
-            <div className="form-group">
-              <label className="form-label">Email Address</label>
-              <div style={{ position: 'relative' }}>
-                <Mail size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                <input
+            <Box sx={{ marginBottom: '1rem' }}>
+              <Typography component="label" sx={labelSx}>Email Address</Typography>
+              <Box sx={{ position: 'relative' }}>
+                <Mail size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
+                <InputBase
                   type="email"
                   required
-                  className="form-control"
                   placeholder="e.g. buyer@algo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  style={{ paddingLeft: '2.5rem' }}
+                  sx={{
+                    ...inputSx,
+                    paddingLeft: '2.5rem',
+                  }}
                 />
-              </div>
-            </div>
+              </Box>
+            </Box>
 
-            <div className="form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label className="form-label">Password</label>
+            <Box sx={{ marginBottom: '1rem' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography component="label" sx={labelSx}>Password</Typography>
                 {mode === 'email' && (
-                  <Link to="/forgot-password" style={{ fontSize: '0.8rem', color: 'var(--primary-solid)', textDecoration: 'none' }} className="nav-link">
+                  <Box
+                    component={Link}
+                    to="/forgot-password"
+                    sx={{
+                      fontSize: '0.8rem',
+                      color: 'primary.main',
+                      textDecoration: 'none',
+                      marginBottom: '0.5rem',
+                      '&:hover': { textDecoration: 'underline' }
+                    }}
+                  >
                     Forgot Password?
-                  </Link>
+                  </Box>
                 )}
-              </div>
-              <div style={{ position: 'relative' }}>
-                <Key size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                <input
+              </Box>
+              <Box sx={{ position: 'relative' }}>
+                <Key size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
+                <InputBase
                   type="password"
                   required
-                  className="form-control"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  style={{ paddingLeft: '2.5rem' }}
+                  sx={{
+                    ...inputSx,
+                    paddingLeft: '2.5rem',
+                  }}
                 />
-              </div>
-            </div>
+              </Box>
+            </Box>
 
             {mode === 'register' && (
-              <div className="form-group" style={{ marginBottom: '2rem' }}>
-                <label className="form-label">Confirm Password</label>
-                <div style={{ position: 'relative' }}>
-                  <Key size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input
+              <Box sx={{ marginBottom: '2rem' }}>
+                <Typography component="label" sx={labelSx}>Confirm Password</Typography>
+                <Box sx={{ position: 'relative' }}>
+                  <Key size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
+                  <InputBase
                     type="password"
                     required
-                    className="form-control"
                     placeholder="••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    style={{ paddingLeft: '2.5rem' }}
+                    sx={{
+                      ...inputSx,
+                      paddingLeft: '2.5rem',
+                    }}
                   />
-                </div>
-              </div>
+                </Box>
+              </Box>
             )}
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="btn-primary"
-              style={{ width: '100%', justifyContent: 'center', padding: '1rem', marginTop: '1rem' }}
+              sx={{
+                ...btnPrimarySx,
+                width: '100%',
+                justifyContent: 'center',
+                padding: '1rem',
+                marginTop: '1.5rem'
+              }}
             >
               {loading ? (
                 'Processing...'
@@ -415,29 +507,33 @@ export const Login: React.FC = () => {
                   Create Account
                 </>
               )}
-            </button>
-          </form>
+            </Button>
+          </Box>
         )}
         
         {/* Bootstrap Hint */}
         {mode === 'email' && (
-          <div style={{
-            marginTop: '2rem',
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid var(--panel-border)',
-            borderRadius: '8px',
-            padding: '1rem',
-            fontSize: '0.8rem',
-            color: 'var(--text-secondary)',
-            lineHeight: '1.4'
-          }}>
-            <strong style={{ color: 'var(--primary-solid)', display: 'block', marginBottom: '0.25rem' }}>Bootstrap Test Accounts:</strong>
-            • Admin: <code style={{ color: '#fff' }}>admin@tradingbot.com</code> / pass: <code style={{ color: '#fff' }}>admin123</code><br/>
-            • Buyer: <code style={{ color: '#fff' }}>buyer@tradingbot.com</code> / pass: <code style={{ color: '#fff' }}>buyer123</code>
-          </div>
+          <Box
+            sx={{
+              marginTop: '2rem',
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '8px',
+              padding: '1rem',
+              fontSize: '0.8rem',
+              color: 'text.secondary',
+              lineHeight: '1.4'
+            }}
+          >
+            <Typography component="strong" sx={{ color: 'primary.main', display: 'block', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 700 }}>
+              Bootstrap Test Accounts:
+            </Typography>
+            • Admin: <Box component="code" sx={{ color: '#fff' }}>admin@tradingbot.com</Box> / pass: <Box component="code" sx={{ color: '#fff' }}>admin123</Box><br/>
+            • Buyer: <Box component="code" sx={{ color: '#fff' }}>buyer@tradingbot.com</Box> / pass: <Box component="code" sx={{ color: '#fff' }}>buyer123</Box>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Container>
   );
 };
 

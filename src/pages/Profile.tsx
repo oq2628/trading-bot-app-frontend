@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { Toast } from '../components/Toast';
 import { User, Wallet, Save, ArrowUpRight, Calendar, MapPin, Phone, X, RefreshCw } from 'lucide-react';
+import { Box, Container, Typography, Button, InputBase, CircularProgress } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx } from '../theme';
 
 export const Profile: React.FC = () => {
   const { user, refreshUser } = useAuth();
@@ -83,9 +85,9 @@ export const Profile: React.FC = () => {
 
   if (!user) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <p style={{ color: 'var(--text-secondary)' }}>Please sign in to view your profile settings.</p>
-      </div>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <Typography sx={{ color: 'text.secondary' }}>Please sign in to view your profile settings.</Typography>
+      </Box>
     );
   }
 
@@ -133,468 +135,457 @@ export const Profile: React.FC = () => {
     }
   };
 
+  const inputSx = {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    border: '1px solid rgba(255, 255, 255, 0.06)',
+    borderRadius: '8px',
+    padding: '0.75rem 1rem',
+    color: '#fff',
+    fontSize: '0.9rem',
+    fontFamily: '"Outfit", sans-serif',
+    transition: 'border-color 0.2s',
+    '&.Mui-focused': {
+      borderColor: '#6366f1',
+    },
+    '& input': {
+      padding: 0,
+      '&::placeholder': {
+        color: '#6b7280',
+        opacity: 1,
+      }
+    },
+    '&.Mui-disabled': {
+      backgroundColor: 'rgba(255, 255, 255, 0.02)',
+      borderColor: 'rgba(255, 255, 255, 0.05)',
+      color: 'text.disabled',
+      cursor: 'not-allowed',
+      '& input': {
+        cursor: 'not-allowed'
+      }
+    }
+  };
 
+  const labelSx = {
+    fontSize: '0.8rem',
+    fontWeight: 600,
+    color: 'text.secondary'
+  };
 
   return (
-    <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
+    <Container
+      maxWidth="xl"
+      sx={{
+        maxWidth: '1600px !important',
+        paddingBottom: '4rem',
+        animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        '@keyframes fadeIn': {
+          from: { opacity: 0, transform: 'translateY(10px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+        },
+      }}
+    >
       {/* Page Header */}
-      <div className="glass-panel" style={{
-        padding: '2rem',
-        marginBottom: '2.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1.5rem',
-        border: '1px solid rgba(99, 102, 241, 0.15)',
-        background: 'linear-gradient(135deg, rgba(15, 17, 23, 0.6), rgba(99, 102, 241, 0.05))'
-      }}>
-        <div style={{
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--primary-glow), #ec4899)',
+      <Box
+        sx={{
+          ...glassPanelSx,
+          padding: '2rem',
+          marginBottom: '2.5rem',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          fontWeight: 800,
-          fontSize: '1.5rem',
-          color: '#fff',
-          boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)'
-        }}>
+          gap: '1.5rem',
+          border: '1px solid rgba(99, 102, 241, 0.15)',
+          background: 'linear-gradient(135deg, rgba(15, 17, 23, 0.6), rgba(99, 102, 241, 0.05))'
+        }}
+      >
+        <Box
+          sx={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 800,
+            fontSize: '1.5rem',
+            color: '#fff',
+            boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)',
+            flexShrink: 0
+          }}
+        >
           {user.full_name ? user.full_name.trim().charAt(0).toUpperCase() : 'U'}
-        </div>
-        <div>
-          <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.25rem' }}>
+        </Box>
+        <Box>
+          <Typography variant="h1" sx={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.25rem' }}>
             My Account Settings
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+          </Typography>
+          <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>
             Manage your personal profile, contact information, and simulated wallet balance.
-          </p>
-        </div>
-      </div>
+          </Typography>
+        </Box>
+      </Box>
 
       {/* Two Column Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: '2rem'
-      }}>
+      <Grid container spacing={4}>
         {/* Left Column: Account Profile */}
-        <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <h2 style={{ fontSize: '1.35rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem', margin: 0 }}>
-            <User size={18} color="var(--primary-solid)" />
-            Profile Details
-          </h2>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Box sx={{ ...glassPanelSx, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <Typography variant="h2" sx={{ fontSize: '1.35rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem', margin: 0 }}>
+              <User size={18} color="#6366f1" />
+              Profile Details
+            </Typography>
 
-          <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                Email Address (ReadOnly)
-              </label>
-              <input 
-                type="text" 
-                value={user.email} 
-                disabled 
-                style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
-                  borderRadius: '8px',
-                  padding: '0.75rem 1rem',
-                  fontSize: '0.9rem',
-                  color: 'var(--text-muted)',
-                  cursor: 'not-allowed'
-                }}
-              />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label htmlFor="fullNameInput" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                Full Name
-              </label>
-              <input 
-                id="fullNameInput"
-                type="text" 
-                value={fullName} 
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Enter your full name"
-                required
-                style={{
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid var(--panel-border)',
-                  borderRadius: '8px',
-                  padding: '0.75rem 1rem',
-                  fontSize: '0.9rem',
-                  color: '#fff',
-                  outline: 'none',
-                  transition: 'border-color 0.2s'
-                }}
-                onFocus={(e) => e.target.style.borderColor = 'var(--primary-solid)'}
-                onBlur={(e) => e.target.style.borderColor = 'var(--panel-border)'}
-              />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label htmlFor="phoneInput" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                Phone Number
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Phone size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                <input 
-                  id="phoneInput"
+            <Box component="form" onSubmit={handleUpdateProfile} sx={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <Typography component="label" sx={labelSx}>
+                  Email Address (ReadOnly)
+                </Typography>
+                <InputBase 
                   type="text" 
-                  value={phoneNumber} 
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="Enter phone number"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid var(--panel-border)',
-                    borderRadius: '8px',
-                    padding: '0.75rem 1rem 0.75rem 2.5rem',
-                    fontSize: '0.9rem',
-                    color: '#fff',
-                    outline: 'none',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    transition: 'border-color 0.2s'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = 'var(--primary-solid)'}
-                  onBlur={(e) => e.target.style.borderColor = 'var(--panel-border)'}
+                  value={user.email} 
+                  disabled 
+                  sx={inputSx}
                 />
-              </div>
-            </div>
+              </Box>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label htmlFor="dobInput" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                Date of Birth
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Calendar size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                <input 
-                  id="dobInput"
-                  type="date" 
-                  value={dob} 
-                  onChange={(e) => setDob(e.target.value)}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid var(--panel-border)',
-                    borderRadius: '8px',
-                    padding: '0.75rem 1rem 0.75rem 2.5rem',
-                    fontSize: '0.9rem',
-                    color: '#fff',
-                    outline: 'none',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    transition: 'border-color 0.2s',
-                    colorScheme: 'dark'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = 'var(--primary-solid)'}
-                  onBlur={(e) => e.target.style.borderColor = 'var(--panel-border)'}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <Typography component="label" htmlFor="fullNameInput" sx={labelSx}>
+                  Full Name
+                </Typography>
+                <InputBase 
+                  id="fullNameInput"
+                  type="text" 
+                  value={fullName} 
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Enter your full name"
+                  required
+                  sx={inputSx}
                 />
-              </div>
-            </div>
+              </Box>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label htmlFor="addressInput" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                Address
-              </label>
-              <div style={{ position: 'relative' }}>
-                <MapPin size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '1.25rem' }} />
-                <textarea 
-                  id="addressInput"
-                  value={address} 
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Enter your street address"
-                  rows={3}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid var(--panel-border)',
-                    borderRadius: '8px',
-                    padding: '0.75rem 1rem 0.75rem 2.5rem',
-                    fontSize: '0.9rem',
-                    color: '#fff',
-                    outline: 'none',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    transition: 'border-color 0.2s',
-                    resize: 'vertical',
-                    fontFamily: 'inherit'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = 'var(--primary-solid)'}
-                  onBlur={(e) => e.target.style.borderColor = 'var(--panel-border)'}
-                />
-              </div>
-            </div>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <Typography component="label" htmlFor="phoneInput" sx={labelSx}>
+                  Phone Number
+                </Typography>
+                <Box sx={{ position: 'relative' }}>
+                  <Phone size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
+                  <InputBase 
+                    id="phoneInput"
+                    type="text" 
+                    value={phoneNumber} 
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="Enter phone number"
+                    sx={{
+                      ...inputSx,
+                      paddingLeft: '2.5rem',
+                    }}
+                  />
+                </Box>
+              </Box>
 
-            <button 
-              type="submit" 
-              disabled={saving}
-              className="btn-primary"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                padding: '0.75rem',
-                fontSize: '0.9rem',
-                width: '100%',
-                cursor: 'pointer'
-              }}
-            >
-              {saving ? (
-                <>
-                  <div style={{
-                    width: '14px',
-                    height: '14px',
-                    border: '2px solid rgba(255, 255, 255, 0.2)',
-                    borderTopColor: '#fff',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                  }}></div>
-                  Saving changes...
-                </>
-              ) : (
-                <>
-                  <Save size={16} />
-                  Save Changes
-                </>
-              )}
-            </button>
-          </form>
-        </div>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <Typography component="label" htmlFor="dobInput" sx={labelSx}>
+                  Date of Birth
+                </Typography>
+                <Box sx={{ position: 'relative' }}>
+                  <Calendar size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
+                  <InputBase 
+                    id="dobInput"
+                    type="date" 
+                    value={dob} 
+                    onChange={(e) => setDob(e.target.value)}
+                    sx={{
+                      ...inputSx,
+                      paddingLeft: '2.5rem',
+                      '& input': {
+                        colorScheme: 'dark',
+                        padding: 0
+                      }
+                    }}
+                  />
+                </Box>
+              </Box>
+
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <Typography component="label" htmlFor="addressInput" sx={labelSx}>
+                  Address
+                </Typography>
+                <Box sx={{ position: 'relative' }}>
+                  <MapPin size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '1rem', zIndex: 2 }} />
+                  <InputBase 
+                    id="addressInput"
+                    value={address} 
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Enter your street address"
+                    multiline
+                    rows={3}
+                    sx={{
+                      ...inputSx,
+                      paddingLeft: '2.5rem',
+                    }}
+                  />
+                </Box>
+              </Box>
+
+              <Button 
+                type="submit" 
+                disabled={saving}
+                sx={{
+                  ...btnPrimarySx,
+                  width: '100%',
+                  padding: '0.75rem',
+                  fontSize: '0.9rem'
+                }}
+              >
+                {saving ? (
+                  <>
+                    <CircularProgress size={16} color="inherit" />
+                    Saving changes...
+                  </>
+                ) : (
+                  <>
+                    <Save size={16} />
+                    Save Changes
+                  </>
+                )}
+              </Button>
+            </Box>
+          </Box>
+        </Grid>
 
         {/* Right Column: Wallet Transactions */}
-        <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <h2 style={{ fontSize: '1.35rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem', margin: 0 }}>
-            <Wallet size={18} color="var(--primary-solid)" />
-            Simulated Wallet
-          </h2>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Box sx={{ ...glassPanelSx, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%' }}>
+            <Typography variant="h2" sx={{ fontSize: '1.35rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem', margin: 0 }}>
+              <Wallet size={18} color="#6366f1" />
+              Simulated Wallet
+            </Typography>
 
-          {/* Current Balance Display */}
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.05))',
-            border: '1px solid rgba(99, 102, 241, 0.2)',
-            borderRadius: '16px',
-            padding: '1.5rem',
-            textAlign: 'center',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
-          }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Current Available Balance
-            </span>
-            <div style={{ 
-              fontSize: '2.25rem', 
-              fontWeight: 900, 
-              color: '#fff', 
-              marginTop: '0.5rem',
-              background: 'linear-gradient(to right, #fff, #a5b4fc, #f472b6)', 
-              WebkitBackgroundClip: 'text', 
-              WebkitTextFillColor: 'transparent'
-            }}>
-              ${user.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </div>
-          </div>
-
-          {/* Transaction Section */}
-          {activeTopUp ? (
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1.25rem',
-              alignItems: 'center',
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '12px',
+            {/* Current Balance Display */}
+            <Box sx={{
+              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.05))',
+              border: '1px solid rgba(99, 102, 241, 0.2)',
+              borderRadius: '16px',
               padding: '1.5rem',
-              position: 'relative'
+              textAlign: 'center',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
             }}>
-              <button 
-                onClick={handleCloseTopUp}
-                style={{
-                  position: 'absolute',
-                  top: '0.75rem',
-                  right: '0.75rem',
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-secondary)',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  borderRadius: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
-                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
-              >
-                <X size={16} />
-              </button>
-              
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: 'var(--primary-glow)' }}>
-                ACB VietQR Payment
-              </h3>
-              
-              {activeTopUp.qr_image_base64 ? (
-                <div style={{
-                  padding: '8px',
-                  background: '#fff',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
-                }}>
-                  <img 
-                    src={activeTopUp.qr_image_base64} 
-                    alt="ACB VietQR" 
-                    style={{ width: '160px', height: '160px', display: 'block' }}
-                  />
-                </div>
-              ) : (
-                <div style={{ width: '160px', height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-                  Loading QR Code...
-                </div>
-              )}
-              
-              <div style={{ width: '100%', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Amount (USD):</span>
-                  <span style={{ fontWeight: 700 }}>${activeTopUp.amount.toFixed(2)}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Amount (VND):</span>
-                  <span style={{ fontWeight: 700, color: '#34d399' }}>{activeTopUp.amount_vnd.toLocaleString()} VND</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Payment Content:</span>
-                  <span style={{ fontWeight: 700, color: '#a5b4fc', fontFamily: 'monospace' }}>{activeTopUp.payment_reference}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Status:</span>
-                  <span style={{ 
-                    fontWeight: 700,
-                    color: activeTopUp.status === 'completed' ? '#34d399' : activeTopUp.status === 'failed' ? '#f87171' : '#fbbf24',
-                    textTransform: 'uppercase',
-                    fontSize: '0.75rem',
-                    background: activeTopUp.status === 'completed' ? 'rgba(52, 211, 153, 0.1)' : activeTopUp.status === 'failed' ? 'rgba(248, 113, 113, 0.1)' : 'rgba(251, 191, 36, 0.1)',
-                    padding: '2px 8px',
-                    borderRadius: '4px'
-                  }}>
-                    {activeTopUp.status}
-                  </span>
-                </div>
-              </div>
+              <Typography component="span" sx={{ fontSize: '0.75rem', fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Current Available Balance
+              </Typography>
+              <Typography sx={{ 
+                fontSize: '2.25rem', 
+                fontWeight: 900, 
+                color: '#fff', 
+                marginTop: '0.5rem',
+                background: 'linear-gradient(to right, #fff, #a5b4fc, #f472b6)', 
+                WebkitBackgroundClip: 'text', 
+                WebkitTextFillColor: 'transparent'
+              }}>
+                ${user.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </Typography>
+            </Box>
 
-              <div style={{ display: 'flex', gap: '0.75rem', width: '100%' }}>
-                <button
-                  type="button"
-                  onClick={handleRefreshStatus}
-                  style={{
-                    flex: 1,
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px',
-                    color: '#fff',
-                    padding: '0.5rem',
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.4rem'
-                  }}
-                >
-                  <RefreshCw size={14} className={polling ? 'animate-spin' : ''} />
-                  Refresh
-                </button>
-                <button
-                  type="button"
+            {/* Transaction Section */}
+            {activeTopUp ? (
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.25rem',
+                alignItems: 'center',
+                background: 'rgba(255, 255, 255, 0.02)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                position: 'relative'
+              }}>
+                <Box 
+                  component="button"
                   onClick={handleCloseTopUp}
-                  style={{
-                    flex: 1,
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    border: '1px solid rgba(239, 68, 68, 0.2)',
-                    borderRadius: '8px',
-                    color: '#f87171',
-                    padding: '0.5rem',
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    cursor: 'pointer'
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: 0, textAlign: 'center' }}>
-                Please transfer correct amount and content to top up automatically.
-              </p>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label htmlFor="transactionAmount" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                  Transaction Amount ($)
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '1rem' }}>$</span>
-                  <input 
-                    id="transactionAmount"
-                    type="number" 
-                    step="0.01"
-                    min="0.01"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0.00"
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.04)',
-                      border: '1px solid var(--panel-border)',
-                      borderRadius: '8px',
-                      padding: '0.75rem 1rem 0.75rem 2rem',
-                      fontSize: '1rem',
-                      color: '#fff',
-                      outline: 'none',
-                      width: '100%',
-                      boxSizing: 'border-box',
-                      transition: 'border-color 0.2s'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = 'var(--primary-solid)'}
-                    onBlur={(e) => e.target.style.borderColor = 'var(--panel-border)'}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', width: '100%' }}>
-                <button
-                  type="button"
-                  disabled={transacting}
-                  onClick={() => handleTransaction()}
-                  style={{
-                    background: 'rgba(16, 185, 129, 0.08)',
-                    border: '1px solid rgba(16, 185, 129, 0.15)',
-                    borderRadius: '8px',
-                    color: '#34d399',
-                    padding: '0.75rem',
-                    fontSize: '0.9rem',
-                    fontWeight: 700,
+                  sx={{
+                    position: 'absolute',
+                    top: '0.75rem',
+                    right: '0.75rem',
+                    background: 'none',
+                    border: 'none',
+                    color: 'text.secondary',
                     cursor: 'pointer',
+                    padding: '4px',
+                    borderRadius: '4px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0.4rem',
-                    width: '100%',
-                    transition: 'var(--transition-smooth)'
+                    '&:hover': { color: '#fff' }
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.08)'; }}
                 >
-                  <ArrowUpRight size={16} />
-                  Top Up
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+                  <X size={16} />
+                </Box>
+                
+                <Typography variant="h3" sx={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: 'primary.main' }}>
+                  ACB VietQR Payment
+                </Typography>
+                
+                {activeTopUp.qr_image_base64 ? (
+                  <Box sx={{
+                    padding: '8px',
+                    background: '#fff',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+                  }}>
+                    <Box 
+                      component="img"
+                      src={activeTopUp.qr_image_base64} 
+                      alt="ACB VietQR" 
+                      sx={{ width: '160px', height: '160px', display: 'block' }}
+                    />
+                  </Box>
+                ) : (
+                  <Box sx={{ width: '160px', height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', color: 'text.secondary' }}>
+                    Loading QR Code...
+                  </Box>
+                )}
+                
+                <Box sx={{ width: '100%', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
+                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Amount (USD):</Typography>
+                    <Typography component="span" sx={{ fontWeight: 700, fontSize: '0.85rem' }}>${activeTopUp.amount.toFixed(2)}</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
+                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Amount (VND):</Typography>
+                    <Typography component="span" sx={{ fontWeight: 700, color: '#34d399', fontSize: '0.85rem' }}>{activeTopUp.amount_vnd.toLocaleString()} VND</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
+                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Payment Content:</Typography>
+                    <Typography component="span" sx={{ fontWeight: 700, color: '#a5b4fc', fontFamily: 'monospace', fontSize: '0.85rem' }}>{activeTopUp.payment_reference}</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Status:</Typography>
+                    <Typography component="span" sx={{ 
+                      fontWeight: 700,
+                      color: activeTopUp.status === 'completed' ? '#10b981' : activeTopUp.status === 'failed' ? '#ef4444' : '#f59e0b',
+                      textTransform: 'uppercase',
+                      fontSize: '0.75rem',
+                      background: activeTopUp.status === 'completed' ? 'rgba(16, 185, 129, 0.1)' : activeTopUp.status === 'failed' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                      padding: '2px 8px',
+                      borderRadius: '4px'
+                    }}>
+                      {activeTopUp.status}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: '0.75rem', width: '100%' }}>
+                  <Button
+                    type="button"
+                    onClick={handleRefreshStatus}
+                    sx={{
+                      ...btnSecondarySx,
+                      flex: 1,
+                      padding: '0.5rem',
+                      fontSize: '0.85rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem'
+                    }}
+                  >
+                    <RefreshCw size={14} className={polling ? 'animate-spin' : ''} />
+                    Refresh
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleCloseTopUp}
+                    sx={{
+                      flex: 1,
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      borderRadius: '8px',
+                      color: '#f87171',
+                      padding: '0.5rem',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      textTransform: 'none',
+                      fontFamily: '"Outfit", sans-serif',
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        background: 'rgba(239, 68, 68, 0.18)',
+                        borderColor: 'rgba(239, 68, 68, 0.3)'
+                      }
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+                <Typography sx={{ fontSize: '0.72rem', color: 'text.disabled', margin: 0, textAlign: 'center' }}>
+                  Please transfer correct amount and content to top up automatically.
+                </Typography>
+              </Box>
+            ) : (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <Typography component="label" htmlFor="transactionAmount" sx={labelSx}>
+                    Transaction Amount ($)
+                  </Typography>
+                  <Box sx={{ position: 'relative' }}>
+                    <Typography component="span" sx={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'text.secondary', fontWeight: 600, fontSize: '1rem', zIndex: 2 }}>$</Typography>
+                    <InputBase 
+                      id="transactionAmount"
+                      type="number" 
+                      inputProps={{ step: '0.01', min: '0.01' }}
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="0.00"
+                      sx={{
+                        ...inputSx,
+                        paddingLeft: '2rem',
+                      }}
+                    />
+                  </Box>
+                </Box>
+
+                <Box sx={{ display: 'flex', width: '100%' }}>
+                  <Button
+                    type="button"
+                    disabled={transacting}
+                    onClick={() => handleTransaction()}
+                    sx={{
+                      background: 'rgba(16, 185, 129, 0.08)',
+                      border: '1px solid rgba(16, 185, 129, 0.15)',
+                      borderRadius: '8px',
+                      color: '#34d399',
+                      padding: '0.75rem',
+                      fontSize: '0.9rem',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem',
+                      width: '100%',
+                      textTransform: 'none',
+                      fontFamily: '"Outfit", sans-serif',
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        background: 'rgba(16, 185, 129, 0.15)'
+                      }
+                    }}
+                  >
+                    <ArrowUpRight size={16} />
+                    Top Up
+                  </Button>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </Grid>
+      </Grid>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-    </div>
+    </Container>
   );
 };
+
+// Simple context proxy since AuthContext exports useAuth, and we use it locally
+import { useAuth } from '../context/AuthContext';
 
 export default Profile;

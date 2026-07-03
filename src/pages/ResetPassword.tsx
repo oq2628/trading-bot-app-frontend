@@ -3,6 +3,8 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { Key, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { Toast } from '../components/Toast';
+import { Box, Container, Typography, Button, InputBase } from '@mui/material';
+import { glassPanelSx, btnPrimarySx } from '../theme';
 
 export const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -53,117 +55,218 @@ export const ResetPassword: React.FC = () => {
     }
   };
 
+  const inputSx = {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    border: '1px solid rgba(255, 255, 255, 0.06)',
+    borderRadius: '8px',
+    padding: '0.75rem 1rem',
+    color: '#fff',
+    fontSize: '0.95rem',
+    fontFamily: '"Outfit", sans-serif',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    '&.Mui-focused': {
+      borderColor: '#6366f1',
+      boxShadow: '0 0 10px 0 rgba(99, 102, 241, 0.2)',
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    '& input': {
+      padding: 0,
+      '&::placeholder': {
+        color: '#6b7280',
+        opacity: 1,
+      }
+    }
+  };
+
   return (
-    <div className="container animate-fade-in" style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: 'calc(100vh - 160px)',
-      padding: '2rem 1rem'
-    }}>
-      <div className="glass-panel" style={{
-        maxWidth: '460px',
-        width: '100%',
-        padding: '2.5rem',
-        border: '1px solid rgba(99, 102, 241, 0.2)'
-      }}>
+    <Container
+      maxWidth="xl"
+      sx={{
+        maxWidth: '1600px !important',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 'calc(100vh - 160px)',
+        padding: '2rem 1rem',
+        animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        '@keyframes fadeIn': {
+          from: { opacity: 0, transform: 'translateY(10px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+        },
+      }}
+    >
+      <Box
+        sx={{
+          ...glassPanelSx,
+          maxWidth: '460px',
+          width: '100%',
+          padding: '2.5rem',
+          border: '1px solid rgba(99, 102, 241, 0.2)'
+        }}
+      >
         {success ? (
-          <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
-            <div style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '50%',
-              background: 'var(--success-glow)',
-              border: '1px solid rgba(16, 185, 129, 0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 1.25rem'
-            }}>
-              <CheckCircle2 size={22} color="var(--success-color)" />
-            </div>
-            <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.75rem' }}>Password Reset Complete</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+          <Box sx={{ textAlign: 'center', padding: '1.5rem 0' }}>
+            <Box
+              sx={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: 'rgba(16, 185, 129, 0.15)',
+                border: '1px solid rgba(16, 185, 129, 0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 1.25rem'
+              }}
+            >
+              <CheckCircle2 size={22} color="#10b981" />
+            </Box>
+            <Typography variant="h3" sx={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.75rem' }}>
+              Password Reset Complete
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
               Your password has been successfully reset. Redirecting you to the sign in page...
-            </p>
-            <Link to="/login" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+            </Typography>
+            <Button
+              component={Link}
+              to="/login"
+              sx={{
+                ...btnPrimarySx,
+                width: '100%',
+                justifyContent: 'center'
+              }}
+            >
               Sign In Now
-            </Link>
-          </div>
+            </Button>
+          </Box>
         ) : (
-          <div>
-            <Link to="/login" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '1.5rem' }} className="nav-link">
+          <Box>
+            <Box
+              component={Link}
+              to="/login"
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                color: 'text.secondary',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                marginBottom: '1.5rem',
+                textDecoration: 'none',
+                transition: 'color 0.2s',
+                '&:hover': { color: '#fff' }
+              }}
+            >
               <ArrowLeft size={14} />
               Back to Sign In
-            </Link>
+            </Box>
 
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.5rem', color: '#fff' }}>Set New Password</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '2rem' }}>
+            <Typography variant="h2" sx={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.5rem', color: '#fff' }}>
+              Set New Password
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.9rem', marginBottom: '2rem' }}>
               Choose a strong, secure password for your account.
-            </p>
+            </Typography>
 
             {!token && (
-              <div style={{
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
-                borderRadius: '8px',
-                padding: '0.75rem 1rem',
-                color: 'var(--error-color)',
-                fontSize: '0.85rem',
-                fontWeight: 500,
-                marginBottom: '1.5rem'
-              }}>
+              <Box
+                sx={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  borderRadius: '8px',
+                  padding: '0.75rem 1rem',
+                  color: 'error.main',
+                  fontSize: '0.85rem',
+                  fontWeight: 500,
+                  marginBottom: '1.5rem'
+                }}
+              >
                 Warning: No password reset token was found in the link. Submitting the form will fail. Please request a new link.
-              </div>
+              </Box>
             )}
 
-            <form onSubmit={handleSubmit}>
-              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                <label className="form-label">New Password</label>
-                <div style={{ position: 'relative' }}>
-                  <Key size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input
+            <Box component="form" onSubmit={handleSubmit}>
+              <Box sx={{ marginBottom: '1.25rem' }}>
+                <Typography
+                  component="label"
+                  sx={{
+                    display: 'block',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    color: 'text.secondary',
+                    marginBottom: '0.5rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  New Password
+                </Typography>
+                <Box sx={{ position: 'relative' }}>
+                  <Key size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
+                  <InputBase
                     type="password"
                     required
-                    className="form-control"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    style={{ paddingLeft: '2.5rem' }}
+                    sx={{
+                      ...inputSx,
+                      paddingLeft: '2.5rem',
+                    }}
                   />
-                </div>
-              </div>
+                </Box>
+              </Box>
 
-              <div className="form-group" style={{ marginBottom: '2rem' }}>
-                <label className="form-label">Confirm New Password</label>
-                <div style={{ position: 'relative' }}>
-                  <Key size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input
+              <Box sx={{ marginBottom: '2rem' }}>
+                <Typography
+                  component="label"
+                  sx={{
+                    display: 'block',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    color: 'text.secondary',
+                    marginBottom: '0.5rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  Confirm New Password
+                </Typography>
+                <Box sx={{ position: 'relative' }}>
+                  <Key size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
+                  <InputBase
                     type="password"
                     required
-                    className="form-control"
                     placeholder="••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    style={{ paddingLeft: '2.5rem' }}
+                    sx={{
+                      ...inputSx,
+                      paddingLeft: '2.5rem',
+                    }}
                   />
-                </div>
-              </div>
+                </Box>
+              </Box>
 
-              <button
+              <Button
                 type="submit"
                 disabled={loading || !token}
-                className="btn-primary"
-                style={{ width: '100%', justifyContent: 'center', padding: '1rem' }}
+                sx={{
+                  ...btnPrimarySx,
+                  width: '100%',
+                  justifyContent: 'center',
+                  padding: '1rem'
+                }}
               >
                 {loading ? 'Updating Password...' : 'Reset Password'}
-              </button>
-            </form>
-          </div>
+              </Button>
+            </Box>
+          </Box>
         )}
-      </div>
+      </Box>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-    </div>
+    </Container>
   );
 };
 

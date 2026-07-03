@@ -1,96 +1,194 @@
 import React from 'react';
 import { Shield, Cpu, Zap, Target } from 'lucide-react';
+import { Box, Container, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import { glassPanelSx } from '../theme';
 
 export const About: React.FC = () => {
   return (
-    <div className="container animate-fade-in" style={{ paddingBottom: '4rem', paddingTop: '2rem' }}>
-      <header style={{ textAlign: 'center', margin: '2rem 0 3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem', background: 'linear-gradient(135deg, #fff 30%, var(--text-secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+    <Container
+      maxWidth="xl"
+      sx={{
+        maxWidth: '1600px !important',
+        paddingBottom: '4rem',
+        paddingTop: '2rem',
+        animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        '@keyframes fadeIn': {
+          from: { opacity: 0, transform: 'translateY(10px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+        },
+      }}
+    >
+      <Box component="header" sx={{ textAlign: 'center', margin: '2rem 0 3rem' }}>
+        <Typography
+          variant="h1"
+          sx={{
+            fontSize: '2.5rem',
+            fontWeight: 800,
+            marginBottom: '1rem',
+            background: 'linear-gradient(135deg, #fff 30%, #9ca3af)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
           About AlgoForge
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto', lineHeight: 1.6 }}>
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            color: 'text.secondary',
+            fontSize: '1.1rem',
+            maxWidth: '600px',
+            margin: '0 auto',
+            lineHeight: 1.6,
+          }}
+        >
           Empowering quantitative traders with institutional-grade automation tools and expert execution systems.
-        </p>
-      </header>
+        </Typography>
+      </Box>
 
-      <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-        <section className="glass-panel" style={{ padding: '2.5rem' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#fff' }}>
-            <Target size={22} color="var(--primary-solid)" />
-            Our Mission
-          </h2>
-          <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.95rem' }}>
-            At AlgoForge, we bridge the gap between retail trading and high-frequency quantitative execution. We design and compile cutting-edge trading bots, Expert Advisors (EAs), and precise indicators for the MetaTrader 5 platform, helping traders automate their strategy execution with minimal latency and maximum reliability.
-          </p>
-        </section>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '1.5rem'
-        }}>
-          {/* Feature 1 */}
-          <div className="glass-panel" style={{ padding: '1.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{
-              background: 'rgba(6, 182, 212, 0.1)',
-              border: '1px solid rgba(6, 182, 212, 0.2)',
-              width: '50px',
-              height: '50px',
-              borderRadius: '12px',
+      <Box sx={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+        <Box component="section" sx={{ ...glassPanelSx, padding: '2.5rem' }}>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: '1.5rem',
+              marginBottom: '1rem',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <Cpu size={24} color="#06b6d4" />
-            </div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0.5rem 0 0.25rem' }}>Institutional Algorithms</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.5 }}>
-              Expert Advisors backtested on extensive historical tick data with real spread and slippage simulation.
-            </p>
-          </div>
+              gap: '0.75rem',
+              color: '#fff',
+            }}
+          >
+            <Target size={22} color="#6366f1" />
+            Our Mission
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              lineHeight: 1.7,
+              fontSize: '0.95rem',
+            }}
+          >
+            At AlgoForge, we bridge the gap between retail trading and high-frequency quantitative execution. We design and compile cutting-edge trading bots, Expert Advisors (EAs), and precise indicators for the MetaTrader 5 platform, helping traders automate their strategy execution with minimal latency and maximum reliability.
+          </Typography>
+        </Box>
+
+        <Grid container spacing={3}>
+          {/* Feature 1 */}
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Box
+              sx={{
+                ...glassPanelSx,
+                padding: '1.5rem',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.75rem',
+                height: '100%',
+              }}
+            >
+              <Box
+                sx={{
+                  background: 'rgba(6, 182, 212, 0.1)',
+                  border: '1px solid rgba(6, 182, 212, 0.2)',
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Cpu size={24} color="#06b6d4" />
+              </Box>
+              <Typography variant="h3" sx={{ fontSize: '1.1rem', fontWeight: 700, margin: '0.5rem 0 0.25rem' }}>
+                Institutional Algorithms
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                Expert Advisors backtested on extensive historical tick data with real spread and slippage simulation.
+              </Typography>
+            </Box>
+          </Grid>
 
           {/* Feature 2 */}
-          <div className="glass-panel" style={{ padding: '1.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{
-              background: 'rgba(99, 102, 241, 0.1)',
-              border: '1px solid rgba(99, 102, 241, 0.2)',
-              width: '50px',
-              height: '50px',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <Zap size={24} color="var(--primary-solid)" />
-            </div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0.5rem 0 0.25rem' }}>Ultra-Low Latency</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.5 }}>
-              Optimized MQL5 source code designed for rapid order execution and minimal terminal overhead.
-            </p>
-          </div>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Box
+              sx={{
+                ...glassPanelSx,
+                padding: '1.5rem',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.75rem',
+                height: '100%',
+              }}
+            >
+              <Box
+                sx={{
+                  background: 'rgba(99, 102, 241, 0.1)',
+                  border: '1px solid rgba(99, 102, 241, 0.2)',
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Zap size={24} color="#6366f1" />
+              </Box>
+              <Typography variant="h3" sx={{ fontSize: '1.1rem', fontWeight: 700, margin: '0.5rem 0 0.25rem' }}>
+                Ultra-Low Latency
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                Optimized MQL5 source code designed for rapid order execution and minimal terminal overhead.
+              </Typography>
+            </Box>
+          </Grid>
 
           {/* Feature 3 */}
-          <div className="glass-panel" style={{ padding: '1.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{
-              background: 'rgba(16, 185, 129, 0.1)',
-              border: '1px solid rgba(16, 185, 129, 0.2)',
-              width: '50px',
-              height: '50px',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <Shield size={24} color="#10b981" />
-            </div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0.5rem 0 0.25rem' }}>Secure Licensing</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.5 }}>
-              Our custom-built secure API key verification validates your license directly against our secure servers.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <Box
+              sx={{
+                ...glassPanelSx,
+                padding: '1.5rem',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.75rem',
+                height: '100%',
+              }}
+            >
+              <Box
+                sx={{
+                  background: 'rgba(16, 185, 129, 0.1)',
+                  border: '1px solid rgba(16, 185, 129, 0.2)',
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Shield size={24} color="#10b981" />
+              </Box>
+              <Typography variant="h3" sx={{ fontSize: '1.1rem', fontWeight: 700, margin: '0.5rem 0 0.25rem' }}>
+                Secure Licensing
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                Our custom-built secure API key verification validates your license directly against our secure servers.
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
+    </Container>
   );
 };
 

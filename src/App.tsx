@@ -13,6 +13,7 @@ import { About } from './pages/About';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
 import { MyTopUps } from './pages/MyTopUps';
+import { Box, CircularProgress, Container, Typography } from '@mui/material';
 
 
 // Protected Route wrapper for regular users/buyers
@@ -21,16 +22,9 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          border: '3px solid rgba(99, 102, 241, 0.1)',
-          borderTopColor: 'var(--primary-solid)',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }}></div>
-      </div>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <CircularProgress color="primary" />
+      </Box>
     );
   }
   
@@ -43,16 +37,9 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          border: '3px solid rgba(99, 102, 241, 0.1)',
-          borderTopColor: 'var(--primary-solid)',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }}></div>
-      </div>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <CircularProgress color="primary" />
+      </Box>
     );
   }
   
@@ -74,7 +61,7 @@ const AppContent: React.FC = () => {
     <Router>
       <ScrollToTop />
       <Navbar />
-      <main style={{ minHeight: 'calc(100vh - 180px)' }}>
+      <Box component="main" sx={{ minHeight: 'calc(100vh - 180px)' }}>
         <Routes>
           <Route path="/" element={<Storefront />} />
           <Route path="/products/:id" element={<ProductDetail />} />
@@ -123,23 +110,28 @@ const AppContent: React.FC = () => {
           
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </main>
+      </Box>
       
-      <footer style={{
-        textAlign: 'center',
-        padding: '3rem 1.5rem',
-        borderTop: '1px solid rgba(255, 255, 255, 0.04)',
-        marginTop: '4rem',
-        color: 'var(--text-muted)',
-        fontSize: '0.85rem'
-      }}>
-        <div className="container">
-          <p>© {new Date().getFullYear()} AlgoForge Marketplace. All rights reserved.</p>
-          <p style={{ marginTop: '0.5rem', fontSize: '0.75rem' }}>
+      <Box 
+        component="footer" 
+        sx={{
+          textAlign: 'center',
+          padding: '3rem 1.5rem',
+          borderTop: '1px solid rgba(255, 255, 255, 0.04)',
+          marginTop: '4rem',
+          color: 'text.secondary',
+          fontSize: '0.85rem'
+        }}
+      >
+        <Container maxWidth="xl" sx={{ maxWidth: '1600px !important' }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 0.5 }}>
+            © {new Date().getFullYear()} AlgoForge Marketplace. All rights reserved.
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', fontSize: '0.75rem' }}>
             Built for professional quantitative traders. Secure physical asset storage & verification active.
-          </p>
-        </div>
-      </footer>
+          </Typography>
+        </Container>
+      </Box>
     </Router>
   );
 };

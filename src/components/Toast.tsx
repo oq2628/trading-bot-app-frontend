@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { X, CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import React from 'react';
+import { Snackbar, Alert } from '@mui/material';
 
 interface ToastProps {
   message: string;
@@ -9,84 +8,78 @@ interface ToastProps {
 }
 
 export const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  const getStyle = () => {
-    switch (type) {
-      case 'success':
-        return {
-          borderLeft: '4px solid var(--success-color)',
-          boxShadow: '0 8px 30px rgba(16, 185, 129, 0.15)',
-        };
-      case 'error':
-        return {
-          borderLeft: '4px solid var(--error-color)',
-          boxShadow: '0 8px 30px rgba(239, 68, 68, 0.15)',
-        };
-      case 'info':
-        return {
-          borderLeft: '4px solid var(--primary-solid)',
-          boxShadow: '0 8px 30px rgba(99, 102, 241, 0.15)',
-        };
-    }
-  };
-
-  const getIcon = () => {
-    switch (type) {
-      case 'success':
-        return <CheckCircle2 size={18} color="var(--success-color)" />;
-      case 'error':
-        return <AlertCircle size={18} color="var(--error-color)" />;
-      case 'info':
-        return <Info size={18} color="var(--primary-solid)" />;
-    }
-  };
-
-  return createPortal(
-    <div className="toast-container">
-      <div 
-        className="glass-panel animate-fade-in"
-        style={{
-          pointerEvents: 'auto',
-          padding: '1rem 1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
-          maxWidth: '400px',
-          ...getStyle()
+  return (
+    <Snackbar
+      open={true}
+      autoHideDuration={4000}
+      onClose={onClose}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      sx={{
+        top: { xs: '5.5rem !important', md: '7.5rem !important' },
+        right: { xs: '1rem', md: '2rem' },
+        left: 'auto',
+        transform: 'none',
+        maxWidth: '400px',
+        width: 'calc(100% - 2rem)',
+        zIndex: 2000,
+      }}
+    >
+      <Alert
+        onClose={onClose}
+        severity={type}
+        sx={{
+          width: '100%',
+          fontFamily: '"Outfit", sans-serif',
+          fontWeight: 500,
+          background: 'rgba(20, 22, 33, 0.75)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid',
+          borderColor:
+            type === 'success'
+              ? 'success.main'
+              : type === 'error'
+              ? 'error.main'
+              : 'primary.main',
+          color: '#fff',
+          boxShadow:
+            type === 'success'
+              ? '0 8px 30px rgba(16, 185, 129, 0.15)'
+              : type === 'error'
+              ? '0 8px 30px rgba(239, 68, 68, 0.15)'
+              : '0 8px 30px rgba(99, 102, 241, 0.15)',
+          borderRadius: '12px',
+          animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          '@keyframes fadeIn': {
+            from: { opacity: 0, transform: 'translateY(10px)' },
+            to: { opacity: 1, transform: 'translateY(0)' },
+          },
+          '.MuiAlert-icon': {
+            color:
+              type === 'success'
+                ? 'success.main'
+                : type === 'error'
+                ? 'error.main'
+                : 'primary.main',
+          },
+          '.MuiAlert-message': {
+            fontSize: '0.9rem',
+          },
+          '.MuiAlert-action': {
+            color: 'text.secondary',
+            '& button': {
+              color: 'inherit',
+              '&:hover': {
+                color: '#fff',
+              }
+            }
+          }
         }}
       >
-        {getIcon()}
-        <span style={{ fontSize: '0.9rem', fontWeight: 500, color: '#fff', flex: 1 }}>
-          {message}
-        </span>
-        <button 
-          onClick={onClose} 
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'var(--text-muted)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '0.2rem',
-            borderRadius: '4px',
-            transition: 'var(--transition-smooth)'
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; }}
-        >
-          <X size={14} />
-        </button>
-      </div>
-    </div>,
-    document.body
+        {message}
+      </Alert>
+    </Snackbar>
   );
 };
+
 export default Toast;

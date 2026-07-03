@@ -5,6 +5,9 @@ import api from '../utils/api';
 import { ArrowLeft, CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
 import { Toast } from '../components/Toast';
 import { activeSortedVariants, formatVariantDuration } from '../utils/variants';
+import { Box, Container, Typography, Button, Dialog, DialogTitle, DialogContent, CircularProgress } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx } from '../theme';
 
 interface Product {
   id: string;
@@ -98,295 +101,356 @@ export const ProductDetail: React.FC = () => {
     }
   };
 
-
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          border: '3px solid rgba(99, 102, 241, 0.1)',
-          borderTopColor: 'var(--primary-solid)',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }}></div>
-      </div>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <CircularProgress color="primary" />
+      </Box>
     );
   }
 
   if (error || !product) {
     return (
-      <div className="container" style={{ margin: '4rem auto', maxWidth: '600px' }}>
-        <div className="glass-panel" style={{ padding: '2rem', textAlign: 'center', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-          <p style={{ color: 'var(--error-color)', fontWeight: 600 }}>{error || 'Trading tool not found.'}</p>
-          <Link to="/" className="btn-primary" style={{ marginTop: '1.5rem' }}>
+      <Container maxWidth="sm" sx={{ margin: '4rem auto' }}>
+        <Box sx={{ ...glassPanelSx, padding: '2rem', textAlign: 'center', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+          <Typography sx={{ color: 'error.main', fontWeight: 600, mb: 2 }}>{error || 'Trading tool not found.'}</Typography>
+          <Button
+            component={Link}
+            to="/"
+            sx={{
+              ...btnPrimarySx,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
             <ArrowLeft size={16} />
             Back to Catalog
-          </Link>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      </Container>
     );
   }
 
   return (
     <>
-      <div className="container animate-fade-in" style={{ paddingBottom: '4rem' }}>
-      <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', marginBottom: '2rem', fontWeight: 500 }} className="nav-link">
-        <ArrowLeft size={16} />
-        Back to Catalog
-      </Link>
+      <Container
+        maxWidth="xl"
+        sx={{
+          maxWidth: '1600px !important',
+          paddingBottom: '4rem',
+          animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          '@keyframes fadeIn': {
+            from: { opacity: 0, transform: 'translateY(10px)' },
+            to: { opacity: 1, transform: 'translateY(0)' },
+          },
+        }}
+      >
+        <Box
+          component={Link}
+          to="/"
+          sx={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            color: 'text.secondary',
+            marginBottom: '2rem',
+            fontWeight: 500,
+            textDecoration: 'none',
+            '&:hover': { color: '#fff' }
+          }}
+        >
+          <ArrowLeft size={16} />
+          Back to Catalog
+        </Box>
 
-      <div className="product-detail-grid">
-        {/* Left Column: Visual Mock and Description */}
-        <div>
-          <div className="glass-panel" style={{ overflow: 'hidden', padding: 0, marginBottom: '2rem' }}>
-            <img 
-              src={product.image_url} 
-              alt={product.title} 
-              style={{ width: '100%', height: '350px', objectFit: 'cover' }}
-            />
-          </div>
+        <Grid container spacing={5}>
+          {/* Left Column: Visual Mock and Description */}
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Box sx={{ ...glassPanelSx, overflow: 'hidden', padding: 0, marginBottom: '2rem' }}>
+              <Box 
+                component="img"
+                src={product.image_url} 
+                alt={product.title} 
+                sx={{ width: '100%', height: '350px', objectFit: 'cover' }}
+              />
+            </Box>
 
-          <h2 style={{ fontSize: '1.75rem', marginBottom: '1rem' }}>Description & Features</h2>
-          <div className="glass-panel" style={{ padding: '1.5rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}>
-            <p style={{ whiteSpace: 'pre-line' }}>{product.description}</p>
-          </div>
-        </div>
+            <Typography variant="h2" sx={{ fontSize: '1.75rem', marginBottom: '1rem' }}>Description & Features</Typography>
+            <Box sx={{ ...glassPanelSx, padding: '1.5rem', lineHeight: 1.7, color: 'text.secondary' }}>
+              <Typography sx={{ whiteSpace: 'pre-line', fontSize: '0.95rem', color: 'text.secondary', lineHeight: 1.7 }}>
+                {product.description}
+              </Typography>
+            </Box>
+          </Grid>
 
-        {/* Right Column: Buying Box & Specifications */}
-        <div>
-          <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem', border: '1px solid rgba(99, 102, 241, 0.15)' }}>
-            <span style={{
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              background: 'rgba(99, 102, 241, 0.15)',
-              color: 'var(--primary-solid)',
-              padding: '0.35rem 0.75rem',
-              borderRadius: '20px',
-              textTransform: 'uppercase',
-              display: 'inline-block',
-              marginBottom: '1rem',
-              border: '1px solid rgba(99, 102, 241, 0.2)'
-            }}>
-              {product.category}
-            </span>
+          {/* Right Column: Buying Box & Specifications */}
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Box sx={{ ...glassPanelSx, padding: '2rem', marginBottom: '2rem', border: '1px solid rgba(99, 102, 241, 0.15)' }}>
+              <Box component="span" sx={{
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                background: 'rgba(99, 102, 241, 0.15)',
+                color: 'primary.main',
+                padding: '0.35rem 0.75rem',
+                borderRadius: '20px',
+                textTransform: 'uppercase',
+                display: 'inline-block',
+                marginBottom: '1rem',
+                border: '1px solid rgba(99, 102, 241, 0.2)'
+              }}>
+                {product.category}
+              </Box>
 
-            <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 800 }}>
-              {product.title}
-            </h1>
-            
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-              Product ID: {product.id}
-            </p>
+              <Typography variant="h1" sx={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 800 }}>
+                {product.title}
+              </Typography>
+              
+              <Typography sx={{ color: 'text.disabled', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+                Product ID: {product.id}
+              </Typography>
 
-            {activeSortedVariants(product.variants).length > 0 ? (
-              <div style={{ marginBottom: '2rem' }}>
-                <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.75rem' }}>
-                  Select License Package
-                </label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }} role="radiogroup" aria-label="Licensing Package Selector">
-                  {activeSortedVariants(product.variants).map(v => {
-                    const isSelected = selectedVariantId === v.id;
-                    const vndEstimate = (v.price * 25000).toLocaleString('vi-VN');
-                    return (
-                      <div
-                        key={v.id}
-                        onClick={() => setSelectedVariantId(v.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '1rem',
-                          padding: '1rem',
-                          borderRadius: '12px',
-                          border: isSelected ? '2px solid #e0a96d' : '1px solid rgba(255,255,255,0.08)',
-                          background: isSelected ? 'rgba(224, 169, 109, 0.08)' : 'rgba(255,255,255,0.02)',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          minHeight: '56px'
-                        }}
-                        role="radio"
-                        aria-checked={isSelected}
-                        tabIndex={0}
-                        onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') setSelectedVariantId(v.id); }}
-                      >
-                        <input
-                          type="radio"
-                          id={`variant-${v.id}`}
-                          name="product-variant"
-                          checked={isSelected}
-                          onChange={() => setSelectedVariantId(v.id)}
-                          style={{ cursor: 'pointer', accentColor: '#e0a96d' }}
-                        />
-                        <label htmlFor={`variant-${v.id}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', flex: 1, margin: 0 }}>
-                          <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>{v.name}</span>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                              {formatVariantDuration(v)}
-                            </span>
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                            <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#e0a96d' }}>
-                              ${v.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                            </span>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                              ≈ {vndEstimate} VND
-                            </span>
-                          </div>
-                        </label>
-                      </div>
-                    );
-                  })}
-                </div>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <ShieldCheck size={12} color="var(--success-color)" />
-                  VND estimates use fixed rate: 1 USD = 25,000 VND. Webhooks verify and process payments in VND.
-                </p>
-              </div>
-            ) : (
-              <div style={{ color: 'var(--error-color)', fontWeight: 600, marginBottom: '2rem' }}>
-                No active license packages are available for this product.
-              </div>
-            )}
+              {activeSortedVariants(product.variants).length > 0 ? (
+                <Box sx={{ marginBottom: '2rem' }}>
+                  <Typography component="label" sx={{ fontSize: '0.85rem', color: 'text.secondary', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.75rem' }}>
+                    Select License Package
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {activeSortedVariants(product.variants).map(v => {
+                      const isSelected = selectedVariantId === v.id;
+                      const vndEstimate = (v.price * 25000).toLocaleString('vi-VN');
+                      return (
+                        <Box
+                          key={v.id}
+                          onClick={() => setSelectedVariantId(v.id)}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            padding: '1rem',
+                            borderRadius: '12px',
+                            border: isSelected ? '2px solid #6366f1' : '1px solid rgba(255,255,255,0.08)',
+                            background: isSelected ? 'rgba(99, 102, 241, 0.08)' : 'rgba(255,255,255,0.02)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            minHeight: '56px',
+                            userSelect: 'none',
+                            outline: 'none',
+                            '&:focus': {
+                              borderColor: 'primary.main',
+                            }
+                          }}
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') setSelectedVariantId(v.id); }}
+                        >
+                          <input
+                            type="radio"
+                            id={`variant-${v.id}`}
+                            name="product-variant"
+                            checked={isSelected}
+                            onChange={() => setSelectedVariantId(v.id)}
+                            style={{ cursor: 'pointer', accentColor: '#6366f1' }}
+                          />
+                          <Box component="label" htmlFor={`variant-${v.id}`} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', flex: 1, margin: 0 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                              <Typography component="span" sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>{v.name}</Typography>
+                              <Typography component="span" sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
+                                {formatVariantDuration(v)}
+                              </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                              <Typography component="span" sx={{ fontWeight: 800, fontSize: '1.1rem', color: 'primary.main' }}>
+                                ${v.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                              </Typography>
+                              <Typography component="span" sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
+                                ≈ {vndEstimate} VND
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                  <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <ShieldCheck size={12} color="#10b981" />
+                    VND estimates use fixed rate: 1 USD = 25,000 VND. Webhooks verify and process payments in VND.
+                  </Typography>
+                </Box>
+              ) : (
+                <Typography sx={{ color: 'error.main', fontWeight: 600, marginBottom: '2rem' }}>
+                  No active license packages are available for this product.
+                </Typography>
+              )}
+   
+              {owned ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '0.75rem 1rem', borderRadius: '10px' }}>
+                    <CheckCircle2 size={20} color="#10b981" />
+                    <Typography component="span" sx={{ fontWeight: 600, color: 'success.main', fontSize: '0.95rem' }}>
+                      You own this tool
+                    </Typography>
+                  </Box>
+                  <Button
+                    component={Link}
+                    to="/dashboard"
+                    sx={{
+                      ...btnPrimarySx,
+                      justifyContent: 'center',
+                      width: '100%'
+                    }}
+                  >
+                    Go to Downloads Dashboard
+                  </Button>
+                </Box>
+              ) : (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {user ? (
+                    <Button
+                      onClick={() => setShowCheckoutModal(true)}
+                      disabled={!selectedVariantId}
+                      sx={{
+                        ...btnPrimarySx,
+                        justifyContent: 'center',
+                        padding: '1rem',
+                        width: '100%'
+                      }}
+                    >
+                      <CreditCard size={18} />
+                      Instant Checkout
+                    </Button>
+                  ) : (
+                    <Button
+                      component={Link}
+                      to="/login"
+                      sx={{
+                        ...btnPrimarySx,
+                        justifyContent: 'center',
+                        padding: '1rem',
+                        width: '100%'
+                      }}
+                    >
+                      Sign In to Purchase
+                    </Button>
+                  )}
+                  
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', color: 'text.disabled', fontSize: '0.8rem', marginTop: '0.5rem' }}>
+                    <ShieldCheck size={14} color="#10b981" />
+                    Secure mock checkout. No real money charged.
+                  </Box>
+                </Box>
+              )}
+            </Box>
+   
+            {/* Specifications */}
+            <Box sx={{ ...glassPanelSx, padding: '1.5rem' }}>
+              <Typography variant="h3" sx={{ fontSize: '1.1rem', marginBottom: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
+                Specifications
+              </Typography>
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.9rem' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Format</Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.9rem' }}>
+                    {product.category === 'EA' ? '.ex5 / .ex4' : product.category === 'Indicator' ? '.ex5 / .mq5' : '.mq5 / .txt'}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Delivery</Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.9rem' }}>Instant Secure Download</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>License</Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.9rem' }}>Personal use (Unlimited Accounts)</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Updates</Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.9rem' }}>Free Lifetime Updates</Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
+      </Container>
  
-             {owned ? (
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--success-glow)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '0.75rem 1rem', borderRadius: '10px' }}>
-                   <CheckCircle2 size={20} color="var(--success-color)" />
-                   <span style={{ fontWeight: 600, color: 'var(--success-color)', fontSize: '0.95rem' }}>
-                     You own this tool
-                   </span>
-                 </div>
-                 <Link to="/dashboard" className="btn-primary" style={{ justifyContent: 'center' }}>
-                   Go to Downloads Dashboard
-                 </Link>
-               </div>
-             ) : (
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                 {user ? (
-                   <button onClick={() => setShowCheckoutModal(true)} disabled={!selectedVariantId} className="btn-primary" style={{ justifyContent: 'center', padding: '1rem' }}>
-                     <CreditCard size={18} />
-                     Instant Checkout
-                   </button>
-                 ) : (
-                   <Link to="/login" className="btn-primary" style={{ justifyContent: 'center', padding: '1rem' }}>
-                     Sign In to Purchase
-                   </Link>
-                 )}
-                 
-                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.5rem' }}>
-                   <ShieldCheck size={14} color="var(--success-color)" />
-                   Secure mock checkout. No real money charged.
-                 </div>
-               </div>
-             )}
-           </div>
- 
-           {/* Specifications */}
-           <div className="glass-panel" style={{ padding: '1.5rem' }}>
-             <h3 style={{ fontSize: '1.1rem', marginBottom: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
-               Specifications
-             </h3>
-             
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.9rem' }}>
-               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                 <span style={{ color: 'var(--text-secondary)' }}>Format</span>
-                 <span style={{ color: '#fff', fontWeight: 500 }}>
-                   {product.category === 'EA' ? '.ex5 / .ex4' : product.category === 'Indicator' ? '.ex5 / .mq5' : '.mq5 / .txt'}
-                 </span>
-               </div>
-               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                 <span style={{ color: 'var(--text-secondary)' }}>Delivery</span>
-                 <span style={{ color: '#fff', fontWeight: 500 }}>Instant Secure Download</span>
-               </div>
-               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                 <span style={{ color: 'var(--text-secondary)' }}>License</span>
-                 <span style={{ color: '#fff', fontWeight: 500 }}>Personal use (Unlimited Accounts)</span>
-               </div>
-               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                 <span style={{ color: 'var(--text-secondary)' }}>Updates</span>
-                 <span style={{ color: '#fff', fontWeight: 500 }}>Free Lifetime Updates</span>
-               </div>
-             </div>
-           </div>
-         </div>
-       </div>
- 
-       </div>
-
       {/* Checkout Modal Simulation */}
-       {showCheckoutModal && (
-         <div style={{
-           position: 'fixed',
-           top: 0, left: 0, right: 0, bottom: 0,
-           background: 'rgba(6, 7, 10, 0.8)',
-           backdropFilter: 'blur(8px)',
-           display: 'flex',
-           alignItems: 'center',
-           justifyContent: 'center',
-           zIndex: 1000,
-           padding: '1rem'
-         }}>
-           <div className="glass-panel animate-fade-in" style={{ padding: '2rem', maxWidth: '480px', width: '100%', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
-             <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-               <CreditCard size={24} color="var(--primary-solid)" />
-               Secure Checkout
-             </h2>
-             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-               Confirm your transaction details below.
-             </p>
- 
-             {(() => {
-               const selectedVariant = activeSortedVariants(product.variants).find(v => v.id === selectedVariantId);
-               if (!selectedVariant) return null;
-               const vndAmount = (selectedVariant.price * 25000).toLocaleString('vi-VN');
-               return (
-                 <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--panel-border)', borderRadius: '10px', padding: '1.25rem', marginBottom: '1.5rem' }}>
-                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-                     <span style={{ color: 'var(--text-secondary)' }}>Trading Tool</span>
-                     <span style={{ color: '#fff', fontWeight: 600 }}>{product.title}</span>
-                   </div>
-                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-                     <span style={{ color: 'var(--text-secondary)' }}>Package</span>
-                     <span style={{ color: '#fff', fontWeight: 500 }}>{selectedVariant.name}</span>
-                   </div>
-                   <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem', fontSize: '1.1rem' }}>
-                     <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Total Due</span>
-                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                       <span style={{ color: '#e0a96d', fontWeight: 800 }}>
-                         ${selectedVariant.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                       </span>
-                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                         ≈ {vndAmount} VND
-                       </span>
-                     </div>
-                   </div>
-                 </div>
-               );
-             })()}
+      <Dialog
+        open={showCheckoutModal}
+        onClose={() => setShowCheckoutModal(false)}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '2rem',
+              maxWidth: '480px',
+              width: '100%',
+              border: '1px solid rgba(99, 102, 241, 0.3)',
+              background: 'rgba(20, 22, 33, 0.9)',
+              backgroundImage: 'none',
+            }
+          }
+        }}
+      >
+        <DialogTitle sx={{ padding: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', fontFamily: '"Outfit", sans-serif' }}>
+          <CreditCard size={24} color="#6366f1" />
+          <Typography variant="h2" sx={{ fontSize: '1.5rem', margin: 0, color: '#fff' }}>
+            Secure Checkout
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ padding: 0 }}>
+          <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+            Confirm your transaction details below.
+          </Typography>
 
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <button 
-                onClick={() => setShowCheckoutModal(false)} 
-                className="btn-secondary" 
-                style={{ flex: 1, justifyContent: 'center' }}
-                disabled={purchasing}
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleCheckout} 
-                className="btn-primary" 
-                style={{ flex: 1, justifyContent: 'center' }}
-                disabled={purchasing}
-              >
-                {purchasing ? 'Processing...' : 'Confirm Buy'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          {(() => {
+            const selectedVariant = activeSortedVariants(product.variants).find(v => v.id === selectedVariantId);
+            if (!selectedVariant) return null;
+            const vndAmount = (selectedVariant.price * 25000).toLocaleString('vi-VN');
+            return (
+              <Box sx={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '1.25rem', marginBottom: '1.5rem' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>Trading Tool</Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem' }}>{product.title}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>Package</Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.95rem' }}>{selectedVariant.name}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem', fontSize: '1.1rem' }}>
+                  <Typography sx={{ color: 'text.primary', fontWeight: 600, fontSize: '1.1rem' }}>Total Due</Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                    <Typography sx={{ color: 'primary.main', fontWeight: 800, fontSize: '1.1rem' }}>
+                      ${selectedVariant.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
+                      ≈ {vndAmount} VND
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            );
+          })()}
+
+          <Box sx={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+            <Button 
+              onClick={() => setShowCheckoutModal(false)} 
+              sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center' }}
+              disabled={purchasing}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCheckout} 
+              sx={{ ...btnPrimarySx, flex: 1, justifyContent: 'center' }}
+              disabled={purchasing}
+            >
+              {purchasing ? 'Processing...' : 'Confirm Buy'}
+            </Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </>
   );
 };
+
 export default ProductDetail;
