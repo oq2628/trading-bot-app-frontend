@@ -738,6 +738,9 @@ export const Admin: React.FC = () => {
 
   // User Management
   const handleStartEditUser = (u: User) => {
+    // Tài khoản đã tạm ngưng chỉ được xem chi tiết hoặc kích hoạt lại, không cho mở form chỉnh sửa.
+    if (u.is_deleted) return;
+
     setEditingUser(u);
     setEditUserFullName(u.full_name);
     setEditUserRole(u.role);
@@ -1645,7 +1648,7 @@ export const Admin: React.FC = () => {
                       </TableHead>
                       <TableBody>
                         {filteredUsers.map((u) => (
-                          <TableRow key={u.id} sx={{ borderBottom: '1px solid rgba(255,255,255,0.02)', opacity: u.is_deleted ? 0.6 : 1 }}>
+                          <TableRow key={u.id} sx={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
                             <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
                               <Typography component="strong" sx={{ display: 'block', fontSize: '0.9rem', color: '#fff', fontWeight: 700 }}>{u.full_name}</Typography>
                               <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>{u.email}</Typography>
@@ -1692,7 +1695,19 @@ export const Admin: React.FC = () => {
                                 </Button>
                                 <Button
                                   onClick={() => handleStartEditUser(u)}
-                                  sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(99,102,241,0.2)' }}
+                                  disabled={u.is_deleted}
+                                  sx={{
+                                    ...btnSecondarySx,
+                                    padding: '0.45rem',
+                                    minWidth: 'auto',
+                                    height: '34px',
+                                    borderColor: 'rgba(99,102,241,0.2)',
+                                    ...(u.is_deleted ? { opacity: 0.6 } : {}),
+                                    '&.Mui-disabled': {
+                                      opacity: 0.6,
+                                      borderColor: 'rgba(99,102,241,0.2)'
+                                    }
+                                  }}
                                   title="Chỉnh sửa thông tin"
                                 >
                                   <Edit size={14} color="#6366f1" />
