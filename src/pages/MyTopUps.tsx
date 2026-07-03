@@ -6,7 +6,7 @@ import { ConfirmationDialog } from '../components/ConfirmationDialog';
 import { CheckCircle2, XCircle, AlertTriangle, Coins, RefreshCw, Plus, CreditCard, ArrowRight, X } from 'lucide-react';
 import { Box, Container, Typography, Button, InputBase, Table, TableHead, TableRow, TableCell, TableBody, Dialog, DialogTitle, DialogContent, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { glassPanelSx, btnPrimarySx, btnSecondarySx } from '../theme';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx } from '../theme';
 
 interface TopUp {
   id: string;
@@ -243,15 +243,7 @@ export const MyTopUps: React.FC = () => {
     <>
       <Container
         maxWidth="xl"
-        sx={{
-          maxWidth: '1600px !important',
-          paddingBottom: '4rem',
-          animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-          '@keyframes fadeIn': {
-            from: { opacity: 0, transform: 'translateY(10px)' },
-            to: { opacity: 1, transform: 'translateY(0)' },
-          },
-        }}
+        sx={pageContainerSx}
       >
         {/* Page Header */}
         <Box
@@ -268,7 +260,7 @@ export const MyTopUps: React.FC = () => {
             background: 'linear-gradient(135deg, rgba(15, 17, 23, 0.6), rgba(99, 102, 241, 0.05))'
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: '1.5rem', minWidth: 0 }}>
             <Box sx={{
               width: '60px',
               height: '60px',
@@ -283,7 +275,7 @@ export const MyTopUps: React.FC = () => {
               <Coins size={28} color="#fff" />
             </Box>
             <Box>
-              <Typography variant="h1" sx={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.25rem' }}>
+              <Typography variant="h1" sx={{ ...pageTitleSx, fontSize: { xs: '1.75rem', md: '2rem' }, marginBottom: '0.25rem' }}>
                 My Top-Up Transactions
               </Typography>
               <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>
@@ -292,7 +284,7 @@ export const MyTopUps: React.FC = () => {
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: '0.75rem' }}>
+          <Box sx={{ display: 'flex', gap: '0.75rem', width: { xs: '100%', sm: 'auto' }, flexDirection: { xs: 'column', sm: 'row' } }}>
             <Button
               onClick={() => loadTopUps()}
               sx={{
@@ -300,7 +292,8 @@ export const MyTopUps: React.FC = () => {
                 height: '42px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem'
+                gap: '0.5rem',
+                width: { xs: '100%', sm: 'auto' }
               }}
             >
               <RefreshCw size={15} />
@@ -313,7 +306,8 @@ export const MyTopUps: React.FC = () => {
                 height: '42px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem'
+                gap: '0.5rem',
+                width: { xs: '100%', sm: 'auto' }
               }}
             >
               <Plus size={16} />

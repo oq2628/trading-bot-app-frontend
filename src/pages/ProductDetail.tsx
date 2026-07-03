@@ -7,7 +7,7 @@ import { Toast } from '../components/Toast';
 import { activeSortedVariants, formatVariantDuration } from '../utils/variants';
 import { Box, Container, Typography, Button, Dialog, DialogTitle, DialogContent, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { glassPanelSx, btnPrimarySx, btnSecondarySx } from '../theme';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx } from '../theme';
 
 interface Product {
   id: string;
@@ -136,15 +136,7 @@ export const ProductDetail: React.FC = () => {
     <>
       <Container
         maxWidth="xl"
-        sx={{
-          maxWidth: '1600px !important',
-          paddingBottom: '4rem',
-          animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-          '@keyframes fadeIn': {
-            from: { opacity: 0, transform: 'translateY(10px)' },
-            to: { opacity: 1, transform: 'translateY(0)' },
-          },
-        }}
+        sx={pageContainerSx}
       >
         <Box
           component={Link}
@@ -172,11 +164,11 @@ export const ProductDetail: React.FC = () => {
                 component="img"
                 src={product.image_url} 
                 alt={product.title} 
-                sx={{ width: '100%', height: '350px', objectFit: 'cover' }}
+                sx={{ width: '100%', height: { xs: '220px', md: '350px' }, objectFit: 'cover' }}
               />
             </Box>
 
-            <Typography variant="h2" sx={{ fontSize: '1.75rem', marginBottom: '1rem' }}>Description & Features</Typography>
+            <Typography variant="h2" sx={{ fontSize: { xs: '1.35rem', md: '1.75rem' }, marginBottom: '1rem' }}>Description & Features</Typography>
             <Box sx={{ ...glassPanelSx, padding: '1.5rem', lineHeight: 1.7, color: 'text.secondary' }}>
               <Typography sx={{ whiteSpace: 'pre-line', fontSize: '0.95rem', color: 'text.secondary', lineHeight: 1.7 }}>
                 {product.description}
@@ -202,7 +194,7 @@ export const ProductDetail: React.FC = () => {
                 {product.category}
               </Box>
 
-              <Typography variant="h1" sx={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 800 }}>
+              <Typography variant="h1" sx={{ fontSize: { xs: '1.75rem', md: '2rem' }, marginBottom: '0.5rem', fontWeight: 800 }}>
                 {product.title}
               </Typography>
               
@@ -251,14 +243,14 @@ export const ProductDetail: React.FC = () => {
                             onChange={() => setSelectedVariantId(v.id)}
                             style={{ cursor: 'pointer', accentColor: '#6366f1' }}
                           />
-                          <Box component="label" htmlFor={`variant-${v.id}`} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', flex: 1, margin: 0 }}>
+                          <Box component="label" htmlFor={`variant-${v.id}`} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: '0.5rem', sm: 0 }, cursor: 'pointer', flex: 1, margin: 0 }}>
                             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                               <Typography component="span" sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#fff' }}>{v.name}</Typography>
                               <Typography component="span" sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
                                 {formatVariantDuration(v)}
                               </Typography>
                             </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', sm: 'flex-end' } }}>
                               <Typography component="span" sx={{ fontWeight: 800, fontSize: '1.1rem', color: 'primary.main' }}>
                                 ${v.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                               </Typography>

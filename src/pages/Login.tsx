@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { LogIn, UserPlus, Mail, Key, User } from 'lucide-react';
 import { Box, Container, Typography, Button, InputBase, CircularProgress } from '@mui/material';
-import { glassPanelSx, btnPrimarySx } from '../theme';
+import { glassPanelSx, btnPrimarySx, authContainerSx } from '../theme';
 
 interface LoginResponse {
   access_token: string;
@@ -124,26 +124,14 @@ export const Login: React.FC = () => {
   return (
     <Container
       maxWidth="xl"
-      sx={{
-        maxWidth: '1600px !important',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 'calc(100vh - 160px)',
-        padding: '2rem 1rem',
-        animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        '@keyframes fadeIn': {
-          from: { opacity: 0, transform: 'translateY(10px)' },
-          to: { opacity: 1, transform: 'translateY(0)' },
-        },
-      }}
+      sx={authContainerSx}
     >
       <Box
         sx={{
           ...glassPanelSx,
           maxWidth: '460px',
           width: '100%',
-          padding: '2.5rem',
+          padding: { xs: '1.5rem', sm: '2.5rem' },
           border: '1px solid rgba(99, 102, 241, 0.2)'
         }}
       >
@@ -153,7 +141,8 @@ export const Login: React.FC = () => {
             display: 'flex',
             borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
             marginBottom: '2rem',
-            gap: '0.5rem'
+            gap: '0.5rem',
+            overflowX: 'auto'
           }}
         >
           <Button

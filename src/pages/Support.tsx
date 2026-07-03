@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { HelpCircle, Mail, MessageSquare } from 'lucide-react';
 import { Box, Container, Typography, Button } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { glassPanelSx, btnSecondarySx } from '../theme';
+import { glassPanelSx, btnSecondarySx, pageContainerSx, pageTitleSx } from '../theme';
 
 export const Support: React.FC = () => {
   useEffect(() => {
@@ -44,23 +44,13 @@ export const Support: React.FC = () => {
   return (
     <Container
       maxWidth="xl"
-      sx={{
-        maxWidth: '1600px !important',
-        paddingBottom: '4rem',
-        paddingTop: '2rem',
-        animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        '@keyframes fadeIn': {
-          from: { opacity: 0, transform: 'translateY(10px)' },
-          to: { opacity: 1, transform: 'translateY(0)' },
-        },
-      }}
+      sx={{ ...pageContainerSx, paddingTop: { xs: '0.5rem', md: '2rem' } }}
     >
       <Box component="header" sx={{ textAlign: 'center', margin: '2rem 0 3rem' }}>
         <Typography
           variant="h1"
           sx={{
-            fontSize: '2.5rem',
-            fontWeight: 800,
+            ...pageTitleSx,
             marginBottom: '1rem',
             background: 'linear-gradient(135deg, #fff 30%, #9ca3af)',
             WebkitBackgroundClip: 'text',

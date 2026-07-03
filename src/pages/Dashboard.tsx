@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { Toast } from '../components/Toast';
 import { activeSortedVariants, formatVariantDuration } from '../utils/variants';
 import { Box, Container, Typography, Button, InputBase, Dialog, DialogTitle, DialogContent, CircularProgress } from '@mui/material';
-import { glassPanelSx, btnPrimarySx, btnSecondarySx } from '../theme';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx } from '../theme';
 
 interface Variant {
   id: string;
@@ -318,15 +318,7 @@ export const Dashboard: React.FC = () => {
     <>
       <Container
         maxWidth="xl"
-        sx={{
-          maxWidth: '1600px !important',
-          paddingBottom: '4rem',
-          animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-          '@keyframes fadeIn': {
-            from: { opacity: 0, transform: 'translateY(10px)' },
-            to: { opacity: 1, transform: 'translateY(0)' },
-          },
-        }}
+        sx={pageContainerSx}
       >
         {/* Header Profile Dashboard */}
         <Box
@@ -343,7 +335,7 @@ export const Dashboard: React.FC = () => {
           }}
         >
           <Box>
-            <Typography variant="h1" sx={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 800 }}>
+            <Typography variant="h1" sx={{ ...pageTitleSx, fontSize: { xs: '1.75rem', md: '2rem' }, marginBottom: '0.5rem' }}>
               Client Dashboard
             </Typography>
             <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>
@@ -360,7 +352,8 @@ export const Dashboard: React.FC = () => {
               ...btnSecondarySx,
               display: 'flex',
               gap: '0.5rem',
-              alignItems: 'center'
+              alignItems: 'center',
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             <RefreshCw size={14} />
@@ -424,7 +417,7 @@ export const Dashboard: React.FC = () => {
                     justifyContent: 'space-between'
                   }}>
                     {/* Visual & Info wrapper */}
-                    <Box sx={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flex: 1 }}>
+                    <Box sx={{ display: 'flex', gap: '1.25rem', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, flex: 1, minWidth: 0 }}>
                       {/* Thumbnail */}
                       <Box sx={{ width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
                         <Box

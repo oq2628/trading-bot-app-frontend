@@ -12,7 +12,7 @@ import { ConfirmationDialog } from '../components/ConfirmationDialog';
 import { activeSortedVariants, formatVariantDuration, shortestVariant } from '../utils/variants';
 import { Box, Container, Typography, Button, InputBase, Table, TableHead, TableRow, TableCell, TableBody, Dialog, DialogTitle, DialogContent, CircularProgress, Select, MenuItem, FormControl } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { glassPanelSx, btnPrimarySx, btnSecondarySx } from '../theme';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx } from '../theme';
 
 interface Transaction {
   id: string;
@@ -1134,20 +1134,12 @@ export const Admin: React.FC = () => {
     <>
       <Container
         maxWidth="xl"
-        sx={{
-          maxWidth: '1600px !important',
-          paddingBottom: '4rem',
-          animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-          '@keyframes fadeIn': {
-            from: { opacity: 0, transform: 'translateY(10px)' },
-            to: { opacity: 1, transform: 'translateY(0)' },
-          },
-        }}
+        sx={pageContainerSx}
       >
         {/* Title Section */}
-        <Box sx={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <Box sx={{ marginBottom: { xs: '1.5rem', md: '2rem' }, display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, flexWrap: 'wrap', gap: '1rem' }}>
           <Box>
-            <Typography variant="h1" sx={{ fontSize: '2.25rem', fontWeight: 800, marginBottom: '0.25rem' }}>
+            <Typography variant="h1" sx={{ ...pageTitleSx, marginBottom: '0.25rem' }}>
               Admin Management Workspace
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
@@ -1160,7 +1152,7 @@ export const Admin: React.FC = () => {
               e.preventDefault();
               loadAllData();
             }} 
-            sx={{ ...btnSecondarySx, height: '42px', display: 'flex', gap: '0.5rem', alignItems: 'center' }}
+            sx={{ ...btnSecondarySx, height: '42px', display: 'flex', gap: '0.5rem', alignItems: 'center', width: { xs: '100%', sm: 'auto' } }}
           >
             <RefreshCw size={16} />
             Sync Data
@@ -1176,7 +1168,11 @@ export const Admin: React.FC = () => {
           borderRadius: '12px',
           marginBottom: '2rem',
           overflowX: 'auto',
-          whiteSpace: 'nowrap'
+          whiteSpace: 'nowrap',
+          width: '100%',
+          maxWidth: '100%',
+          WebkitOverflowScrolling: 'touch',
+          '&::-webkit-scrollbar': { height: '4px' }
         }}>
           {[
             { id: 'dashboard', label: 'Dashboard', icon: <CreditCard size={14} /> },
@@ -1198,7 +1194,10 @@ export const Admin: React.FC = () => {
                   borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem'
+                  gap: '0.5rem',
+                  flex: '0 0 auto',
+                  minWidth: 'max-content',
+                  '& svg': { flexShrink: 0 }
                 }}
               >
                 {t.icon}

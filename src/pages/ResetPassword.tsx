@@ -4,7 +4,7 @@ import api from '../utils/api';
 import { Key, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { Toast } from '../components/Toast';
 import { Box, Container, Typography, Button, InputBase } from '@mui/material';
-import { glassPanelSx, btnPrimarySx } from '../theme';
+import { glassPanelSx, btnPrimarySx, authContainerSx } from '../theme';
 
 export const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -82,26 +82,14 @@ export const ResetPassword: React.FC = () => {
   return (
     <Container
       maxWidth="xl"
-      sx={{
-        maxWidth: '1600px !important',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 'calc(100vh - 160px)',
-        padding: '2rem 1rem',
-        animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        '@keyframes fadeIn': {
-          from: { opacity: 0, transform: 'translateY(10px)' },
-          to: { opacity: 1, transform: 'translateY(0)' },
-        },
-      }}
+      sx={authContainerSx}
     >
       <Box
         sx={{
           ...glassPanelSx,
           maxWidth: '460px',
           width: '100%',
-          padding: '2.5rem',
+          padding: { xs: '1.5rem', sm: '2.5rem' },
           border: '1px solid rgba(99, 102, 241, 0.2)'
         }}
       >

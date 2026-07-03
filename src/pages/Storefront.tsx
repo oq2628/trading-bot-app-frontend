@@ -5,7 +5,7 @@ import { Search, ArrowUpRight, Cpu, LineChart, FileCode, AlertTriangle } from 'l
 import { shortestVariant } from '../utils/variants';
 import { Box, Container, Typography, Button, InputBase, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { glassPanelSx, glassCardSx, btnPrimarySx, btnSecondarySx } from '../theme';
+import { glassPanelSx, glassCardSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx } from '../theme';
 
 interface ProductVariant {
   id: string;
@@ -118,15 +118,7 @@ export const Storefront: React.FC = () => {
   return (
     <Container
       maxWidth="xl"
-      sx={{
-        maxWidth: '1600px !important',
-        paddingBottom: '4rem',
-        animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        '@keyframes fadeIn': {
-          from: { opacity: 0, transform: 'translateY(10px)' },
-          to: { opacity: 1, transform: 'translateY(0)' },
-        },
-      }}
+      sx={pageContainerSx}
     >
       {/* News Alerts Banner */}
       {showAlert && (
@@ -235,12 +227,12 @@ export const Storefront: React.FC = () => {
       )}
 
       {/* Hero Header */}
-      <Box component="header" sx={{ textAlign: 'center', margin: '3rem 0 4rem' }}>
+      <Box component="header" sx={{ textAlign: 'center', margin: { xs: '2rem 0 2.5rem', md: '3rem 0 4rem' } }}>
         <Typography
           variant="h1"
           sx={{
-            fontSize: '3rem',
-            fontWeight: 800,
+            ...pageTitleSx,
+            fontSize: { xs: '2rem', sm: '2.4rem', md: '3rem' },
             marginBottom: '1rem',
             background: 'linear-gradient(135deg, #fff 30%, #9ca3af)',
             WebkitBackgroundClip: 'text',

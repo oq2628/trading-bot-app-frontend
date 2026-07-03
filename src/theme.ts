@@ -121,7 +121,41 @@ export const glassPanelSx = {
   '&:hover': {
     borderColor: 'rgba(255, 255, 255, 0.1)',
     boxShadow: '0 8px 32px 0 rgba(99, 102, 241, 0.15)',
+  },
+  '@media (max-width: 600px)': {
+    borderRadius: '14px',
+    '&:hover': {
+      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+    }
   }
+};
+
+export const pageContainerSx = {
+  maxWidth: '1600px !important',
+  paddingBottom: { xs: '2.5rem', md: '4rem' },
+  paddingLeft: { xs: '1rem', sm: '1.5rem', md: '2rem' },
+  paddingRight: { xs: '1rem', sm: '1.5rem', md: '2rem' },
+  animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+  '@keyframes fadeIn': {
+    from: { opacity: 0, transform: 'translateY(10px)' },
+    to: { opacity: 1, transform: 'translateY(0)' },
+  },
+};
+
+export const authContainerSx = {
+  ...pageContainerSx,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: { xs: 'calc(100vh - 120px)', md: 'calc(100vh - 160px)' },
+  paddingTop: { xs: '1rem', sm: '2rem' },
+  paddingBottom: { xs: '2rem', sm: '2rem' },
+};
+
+export const pageTitleSx = {
+  fontSize: { xs: '1.8rem', sm: '2.1rem', md: '2.5rem' },
+  fontWeight: 800,
+  lineHeight: 1.12,
 };
 
 export const glassCardSx = {

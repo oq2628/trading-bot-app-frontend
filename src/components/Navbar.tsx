@@ -54,6 +54,8 @@ export const Navbar: React.FC = () => {
     navigate('/');
   };
 
+  const userInitials = user?.full_name?.trim().replace(/\s+/g, '').slice(0, 3).toUpperCase() || 'USR';
+
   return (
     <Box
       component="nav"
@@ -70,14 +72,20 @@ export const Navbar: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         width: 'calc(100% - 2rem)',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        '@media (max-width: 600px)': {
+          top: '0.5rem',
+          margin: '0.5rem auto 1.75rem',
+          padding: '0.75rem 0.85rem',
+          width: 'calc(100% - 1rem)'
+        }
       }}
     >
-      <Box component={Link} to="/" sx={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+      <Box component={Link} to="/" sx={{ display: 'flex', alignItems: 'center', gap: { xs: '0.5rem', sm: '0.75rem' }, textDecoration: 'none', minWidth: 0 }}>
         <Box sx={{
           background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-          width: '40px',
-          height: '40px',
+          width: { xs: '34px', sm: '40px' },
+          height: { xs: '34px', sm: '40px' },
           borderRadius: '10px',
           display: 'flex',
           alignItems: 'center',
@@ -89,7 +97,7 @@ export const Navbar: React.FC = () => {
         <Typography
           component="span"
           sx={{
-            fontSize: '1.25rem',
+            fontSize: { xs: '1.05rem', sm: '1.25rem' },
             fontWeight: 800,
             letterSpacing: '-0.02em',
             background: 'linear-gradient(to right, #fff, #9ca3af)',
@@ -157,7 +165,7 @@ export const Navbar: React.FC = () => {
         </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: '0.35rem', sm: '1rem' }, flexShrink: 0 }}>
         {user ? (
           <Box
             ref={dropdownRef}
@@ -170,13 +178,14 @@ export const Navbar: React.FC = () => {
                 alignItems: 'center',
                 gap: '0.6rem',
                 background: 'rgba(255,255,255,0.04)',
-                padding: '0.45rem 1.1rem',
+                padding: { xs: '0.25rem 0.45rem', sm: '0.45rem 1.1rem' },
                 borderRadius: '24px',
                 border: '1px solid rgba(255, 255, 255, 0.06)',
                 fontSize: '0.85rem',
                 fontWeight: 600,
                 color: 'text.primary',
                 height: '38px',
+                minWidth: 'auto',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -190,13 +199,23 @@ export const Navbar: React.FC = () => {
               }}
             >
               <Box sx={{
-                width: '8px',
-                height: '8px',
+                width: { xs: '30px', sm: '32px' },
+                height: { xs: '30px', sm: '32px' },
                 borderRadius: '50%',
-                background: '#10b981',
-                boxShadow: '0 0 8px #10b981'
-              }} />
-              <Typography component="span" sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.primary', textTransform: 'none' }}>
+                background: 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
+                boxShadow: '0 0 10px rgba(99, 102, 241, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                letterSpacing: '0.02em',
+                flexShrink: 0
+              }}>
+                {userInitials}
+              </Box>
+              <Typography component="span" sx={{ display: { xs: 'none', sm: 'inline' }, fontSize: '0.85rem', fontWeight: 600, color: 'text.primary', textTransform: 'none' }}>
                 {user.full_name ? user.full_name.trim().split(' ')[0] : 'My Account'} (${user.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
               </Typography>
               <Box component="span" sx={{
@@ -249,7 +268,7 @@ export const Navbar: React.FC = () => {
                     boxShadow: '0 4px 15px rgba(99, 102, 241, 0.3)',
                     flexShrink: 0
                   }}>
-                    {user.full_name ? user.full_name.trim().charAt(0).toUpperCase() : 'U'}
+                    {userInitials}
                   </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                     <Typography component="span" sx={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

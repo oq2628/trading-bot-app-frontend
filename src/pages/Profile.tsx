@@ -4,7 +4,7 @@ import { Toast } from '../components/Toast';
 import { User, Wallet, Save, ArrowUpRight, Calendar, MapPin, Phone, X, RefreshCw } from 'lucide-react';
 import { Box, Container, Typography, Button, InputBase, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { glassPanelSx, btnPrimarySx, btnSecondarySx } from '../theme';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx } from '../theme';
 
 export const Profile: React.FC = () => {
   const { user, refreshUser } = useAuth();
@@ -175,24 +175,17 @@ export const Profile: React.FC = () => {
   return (
     <Container
       maxWidth="xl"
-      sx={{
-        maxWidth: '1600px !important',
-        paddingBottom: '4rem',
-        animation: 'fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        '@keyframes fadeIn': {
-          from: { opacity: 0, transform: 'translateY(10px)' },
-          to: { opacity: 1, transform: 'translateY(0)' },
-        },
-      }}
+      sx={pageContainerSx}
     >
       {/* Page Header */}
       <Box
         sx={{
           ...glassPanelSx,
-          padding: '2rem',
+          padding: { xs: '1.5rem', sm: '2rem' },
           marginBottom: '2.5rem',
           display: 'flex',
-          alignItems: 'center',
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          flexDirection: { xs: 'column', sm: 'row' },
           gap: '1.5rem',
           border: '1px solid rgba(99, 102, 241, 0.15)',
           background: 'linear-gradient(135deg, rgba(15, 17, 23, 0.6), rgba(99, 102, 241, 0.05))'
@@ -217,7 +210,7 @@ export const Profile: React.FC = () => {
           {user.full_name ? user.full_name.trim().charAt(0).toUpperCase() : 'U'}
         </Box>
         <Box>
-          <Typography variant="h1" sx={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.25rem' }}>
+          <Typography variant="h1" sx={{ ...pageTitleSx, fontSize: { xs: '1.75rem', md: '2rem' }, marginBottom: '0.25rem' }}>
             My Account Settings
           </Typography>
           <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>
