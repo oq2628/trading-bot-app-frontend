@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import api from '../utils/api';
+import api, { API_BASE_URL } from '../utils/api';
 import {
   Upload, Trash2, History, Plus, FileCode, CreditCard,
   DollarSign, Edit, Eye, EyeOff, Search, Users, Tag,
@@ -274,6 +274,10 @@ export const Admin: React.FC = () => {
 
   // 6. TopUps State
   const [topUpsList, setTopUpsList] = useState<TopUpAdmin[]>([]);
+  const [customQrUrl, setCustomQrUrl] = useState<string | null>(null);
+  const [uploadingQr, setUploadingQr] = useState(false);
+  const [deletingQr, setDeletingQr] = useState(false);
+  const [qrPreviewUrl, setQrPreviewUrl] = useState<string | null>(null);
   const [topUpsSearch, setTopUpsSearch] = useState('');
   const [topUpsStatusFilter, setTopUpsStatusFilter] = useState('all');
   const [viewingTopUp, setViewingTopUp] = useState<TopUpAdmin | null>(null);
@@ -352,6 +356,12 @@ export const Admin: React.FC = () => {
     try {
       const data = await api.get<TopUpAdmin[]>('/api/admin/top-ups');
       setTopUpsList(data);
+      try {
+        const qrData = await api.get<{ qr_code_url: string | null; has_custom_qr: boolean }>('/api/admin/settings/qr-code');
+        setCustomQrUrl(qrData.qr_code_url);
+      } catch (qrErr) {
+        console.error('Failed to load custom QR settings', qrErr);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch top-up transactions.');
     }
@@ -1035,6 +1045,43 @@ export const Admin: React.FC = () => {
       setToast({ message: 'Refreshed transaction status successfully.', type: 'success' });
     } catch (err: any) {
       setToast({ message: err.message || 'Failed to refresh transaction.', type: 'error' });
+    }
+  };
+
+  const handleUploadQrCode = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setToast({ message: 'Vui lòng chọn file hình ảnh hợp lệ.', type: 'error' });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploadingQr(true);
+    try {
+      const data = await api.postForm<{ qr_code_url: string; has_custom_qr: boolean }>('/api/admin/settings/qr-code', formData);
+      setCustomQrUrl(data.qr_code_url);
+      setToast({ message: 'Upload custom QR code thành công!', type: 'success' });
+    } catch (err: any) {
+      setToast({ message: err.message || 'Upload custom QR code thất bại.', type: 'error' });
+    } finally {
+      setUploadingQr(false);
+    }
+  };
+
+  const handleDeleteQrCode = async () => {
+    setDeletingQr(true);
+    try {
+      await api.delete('/api/admin/settings/qr-code');
+      setCustomQrUrl(null);
+      setToast({ message: 'Đã xóa custom QR code thành công!', type: 'success' });
+    } catch (err: any) {
+      setToast({ message: err.message || 'Xóa custom QR code thất bại.', type: 'error' });
+    } finally {
+      setDeletingQr(false);
     }
   };
 
@@ -1828,153 +1875,277 @@ export const Admin: React.FC = () => {
 
             {/* TAB 6: TOPUPS */}
             {activeTab === 'topups' && (
-              <Box sx={{ ...glassPanelSx, padding: '2rem' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                  <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <Box sx={{ position: 'relative', width: '320px' }}>
-                      <Search size={16} color="#6b7280" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
-                      <InputBase
-                        placeholder="Search by buyer email or reference..."
-                        value={topUpsSearch}
-                        onChange={e => setTopUpsSearch(e.target.value)}
-                        sx={{ ...inputSx, paddingLeft: '2.5rem', height: '40px' }}
-                      />
-                    </Box>
-                    <FormControl sx={{ width: '170px' }}>
-                      <Select
-                        value={topUpsStatusFilter}
-                        onChange={e => setTopUpsStatusFilter(e.target.value)}
-                        sx={selectSx}
-                        MenuProps={menuProps}
-                      >
-                        <MenuItem value="all">Tất cả trạng thái</MenuItem>
-                        <MenuItem value="pending">Pending</MenuItem>
-                        <MenuItem value="completed">Completed</MenuItem>
-                        <MenuItem value="failed">Failed</MenuItem>
-                        <MenuItem value="cancelled">Cancelled</MenuItem>
-                      </Select>
-                    </FormControl>
+              <>
+                <Grid container spacing={4}>
+                {/* Left/Top Column: QR Settings Card */}
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <Box sx={{ ...glassPanelSx, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', height: 'fit-content' }}>
+                    <Typography variant="h2" sx={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem' }}>
+                      <Upload size={18} color="#6366f1" />
+                      Cấu hình QR nhận tiền
+                    </Typography>
+                    
+                    {customQrUrl ? (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', width: '100%' }}>
+                        <Box 
+                          onClick={() => setQrPreviewUrl(customQrUrl.startsWith('http') ? customQrUrl : `${API_BASE_URL}${customQrUrl}`)}
+                          sx={{ padding: '8px', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', width: '180px', height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                        >
+                          <Box
+                            component="img"
+                            src={customQrUrl.startsWith('http') ? customQrUrl : `${API_BASE_URL}${customQrUrl}`}
+                            alt="Custom Bank QR Code"
+                            sx={{ maxWidth: '100%', maxHeight: '100%', display: 'block', objectFit: 'contain' }}
+                          />
+                        </Box>
+                        <Button
+                          onClick={handleDeleteQrCode}
+                          disabled={deletingQr}
+                          sx={{
+                            ...btnSecondarySx,
+                            borderColor: 'rgba(239,68,68,0.2)',
+                            color: 'error.main',
+                            '&:hover': {
+                              background: 'rgba(239, 68, 68, 0.08)',
+                              borderColor: 'rgba(239, 68, 68, 0.3)'
+                            },
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem'
+                          }}
+                        >
+                          {deletingQr ? 'Đang xóa...' : (
+                            <>
+                              <Trash2 size={16} />
+                              Xóa QR Code
+                            </>
+                          )}
+                        </Button>
+                      </Box>
+                    ) : (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', textAlign: 'center', py: '1.5rem', width: '100%' }}>
+                        <Coins size={40} style={{ opacity: 0.3, color: '#6366f1' }} />
+                        <Typography sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>
+                          Chưa cấu hình QR Code nhận tiền. Hệ thống sẽ tự động sử dụng ACB VietQR.
+                        </Typography>
+                        <Button
+                          component="label"
+                          disabled={uploadingQr}
+                          sx={{
+                            ...btnPrimarySx,
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Upload size={16} />
+                          {uploadingQr ? 'Đang upload...' : 'Upload QR Image'}
+                          <input
+                            type="file"
+                            hidden
+                            accept="image/*"
+                            onChange={handleUploadQrCode}
+                          />
+                        </Button>
+                      </Box>
+                    )}
                   </Box>
-                  <Button onClick={() => { setShowAddTopUpModal(true); }} sx={{ ...btnPrimarySx, height: '40px' }}>
-                    <Plus size={16} /> Tạo Top-Up mới
-                  </Button>
-                </Box>
+                </Grid>
 
-                {filteredTopUps.length === 0 ? (
-                  <Typography sx={{ color: 'text.disabled', textAlign: 'center', padding: '3rem 0' }}>No top-up transactions matching criteria found.</Typography>
-                ) : (
-                  <Box sx={{ overflowX: 'auto' }}>
-                    <Table sx={{ minWidth: 950 }}>
-                      <TableHead>
-                        <TableRow sx={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                          <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Khách Hàng / Email</TableCell>
-                          <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Amount (USD)</TableCell>
-                          <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Amount (VND)</TableCell>
-                          <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Reference</TableCell>
-                          <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>ACB Trans ID</TableCell>
-                          <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Ngày Tạo</TableCell>
-                          <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Trạng Thái</TableCell>
-                          <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Hành động</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {filteredTopUps.map((t) => {
-                          const statusLower = t.status.toLowerCase();
-                          return (
-                            <TableRow key={t.id} sx={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                              <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
-                                <Typography component="strong" sx={{ display: 'block', fontSize: '0.9rem', color: '#fff', fontWeight: 700 }}>{t.user?.full_name || 'Guest'}</Typography>
-                                <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>{t.user?.email || 'N/A'}</Typography>
-                              </TableCell>
-                              <TableCell align="right" sx={{ padding: '1rem 0.5rem', fontWeight: 600, borderBottom: 'none' }}>
-                                ${t.amount.toFixed(2)}
-                              </TableCell>
-                              <TableCell align="right" sx={{ padding: '1rem 0.5rem', fontWeight: 600, color: 'success.main', borderBottom: 'none' }}>
-                                {t.amount_vnd.toLocaleString()} đ
-                              </TableCell>
-                              <TableCell sx={{ padding: '1rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem', borderBottom: 'none' }}>
-                                {t.payment_reference}
-                              </TableCell>
-                              <TableCell sx={{ padding: '1rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem', borderBottom: 'none' }}>
-                                {t.acb_transaction_id || '-'}
-                              </TableCell>
-                              <TableCell sx={{ padding: '1rem 0.5rem', fontSize: '0.85rem', color: 'text.secondary', borderBottom: 'none' }}>
-                                {new Date(t.created_at).toLocaleDateString(undefined, { dateStyle: 'short' })}
-                              </TableCell>
-                              <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
-                                <Box component="span" sx={{
-                                  fontSize: '0.7rem',
-                                  fontWeight: 800,
-                                  padding: '0.2rem 0.5rem',
-                                  borderRadius: '10px',
-                                  background: statusLower === 'completed' ? 'rgba(16, 185, 129, 0.15)' : statusLower === 'cancelled' ? 'rgba(255, 255, 255, 0.05)' : statusLower === 'failed' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                                  color: statusLower === 'completed' ? 'success.main' : statusLower === 'cancelled' ? 'text.disabled' : statusLower === 'failed' ? 'error.main' : 'warning.main',
-                                  textTransform: 'uppercase'
-                                }}>
-                                  {t.status}
-                                </Box>
-                              </TableCell>
-                              <TableCell align="right" sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
-                                <Box sx={{ display: 'inline-flex', gap: '0.5rem' }}>
-                                  <Button
-                                    onClick={() => setViewingTopUp(t)}
-                                    sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px' }}
-                                    title="Xem chi tiết"
-                                  >
-                                    <Eye size={14} />
-                                  </Button>
-                                  <Button
-                                    onClick={() => handleStartEditTopUp(t)}
-                                    sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(99,102,241,0.2)' }}
-                                    title="Chỉnh sửa trạng thái"
-                                  >
-                                    <Edit size={14} color="#6366f1" />
-                                  </Button>
-                                  {statusLower === 'pending' && (
-                                    <>
-                                      <Button
-                                        onClick={() => handleManualRefresh(t.id)}
-                                        sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(16, 185, 129, 0.2)' }}
-                                        title="Kiểm tra thanh toán"
-                                      >
-                                        <RefreshCw size={14} color="#10b981" />
-                                      </Button>
-                                      <Button
-                                        onClick={() => handleManualCreditTopUp(t)}
-                                        sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(99, 102, 241, 0.4)' }}
-                                        title="Cộng tiền thủ công (Audited)"
-                                      >
-                                        <Coins size={14} color="#6366f1" />
-                                      </Button>
-                                      <Button
-                                        onClick={() => handleCancelTopUpAdmin(t)}
-                                        sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(239, 68, 68, 0.2)' }}
-                                        title="Hủy giao dịch"
-                                      >
-                                        <X size={14} color="#ef4444" />
-                                      </Button>
-                                    </>
-                                  )}
-                                  {statusLower !== 'completed' && (
-                                    <Button
-                                      onClick={() => handleDeleteTopUp(t)}
-                                      sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(239,68,68,0.2)' }}
-                                      title="Xóa bản ghi"
-                                    >
-                                      <Trash2 size={14} color="#ef4444" />
-                                    </Button>
-                                  )}
-                                </Box>
-                              </TableCell>
+                {/* Right/Bottom Column: Topups List */}
+                <Grid size={{ xs: 12, md: 8 }}>
+                  <Box sx={{ ...glassPanelSx, padding: '2rem' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+                      <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <Box sx={{ position: 'relative', width: '320px' }}>
+                          <Search size={16} color="#6b7280" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
+                          <InputBase
+                            placeholder="Search by buyer email or reference..."
+                            value={topUpsSearch}
+                            onChange={e => setTopUpsSearch(e.target.value)}
+                            sx={{ ...inputSx, paddingLeft: '2.5rem', height: '40px' }}
+                          />
+                        </Box>
+                        <FormControl sx={{ width: '170px' }}>
+                          <Select
+                            value={topUpsStatusFilter}
+                            onChange={e => setTopUpsStatusFilter(e.target.value)}
+                            sx={selectSx}
+                            MenuProps={menuProps}
+                          >
+                            <MenuItem value="all">Tất cả trạng thái</MenuItem>
+                            <MenuItem value="pending">Pending</MenuItem>
+                            <MenuItem value="completed">Completed</MenuItem>
+                            <MenuItem value="failed">Failed</MenuItem>
+                            <MenuItem value="cancelled">Cancelled</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Box>
+                      <Button onClick={() => { setShowAddTopUpModal(true); }} sx={{ ...btnPrimarySx, height: '40px' }}>
+                        <Plus size={16} /> Tạo Top-Up mới
+                      </Button>
+                    </Box>
+
+                    {filteredTopUps.length === 0 ? (
+                      <Typography sx={{ color: 'text.disabled', textAlign: 'center', padding: '3rem 0' }}>No top-up transactions matching criteria found.</Typography>
+                    ) : (
+                      <Box sx={{ overflowX: 'auto' }}>
+                        <Table sx={{ minWidth: 950 }}>
+                          <TableHead>
+                            <TableRow sx={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                              <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Khách Hàng / Email</TableCell>
+                              <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Amount (USD)</TableCell>
+                              <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Amount (VND)</TableCell>
+                              <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Reference</TableCell>
+                              <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>ACB Trans ID</TableCell>
+                              <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Ngày Tạo</TableCell>
+                              <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Trạng Thái</TableCell>
+                              <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Hành động</TableCell>
                             </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
+                          </TableHead>
+                          <TableBody>
+                            {filteredTopUps.map((t) => {
+                              const statusLower = t.status.toLowerCase();
+                              return (
+                                <TableRow key={t.id} sx={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                                  <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
+                                    <Typography component="strong" sx={{ display: 'block', fontSize: '0.9rem', color: '#fff', fontWeight: 700 }}>{t.user?.full_name || 'Guest'}</Typography>
+                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>{t.user?.email || 'N/A'}</Typography>
+                                  </TableCell>
+                                  <TableCell align="right" sx={{ padding: '1rem 0.5rem', fontWeight: 600, borderBottom: 'none' }}>
+                                    ${t.amount.toFixed(2)}
+                                  </TableCell>
+                                  <TableCell align="right" sx={{ padding: '1rem 0.5rem', fontWeight: 600, color: 'success.main', borderBottom: 'none' }}>
+                                    {t.amount_vnd.toLocaleString()} đ
+                                  </TableCell>
+                                  <TableCell sx={{ padding: '1rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem', borderBottom: 'none' }}>
+                                    {t.payment_reference}
+                                  </TableCell>
+                                  <TableCell sx={{ padding: '1rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem', borderBottom: 'none' }}>
+                                    {t.acb_transaction_id || '-'}
+                                  </TableCell>
+                                  <TableCell sx={{ padding: '1rem 0.5rem', fontSize: '0.85rem', color: 'text.secondary', borderBottom: 'none' }}>
+                                    {new Date(t.created_at).toLocaleDateString(undefined, { dateStyle: 'short' })}
+                                  </TableCell>
+                                  <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
+                                    <Box component="span" sx={{
+                                      fontSize: '0.7rem',
+                                      fontWeight: 800,
+                                      padding: '0.2rem 0.5rem',
+                                      borderRadius: '10px',
+                                      background: statusLower === 'completed' ? 'rgba(16, 185, 129, 0.15)' : statusLower === 'cancelled' ? 'rgba(255, 255, 255, 0.05)' : statusLower === 'failed' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                                      color: statusLower === 'completed' ? 'success.main' : statusLower === 'cancelled' ? 'text.disabled' : statusLower === 'failed' ? 'error.main' : 'warning.main',
+                                      textTransform: 'uppercase'
+                                    }}>
+                                      {t.status}
+                                    </Box>
+                                  </TableCell>
+                                  <TableCell align="right" sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
+                                    <Box sx={{ display: 'inline-flex', gap: '0.5rem' }}>
+                                      <Button
+                                        onClick={() => setViewingTopUp(t)}
+                                        sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px' }}
+                                        title="Xem chi tiết"
+                                      >
+                                        <Eye size={14} />
+                                      </Button>
+                                      <Button
+                                        onClick={() => handleStartEditTopUp(t)}
+                                        sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(99,102,241,0.2)' }}
+                                        title="Chỉnh sửa trạng thái"
+                                      >
+                                        <Edit size={14} color="#6366f1" />
+                                      </Button>
+                                      {statusLower === 'pending' && (
+                                        <>
+                                          <Button
+                                            onClick={() => handleManualRefresh(t.id)}
+                                            sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(16, 185, 129, 0.2)' }}
+                                            title="Kiểm tra thanh toán"
+                                          >
+                                            <RefreshCw size={14} color="#10b981" />
+                                          </Button>
+                                          <Button
+                                            onClick={() => handleManualCreditTopUp(t)}
+                                            sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(99, 102, 241, 0.4)' }}
+                                            title="Cộng tiền thủ công (Audited)"
+                                          >
+                                            <Coins size={14} color="#6366f1" />
+                                          </Button>
+                                          <Button
+                                            onClick={() => handleCancelTopUpAdmin(t)}
+                                            sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(239, 68, 68, 0.2)' }}
+                                            title="Hủy giao dịch"
+                                          >
+                                            <X size={14} color="#ef4444" />
+                                          </Button>
+                                        </>
+                                      )}
+                                      {statusLower !== 'completed' && (
+                                        <Button
+                                          onClick={() => handleDeleteTopUp(t)}
+                                          sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(239,68,68,0.2)' }}
+                                          title="Xóa bản ghi"
+                                        >
+                                          <Trash2 size={14} color="#ef4444" />
+                                        </Button>
+                                      )}
+                                    </Box>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </Box>
+                    )}
                   </Box>
-                )}
-              </Box>
-            )}
+                </Grid>
+              </Grid>
+
+              {/* QR Code Preview Dialog */}
+              <Dialog
+                open={!!qrPreviewUrl}
+                onClose={() => setQrPreviewUrl(null)}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      ...glassPanelSx,
+                      padding: '1rem',
+                      maxWidth: '500px',
+                      width: '100%',
+                      background: 'rgba(20, 22, 33, 0.95)',
+                      backgroundImage: 'none',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center'
+                    }
+                  }
+                }}
+              >
+                <DialogTitle sx={{ width: '100%', padding: 0, display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
+                  <Box component="button" onClick={() => setQrPreviewUrl(null)} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
+                    <X size={20} />
+                  </Box>
+                </DialogTitle>
+                <DialogContent sx={{ padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  {qrPreviewUrl && (
+                    <Box
+                      component="img"
+                      src={qrPreviewUrl}
+                      alt="QR Code Preview"
+                      sx={{ maxWidth: '100%', maxHeight: '75vh', borderRadius: '8px', display: 'block', objectFit: 'contain' }}
+                    />
+                  )}
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
           </Box>
         )}
       </Container>

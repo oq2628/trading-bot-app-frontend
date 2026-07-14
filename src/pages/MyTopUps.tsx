@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import api from '../utils/api';
+import api, { API_BASE_URL } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { Toast } from '../components/Toast';
 import { ConfirmationDialog } from '../components/ConfirmationDialog';
@@ -38,6 +38,7 @@ export const MyTopUps: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const [activeTopUp, setActiveTopUp] = useState<TopUp | null>(null);
+  const [qrPreviewUrl, setQrPreviewUrl] = useState<string | null>(null);
   const [polling, setPolling] = useState(false);
   const pollingRef = useRef<any>(null);
   const [confirmingTopUpCancel, setConfirmingTopUpCancel] = useState<TopUp | null>(null);
@@ -533,8 +534,27 @@ export const MyTopUps: React.FC = () => {
             {/* QR Code Container */}
             {activeTopUp.status === 'pending' && (
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', width: '100%' }}>
-                {activeTopUp.qr_image_base64 ? (
-                  <Box sx={{ padding: '8px', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+                {activeTopUp.qr_image_url ? (
+                  <Box 
+                    onClick={() => {
+                      if (activeTopUp.qr_image_url) {
+                        setQrPreviewUrl(activeTopUp.qr_image_url.startsWith('http') ? activeTopUp.qr_image_url : `${API_BASE_URL}${activeTopUp.qr_image_url}`);
+                      }
+                    }}
+                    sx={{ padding: '8px', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', width: '180px', height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                  >
+                    <Box
+                      component="img"
+                      src={activeTopUp.qr_image_url.startsWith('http') ? activeTopUp.qr_image_url : `${API_BASE_URL}${activeTopUp.qr_image_url}`}
+                      alt="Custom Bank QR Code"
+                      sx={{ maxWidth: '100%', maxHeight: '100%', display: 'block', objectFit: 'contain' }}
+                    />
+                  </Box>
+                ) : activeTopUp.qr_image_base64 ? (
+                  <Box 
+                    onClick={() => setQrPreviewUrl(activeTopUp.qr_image_base64)}
+                    sx={{ padding: '8px', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', cursor: 'pointer' }}
+                  >
                     <Box
                       component="img"
                       src={activeTopUp.qr_image_base64}
@@ -547,9 +567,33 @@ export const MyTopUps: React.FC = () => {
                     Loading VietQR...
                   </Box>
                 )}
-                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', textAlign: 'center' }}>
-                  Scan code using any Banking App to pay instantly.
-                </Typography>
+                
+                {activeTopUp.qr_image_url ? (
+                  <Box sx={{ width: '100%', mt: '1rem', padding: '1rem', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)', borderRadius: '8px', textAlign: 'center' }}>
+                    <Typography sx={{ fontSize: '0.9rem', color: '#fff', fontWeight: 700, mb: '0.5rem' }}>
+                      Hướng dẫn chuyển khoản thủ công
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary', mb: '0.25rem' }}>
+                      Vui lòng chuyển đúng số tiền:
+                    </Typography>
+                    <Typography sx={{ fontSize: '1.25rem', color: 'success.main', fontWeight: 800, mb: '0.5rem' }}>
+                      {activeTopUp.amount_vnd.toLocaleString()} VND
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary', mb: '0.25rem' }}>
+                      Nội dung chuyển khoản chính xác:
+                    </Typography>
+                    <Typography sx={{ fontSize: '1.1rem', color: 'primary.main', fontWeight: 800, fontFamily: 'monospace', mb: '0.5rem', background: 'rgba(0,0,0,0.2)', py: '0.25rem', borderRadius: '4px' }}>
+                      {activeTopUp.payment_reference}
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.75rem', color: 'warning.main', fontWeight: 600 }}>
+                      * Admin sẽ kiểm tra và cộng số dư thủ công cho bạn sau khi nhận được chuyển khoản.
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', textAlign: 'center' }}>
+                    Scan code using any Banking App to pay instantly.
+                  </Typography>
+                )}
               </Box>
             )}
 
@@ -694,6 +738,43 @@ export const MyTopUps: React.FC = () => {
           if (!confirmingTopUpCancelLoading) setConfirmingTopUpCancel(null);
         }}
       />
+
+      {/* QR Code Preview Dialog */}
+      <Dialog
+        open={!!qrPreviewUrl}
+        onClose={() => setQrPreviewUrl(null)}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '1rem',
+              maxWidth: '500px',
+              width: '100%',
+              background: 'rgba(20, 22, 33, 0.95)',
+              backgroundImage: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }
+          }
+        }}
+      >
+        <DialogTitle sx={{ width: '100%', padding: 0, display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
+          <Box component="button" onClick={() => setQrPreviewUrl(null)} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
+            <X size={20} />
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          {qrPreviewUrl && (
+            <Box
+              component="img"
+              src={qrPreviewUrl}
+              alt="QR Code Preview"
+              sx={{ maxWidth: '100%', maxHeight: '75vh', borderRadius: '8px', display: 'block', objectFit: 'contain' }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
