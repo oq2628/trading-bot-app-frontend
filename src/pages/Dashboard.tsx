@@ -93,6 +93,8 @@ export const Dashboard: React.FC = () => {
   const [selectedVariantId, setSelectedVariantId] = useState<string>('');
   const [showRenewModal, setShowRenewModal] = useState(false);
   const [renewing, setRenewing] = useState(false);
+  const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
+  const [regeneratingLoading, setRegeneratingLoading] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -181,6 +183,22 @@ export const Dashboard: React.FC = () => {
       setToast({ message: err.message || 'Unable to copy LicenseKey.', type: 'error' });
     } finally {
       setCopyingKeyId(null);
+    }
+  };
+
+  const handleRegenerateLicenseKey = async () => {
+    if (!regeneratingId) return;
+    try {
+      setRegeneratingLoading(true);
+      const data = await api.post<{ api_key: string }>(`/api/license/${regeneratingId}/regenerate`);
+      await navigator.clipboard.writeText(data.api_key);
+      setToast({ message: 'New LicenseKey generated and copied to clipboard.', type: 'success' });
+      setRegeneratingId(null);
+      await loadOrders(true);
+    } catch (err: any) {
+      setToast({ message: err.message || 'Failed to regenerate LicenseKey.', type: 'error' });
+    } finally {
+      setRegeneratingLoading(false);
     }
   };
 
@@ -459,30 +477,49 @@ export const Dashboard: React.FC = () => {
 
                     {/* CTA Action */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0, width: { xs: '100%', sm: 'auto' } }}>
-                      <Button
-                        onClick={() => handleDownload(prod.id, prod.title)}
-                        disabled={isExpired || downloadingId === prod.id}
-                        sx={{
-                          ...btnPrimarySx,
-                          padding: '0.75rem 1.25rem',
-                          fontSize: '0.9rem',
-                          width: { xs: '100%', sm: 'auto' },
-                          opacity: isExpired ? 0.5 : 1
-                        }}
-                        title={isExpired ? "License has expired. Please renew to download." : "Download quantitative bot tool"}
-                      >
-                        {downloadingId === prod.id ? (
-                          <>
-                            <CircularProgress size={14} color="inherit" />
-                            Downloading...
-                          </>
-                        ) : (
-                          <>
-                            <Download size={16} />
-                            Secure Download
-                          </>
-                        )}
-                      </Button>
+                      {isExpired ? (
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleOpenRenewModal(order);
+                          }}
+                          sx={{
+                            ...btnPrimarySx,
+                            padding: '0.75rem 1.25rem',
+                            fontSize: '0.9rem',
+                            width: { xs: '100%', sm: 'auto' },
+                            boxShadow: '0 0 15px 1px rgba(99, 102, 241, 0.4)'
+                          }}
+                        >
+                          <RefreshCw size={16} />
+                          Renew License
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => handleDownload(prod.id, prod.title)}
+                          disabled={downloadingId === prod.id}
+                          sx={{
+                            ...btnPrimarySx,
+                            padding: '0.75rem 1.25rem',
+                            fontSize: '0.9rem',
+                            width: { xs: '100%', sm: 'auto' }
+                          }}
+                          title="Download quantitative bot tool"
+                        >
+                          {downloadingId === prod.id ? (
+                            <>
+                              <CircularProgress size={14} color="inherit" />
+                              Downloading...
+                            </>
+                          ) : (
+                            <>
+                              <Download size={16} />
+                              Secure Download
+                            </>
+                          )}
+                        </Button>
+                      )}
                     </Box>
                   </Box>
 
@@ -557,28 +594,57 @@ export const Dashboard: React.FC = () => {
                             <Box component="code" sx={{ background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.5rem', borderRadius: '4px', color: 'primary.main', fontWeight: 600, fontSize: '0.8rem', wordBreak: 'break-all' }}>
                               {order.license.key_recoverable ? 'Stored encrypted' : 'Legacy key unavailable'}
                             </Box>
-                             {order.license.key_recoverable ? (
-                              <Button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  handleCopyLicenseKey(order.license!.id);
-                                }}
-                                disabled={copyingKeyId === order.license.id}
-                                sx={{
-                                  ...btnSecondarySx,
-                                  padding: '0.25rem 0.6rem',
-                                  fontSize: '0.75rem',
-                                  height: 'auto',
-                                  minWidth: 'auto',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '0.25rem'
-                                }}
-                              >
-                                <Copy size={13} /> {copyingKeyId === order.license.id ? 'Copying...' : 'Copy LicenseKey'}
-                              </Button>
+                              {order.license.key_recoverable ? (
+                              <Box sx={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                               <Button
+                                 type="button"
+                                 onClick={(e) => {
+                                   e.preventDefault();
+                                   e.stopPropagation();
+                                   handleCopyLicenseKey(order.license!.id);
+                                 }}
+                                 disabled={isExpired || copyingKeyId === order.license.id}
+                                 sx={{
+                                   ...btnSecondarySx,
+                                   padding: '0.25rem 0.6rem',
+                                   fontSize: '0.75rem',
+                                   height: 'auto',
+                                   minWidth: 'auto',
+                                   display: 'flex',
+                                   alignItems: 'center',
+                                   gap: '0.25rem'
+                                 }}
+                               >
+                                 <Copy size={13} /> {copyingKeyId === order.license.id ? 'Copying...' : 'Copy LicenseKey'}
+                               </Button>
+                               <Button
+                                 type="button"
+                                 onClick={(e) => {
+                                   e.preventDefault();
+                                   e.stopPropagation();
+                                   setRegeneratingId(order.license!.id);
+                                 }}
+                                 disabled={isExpired || regeneratingLoading}
+                                 sx={{
+                                   ...btnSecondarySx,
+                                   padding: '0.25rem 0.6rem',
+                                   fontSize: '0.75rem',
+                                   height: 'auto',
+                                   minWidth: 'auto',
+                                   display: 'flex',
+                                   alignItems: 'center',
+                                   gap: '0.25rem',
+                                   borderColor: isExpired ? 'rgba(255,255,255,0.06)' : 'rgba(239, 68, 68, 0.3)',
+                                   color: isExpired ? 'text.disabled' : '#ff8a8a',
+                                   '&:hover': {
+                                     borderColor: isExpired ? 'rgba(255,255,255,0.06)' : '#ef4444',
+                                     background: isExpired ? 'rgba(255, 255, 255, 0.05)' : 'rgba(239, 68, 68, 0.08)'
+                                   }
+                                 }}
+                               >
+                                 <RefreshCw size={13} /> Regenerate Key
+                               </Button>
+                              </Box>
                             ) : (
                               <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>Cannot recover this legacy key.</Typography>
                             )}
@@ -1007,6 +1073,61 @@ export const Dashboard: React.FC = () => {
               disabled={renewing || !selectedVariantId}
             >
               {renewing ? 'Processing...' : 'Confirm Pay'}
+            </Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
+
+      {/* Regenerate Key Confirmation Dialog */}
+      <Dialog
+        open={!!regeneratingId}
+        onClose={() => !regeneratingLoading && setRegeneratingId(null)}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '2rem',
+              maxWidth: '480px',
+              width: '100%',
+              background: 'rgba(20, 22, 33, 0.95)',
+              backgroundImage: 'none',
+              border: '1px solid rgba(239, 68, 68, 0.3)'
+            }
+          }
+        }}
+      >
+        <DialogTitle sx={{ padding: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', fontFamily: '"Outfit", sans-serif' }}>
+          <Key size={24} color="#ef4444" />
+          <Typography variant="h2" sx={{ fontSize: '1.5rem', margin: 0, color: '#fff' }}>
+            Regenerate License Key
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ padding: 0 }}>
+          <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', marginBottom: '1.5rem', marginTop: '0.5rem' }}>
+            Are you sure you want to regenerate your license key? The existing key will be immediately deactivated, and you will need to update it in your MT4/MT5 trading terminal.
+          </Typography>
+          <Box sx={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+            <Button 
+              onClick={() => setRegeneratingId(null)} 
+              sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center' }}
+              disabled={regeneratingLoading}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleRegenerateLicenseKey} 
+              sx={{ 
+                ...btnPrimarySx, 
+                flex: 1, 
+                justifyContent: 'center',
+                background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #f87171 0%, #dc2626 100%)',
+                }
+              }}
+              disabled={regeneratingLoading}
+            >
+              {regeneratingLoading ? 'Regenerating...' : 'Regenerate'}
             </Button>
           </Box>
         </DialogContent>
