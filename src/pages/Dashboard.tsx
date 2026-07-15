@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import { getExchangeRate } from '../api/exchange';
 import { Download, ShoppingBag, ShieldCheck, RefreshCw, Info, Key, Copy, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Toast } from '../components/Toast';
@@ -80,6 +81,7 @@ export const Dashboard: React.FC = () => {
   const [error, setError] = useState('');
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [exchangeRate, setExchangeRate] = useState(25000);
 
   const [bindInputs, setBindInputs] = useState<Record<string, string>>({});
   const [bindErrors, setBindErrors] = useState<Record<string, string>>({});
@@ -278,8 +280,14 @@ export const Dashboard: React.FC = () => {
         setLoading(true);
       }
       setError('');
-      const data = await api.get<Order[]>('/api/orders/my-orders');
+      const [data, rateData] = await Promise.all([
+        api.get<Order[]>('/api/orders/my-orders'),
+        getExchangeRate().catch(() => null)
+      ]);
       setOrders(data);
+      if (rateData && rateData.conversion_rate) {
+        setExchangeRate(rateData.conversion_rate);
+      }
     } catch (err: any) {
       setError(err.message || 'Không thể tải danh mục sản phẩm đã mua.');
     } finally {
@@ -999,7 +1007,7 @@ export const Dashboard: React.FC = () => {
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '200px', overflowY: 'auto', paddingRight: '0.25rem' }}>
                     {activeSortedVariants(renewingOrder.product.variants).map(v => {
                       const isSelected = selectedVariantId === v.id;
-                      const vndEstimate = (v.price * 25000).toLocaleString('vi-VN');
+                      const vndEstimate = (v.price * exchangeRate).toLocaleString('vi-VN');
                       return (
                         <Box
                           key={v.id}

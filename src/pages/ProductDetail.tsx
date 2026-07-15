@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import { getExchangeRate } from '../api/exchange';
 import { ArrowLeft, CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
 import { Toast } from '../components/Toast';
 import { activeSortedVariants, formatVariantDuration } from '../utils/variants';
@@ -47,6 +48,7 @@ export const ProductDetail: React.FC = () => {
   const [purchasing, setPurchasing] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [exchangeRate, setExchangeRate] = useState(25000);
 
   const loadProductAndOwnership = async () => {
     if (!id) return;
@@ -63,6 +65,15 @@ export const ProductDetail: React.FC = () => {
         const purchases = await api.get<Purchase[]>('/api/purchases/my-purchases');
         const isOwned = purchases.some(p => p.product_id === id);
         setOwned(isOwned);
+      }
+
+      try {
+        const rateData = await getExchangeRate();
+        if (rateData && rateData.conversion_rate) {
+          setExchangeRate(rateData.conversion_rate);
+        }
+      } catch (rateErr) {
+        console.error("Failed to fetch exchange rate", rateErr);
       }
     } catch (err: any) {
       setError(err.message || 'Không thể lấy thông tin công cụ giao dịch.');
@@ -210,7 +221,7 @@ export const ProductDetail: React.FC = () => {
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     {activeSortedVariants(product.variants).map(v => {
                       const isSelected = selectedVariantId === v.id;
-                      const vndEstimate = (v.price * 25000).toLocaleString('vi-VN');
+                      const vndEstimate = (v.price * exchangeRate).toLocaleString('vi-VN');
                       return (
                         <Box
                           key={v.id}
@@ -265,7 +276,7 @@ export const ProductDetail: React.FC = () => {
                   </Box>
                   <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                     <ShieldCheck size={12} color="#10b981" />
-                    Ước tính VND sử dụng tỷ giá cố định: 1 USD = 25.000 VND. Hệ thống xác thực và xử lý thanh toán bằng VND.
+                    Ước tính VND sử dụng tỷ giá 1 USD = {exchangeRate.toLocaleString('vi-VN')} VND. Hệ thống xác thực và xử lý thanh toán bằng VND.
                   </Typography>
                 </Box>
               ) : (
@@ -396,7 +407,7 @@ export const ProductDetail: React.FC = () => {
           {(() => {
             const selectedVariant = activeSortedVariants(product.variants).find(v => v.id === selectedVariantId);
             if (!selectedVariant) return null;
-            const vndAmount = (selectedVariant.price * 25000).toLocaleString('vi-VN');
+            const vndAmount = (selectedVariant.price * exchangeRate).toLocaleString('vi-VN');
             return (
               <Box sx={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '1.25rem', marginBottom: '1.5rem' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>

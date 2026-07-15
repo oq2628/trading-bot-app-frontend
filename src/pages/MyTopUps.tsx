@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import api, { API_BASE_URL } from '../utils/api';
+import { getExchangeRate } from '../api/exchange';
 import { useAuth } from '../context/AuthContext';
 import { Toast } from '../components/Toast';
 import { ConfirmationDialog } from '../components/ConfirmationDialog';
@@ -31,6 +32,7 @@ export const MyTopUps: React.FC = () => {
   const [topUps, setTopUps] = useState<TopUp[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [exchangeRate, setExchangeRate] = useState(25000);
 
   // Modals
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -47,8 +49,14 @@ export const MyTopUps: React.FC = () => {
   const loadTopUps = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
-      const data = await api.get<TopUp[]>('/api/top-ups');
+      const [data, rateData] = await Promise.all([
+        api.get<TopUp[]>('/api/top-ups'),
+        getExchangeRate().catch(() => null)
+      ]);
       setTopUps(data);
+      if (rateData && rateData.conversion_rate) {
+        setExchangeRate(rateData.conversion_rate);
+      }
     } catch (err: any) {
       setToast({ message: err.message || 'Không thể lấy danh sách yêu cầu nạp tiền.', type: 'error' });
     } finally {
@@ -334,7 +342,7 @@ export const MyTopUps: React.FC = () => {
                 </Typography>
               </Box>
               <Box sx={{ padding: '1rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.04)', borderRadius: '12px', fontSize: '0.825rem', color: 'text.secondary', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <Box>• Tỷ giá quy đổi: <Typography component="strong" sx={{ color: '#fff', fontSize: '0.825rem', fontWeight: 700 }}>1 USD = 25,000 VND</Typography></Box>
+                <Box>• Tỷ giá quy đổi: <Typography component="strong" sx={{ color: '#fff', fontSize: '0.825rem', fontWeight: 700 }}>1 USD = {exchangeRate.toLocaleString('vi-VN')} VND</Typography></Box>
                 <Box>• Hình thức: <Typography component="strong" sx={{ color: '#fff', fontSize: '0.825rem', fontWeight: 700 }}>VietQR Động</Typography></Box>
                 <Box>• Phương thức: <Typography component="strong" sx={{ color: '#fff', fontSize: '0.825rem', fontWeight: 700 }}>Tự động & Tức thì</Typography></Box>
               </Box>
@@ -487,7 +495,7 @@ export const MyTopUps: React.FC = () => {
                 <Box sx={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'text.secondary', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                   <Typography component="span" sx={{ fontSize: '0.8rem' }}>Quy đổi:</Typography>
                   <Typography component="strong" sx={{ color: 'success.main', fontSize: '0.8rem', fontWeight: 700 }}>
-                    {(parseFloat(newAmount) * 25000).toLocaleString()} VND
+                    {(parseFloat(newAmount) * exchangeRate).toLocaleString()} VND
                   </Typography>
                 </Box>
               )}
@@ -512,7 +520,7 @@ export const MyTopUps: React.FC = () => {
             sx: {
               ...glassPanelSx,
               padding: '2rem',
-              maxWidth: '560px',
+              maxWidth: '650px',
               width: '100%',
               background: 'rgba(20, 22, 33, 0.9)',
               backgroundImage: 'none',
@@ -677,7 +685,8 @@ export const MyTopUps: React.FC = () => {
                 sx={{
                   ...btnSecondarySx,
                   flex: 1,
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  whiteSpace: 'nowrap'
                 }}
               >
                 Đóng
@@ -693,7 +702,8 @@ export const MyTopUps: React.FC = () => {
                       justifyContent: 'center',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.35rem'
+                      gap: '0.35rem',
+                      whiteSpace: 'nowrap'
                     }}
                   >
                     <RefreshCw size={14} className={polling ? 'animate-spin' : ''} />
@@ -708,6 +718,7 @@ export const MyTopUps: React.FC = () => {
                       justifyContent: 'center',
                       borderColor: 'rgba(239,68,68,0.2)',
                       color: 'error.main',
+                      whiteSpace: 'nowrap',
                       '&:hover': {
                         background: 'rgba(239, 68, 68, 0.08)',
                         borderColor: 'rgba(239, 68, 68, 0.3)'

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api, { API_BASE_URL } from '../utils/api';
+import { getExchangeRate } from '../api/exchange';
 import {
   Upload, Trash2, History, Plus, FileCode, CreditCard,
   DollarSign, Edit, Eye, EyeOff, Search, Users, Tag,
@@ -286,6 +287,7 @@ export const Admin: React.FC = () => {
   const [topUpTargetUserId, setTopUpTargetUserId] = useState('');
   const [topUpAmount, setTopUpAmount] = useState('');
   const [submittingTopUp, setSubmittingTopUp] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState(25000);
 
   // Edit form states
   const [editTopUpStatus, setEditTopUpStatus] = useState('pending');
@@ -354,8 +356,14 @@ export const Admin: React.FC = () => {
 
   const loadTopUpsData = async () => {
     try {
-      const data = await api.get<TopUpAdmin[]>('/api/admin/top-ups');
+      const [data, rateData] = await Promise.all([
+        api.get<TopUpAdmin[]>('/api/admin/top-ups'),
+        getExchangeRate().catch(() => null)
+      ]);
       setTopUpsList(data);
+      if (rateData && rateData.conversion_rate) {
+        setExchangeRate(rateData.conversion_rate);
+      }
       try {
         const qrData = await api.get<{ qr_code_url: string | null; has_custom_qr: boolean }>('/api/admin/settings/qr-code');
         setCustomQrUrl(qrData.qr_code_url);
@@ -3022,11 +3030,14 @@ export const Admin: React.FC = () => {
             sx: {
               ...glassPanelSx,
               padding: '2rem',
-              maxWidth: '600px',
+              maxWidth: '650px',
               width: '100%',
               background: 'rgba(20, 22, 33, 0.95)',
               backgroundImage: 'none',
-              maxHeight: '90vh'
+              maxHeight: '90vh',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              '&::-webkit-scrollbar': { display: 'none' }
             }
           }
         }}
@@ -3039,7 +3050,7 @@ export const Admin: React.FC = () => {
             <X size={20} />
           </Box>
         </DialogTitle>
-        <DialogContent sx={{ padding: 0 }}>
+        <DialogContent sx={{ padding: 0, scrollbarWidth: 'none', msOverflowStyle: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
           {viewingTopUp && (
             <Box>
               <Grid container spacing={3} sx={{ marginBottom: '1.5rem' }}>
@@ -3100,13 +3111,13 @@ export const Admin: React.FC = () => {
                 <Box sx={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
                   <Button
                     onClick={() => handleManualCreditTopUp(viewingTopUp)}
-                    sx={{ ...btnPrimarySx, flex: 1, justifyContent: 'center', background: '#10b981', '&:hover': { background: '#059669' } }}
+                    sx={{ ...btnPrimarySx, flex: 1, justifyContent: 'center', background: '#10b981', whiteSpace: 'nowrap', '&:hover': { background: '#059669' } }}
                   >
                     Cộng tiền thủ công (Audited)
                   </Button>
                   <Button
                     onClick={() => handleCancelTopUpAdmin(viewingTopUp)}
-                    sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center', borderColor: 'error.main', color: 'error.main', '&:hover': { background: 'rgba(239,68,68,0.08)' } }}
+                    sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center', borderColor: 'error.main', color: 'error.main', whiteSpace: 'nowrap', '&:hover': { background: 'rgba(239,68,68,0.08)' } }}
                   >
                     Hủy Giao Dịch
                   </Button>
@@ -3116,13 +3127,13 @@ export const Admin: React.FC = () => {
               <Box sx={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', width: '100%' }}>
                 <Button
                   onClick={() => { setViewingTopUp(null); handleStartEditTopUp(viewingTopUp); }}
-                  sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center' }}
+                  sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center', whiteSpace: 'nowrap' }}
                 >
                   Chỉnh Sửa Trạng Thái
                 </Button>
                 <Button
                   onClick={() => setViewingTopUp(null)}
-                  sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center' }}
+                  sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center', whiteSpace: 'nowrap' }}
                 >
                   Đóng
                 </Button>
@@ -3259,7 +3270,7 @@ export const Admin: React.FC = () => {
               <InputBase type="number" inputProps={{ step: '0.01', min: '0.01' }} required value={topUpAmount} onChange={e => setTopUpAmount(e.target.value)} sx={inputSx} placeholder="0.00" />
               {topUpAmount && !isNaN(parseFloat(topUpAmount)) && (
                 <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', marginTop: '0.25rem' }}>
-                  Quy đổi: <Typography component="strong" sx={{ color: 'success.main', fontSize: '0.75rem', fontWeight: 700 }}>{(parseFloat(topUpAmount) * 25000).toLocaleString()} VND</Typography>
+                  Quy đổi: <Typography component="strong" sx={{ color: 'success.main', fontSize: '0.75rem', fontWeight: 700 }}>{(parseFloat(topUpAmount) * exchangeRate).toLocaleString()} VND</Typography>
                 </Typography>
               )}
             </Box>
