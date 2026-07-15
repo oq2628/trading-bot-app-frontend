@@ -512,10 +512,13 @@ export const MyTopUps: React.FC = () => {
             sx: {
               ...glassPanelSx,
               padding: '2rem',
-              maxWidth: '480px',
+              maxWidth: '560px',
               width: '100%',
               background: 'rgba(20, 22, 33, 0.9)',
               backgroundImage: 'none',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              '&::-webkit-scrollbar': { display: 'none' },
             }
           }
         }}
@@ -530,7 +533,7 @@ export const MyTopUps: React.FC = () => {
         </DialogTitle>
 
         {activeTopUp && (
-          <DialogContent sx={{ padding: 0, display: 'flex', flexDirection: 'column', gap: '1.25rem', alignItems: 'center' }}>
+          <DialogContent sx={{ padding: 0, display: 'flex', flexDirection: 'column', gap: '1.25rem', alignItems: 'center', scrollbarWidth: 'none', msOverflowStyle: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
             {/* QR Code Container */}
             {activeTopUp.status === 'pending' && (
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', width: '100%' }}>
