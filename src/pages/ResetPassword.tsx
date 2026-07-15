@@ -21,17 +21,17 @@ export const ResetPassword: React.FC = () => {
     e.preventDefault();
 
     if (!token) {
-      setToast({ message: 'The password reset token is missing. Please request a new link.', type: 'error' });
+      setToast({ message: 'Thiếu mã khôi phục mật khẩu. Vui lòng yêu cầu liên kết mới.', type: 'error' });
       return;
     }
 
     if (password.length < 6) {
-      setToast({ message: 'Password must be at least 6 characters long.', type: 'error' });
+      setToast({ message: 'Mật khẩu phải dài ít nhất 6 ký tự.', type: 'error' });
       return;
     }
 
     if (password !== confirmPassword) {
-      setToast({ message: 'Passwords do not match.', type: 'error' });
+      setToast({ message: 'Mật khẩu xác nhận không khớp.', type: 'error' });
       return;
     }
 
@@ -49,7 +49,7 @@ export const ResetPassword: React.FC = () => {
       }, 3000);
     } catch (err) {
       const error = err as { message?: string };
-      setToast({ message: error.message || 'Reset password failed.', type: 'error' });
+      setToast({ message: error.message || 'Khôi phục mật khẩu thất bại.', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -111,10 +111,10 @@ export const ResetPassword: React.FC = () => {
               <CheckCircle2 size={22} color="#10b981" />
             </Box>
             <Typography variant="h3" sx={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.75rem' }}>
-              Password Reset Complete
+              Hoàn tất Khôi phục Mật khẩu
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-              Your password has been successfully reset. Redirecting you to the sign in page...
+              Mật khẩu của bạn đã được khôi phục thành công. Đang chuyển hướng bạn đến trang đăng nhập...
             </Typography>
             <Button
               component={Link}
@@ -125,7 +125,7 @@ export const ResetPassword: React.FC = () => {
                 justifyContent: 'center'
               }}
             >
-              Sign In Now
+              Đăng nhập Ngay
             </Button>
           </Box>
         ) : (
@@ -147,14 +147,14 @@ export const ResetPassword: React.FC = () => {
               }}
             >
               <ArrowLeft size={14} />
-              Back to Sign In
+              Quay lại Đăng nhập
             </Box>
 
             <Typography variant="h2" sx={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.5rem', color: '#fff' }}>
-              Set New Password
+              Đặt Mật khẩu mới
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.9rem', marginBottom: '2rem' }}>
-              Choose a strong, secure password for your account.
+              Chọn một mật khẩu mạnh và bảo mật cho tài khoản của bạn.
             </Typography>
 
             {!token && (
@@ -170,7 +170,7 @@ export const ResetPassword: React.FC = () => {
                   marginBottom: '1.5rem'
                 }}
               >
-                Warning: No password reset token was found in the link. Submitting the form will fail. Please request a new link.
+                Cảnh báo: Không tìm thấy mã khôi phục mật khẩu trong liên kết. Vui lòng yêu cầu một liên kết mới.
               </Box>
             )}
 
@@ -188,7 +188,7 @@ export const ResetPassword: React.FC = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  New Password
+                  Mật khẩu mới
                 </Typography>
                 <Box sx={{ position: 'relative' }}>
                   <Key size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
@@ -219,7 +219,7 @@ export const ResetPassword: React.FC = () => {
                     letterSpacing: '0.05em',
                   }}
                 >
-                  Confirm New Password
+                  Xác nhận mật khẩu mới
                 </Typography>
                 <Box sx={{ position: 'relative' }}>
                   <Key size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
@@ -247,7 +247,7 @@ export const ResetPassword: React.FC = () => {
                   padding: '1rem'
                 }}
               >
-                {loading ? 'Updating Password...' : 'Reset Password'}
+                {loading ? 'Đang cập nhật...' : 'Đặt lại mật khẩu'}
               </Button>
             </Box>
           </Box>

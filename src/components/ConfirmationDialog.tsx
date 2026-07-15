@@ -97,7 +97,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             justifyContent: 'center',
           }}
         >
-          {loading ? 'Processing...' : confirmLabel}
+          {loading ? 'Đang xử lý...' : confirmLabel}
         </Button>
       </DialogActions>
     </Dialog>

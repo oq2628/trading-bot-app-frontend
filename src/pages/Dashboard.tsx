@@ -99,7 +99,7 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('payment') === 'success') {
-      setToast({ message: 'Payment completed successfully! Your LicenseKey is available from the Copy LicenseKey button.', type: 'success' });
+      setToast({ message: 'Thanh toán thành công! Khóa bản quyền của bạn đã sẵn sàng tại nút Sao chép Khóa.', type: 'success' });
       window.history.replaceState({}, document.title, window.location.pathname);
       refreshUser();
       loadOrders();
@@ -111,9 +111,9 @@ export const Dashboard: React.FC = () => {
     if (!val) {
       setBindErrors(prev => ({ ...prev, [licenseId]: '' }));
     } else if (!isNumeric) {
-      setBindErrors(prev => ({ ...prev, [licenseId]: 'Account number must contain digits only.' }));
+      setBindErrors(prev => ({ ...prev, [licenseId]: 'Số tài khoản chỉ được chứa chữ số.' }));
     } else if (val.length < 4 || val.length > 12) {
-      setBindErrors(prev => ({ ...prev, [licenseId]: 'Account number must be between 4 and 12 digits.' }));
+      setBindErrors(prev => ({ ...prev, [licenseId]: 'Số tài khoản phải từ 4 đến 12 chữ số.' }));
     } else {
       setBindErrors(prev => ({ ...prev, [licenseId]: '' }));
     }
@@ -128,18 +128,18 @@ export const Dashboard: React.FC = () => {
       ? (order.license.mt5_accounts?.length ? order.license.mt5_accounts : (order.license.mt5_account ? [order.license.mt5_account] : []))
       : [];
     if (boundAccounts.includes(val)) {
-      setToast({ message: 'This MT4/MT5 account is already bound to this license.', type: 'error' });
+      setToast({ message: 'Tài khoản MT4/MT5 này đã được liên kết với bản quyền.', type: 'error' });
       return;
     }
 
     try {
       setBindingId(licenseId);
       await api.post('/api/license/bind', { license_id: licenseId, mt5_account: val });
-      setToast({ message: 'License successfully bound to MT4/MT5 account.', type: 'success' });
+      setToast({ message: 'Liên kết bản quyền với tài khoản MT4/MT5 thành công.', type: 'success' });
       setBindInputs(prev => ({ ...prev, [licenseId]: '' }));
       loadOrders(true);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to bind account.', type: 'error' });
+      setToast({ message: err.message || 'Liên kết tài khoản thất bại.', type: 'error' });
     } finally {
       setBindingId(null);
     }
@@ -149,11 +149,11 @@ export const Dashboard: React.FC = () => {
     try {
       setResettingId(licenseId);
       await api.post('/api/license/reset', { license_id: licenseId });
-      setToast({ message: 'License bindings cleared successfully.', type: 'success' });
+      setToast({ message: 'Đã xóa toàn bộ liên kết tài khoản thành công.', type: 'success' });
       setBindInputs(prev => ({ ...prev, [licenseId]: '' }));
       loadOrders(true);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to reset license bindings.', type: 'error' });
+      setToast({ message: err.message || 'Lỗi xóa liên kết bản quyền.', type: 'error' });
     } finally {
       setResettingId(null);
     }
@@ -164,10 +164,10 @@ export const Dashboard: React.FC = () => {
     try {
       setRemovingAccountKey(loadingKey);
       await api.delete(`/api/license/${licenseId}/bindings/${encodeURIComponent(account)}`);
-      setToast({ message: 'MT4/MT5 account binding removed successfully.', type: 'success' });
+      setToast({ message: 'Đã gỡ liên kết tài khoản MT4/MT5 thành công.', type: 'success' });
       loadOrders(true);
     } catch (err: unknown) {
-      setToast({ message: err instanceof Error ? err.message : 'Failed to remove account binding.', type: 'error' });
+      setToast({ message: err instanceof Error ? err.message : 'Không thể gỡ liên kết tài khoản.', type: 'error' });
     } finally {
       setRemovingAccountKey(null);
     }
@@ -178,9 +178,9 @@ export const Dashboard: React.FC = () => {
       setCopyingKeyId(licenseId);
       const data = await api.get<{ api_key: string }>(`/api/license/${licenseId}/key`);
       await navigator.clipboard.writeText(data.api_key);
-      setToast({ message: 'LicenseKey copied to clipboard.', type: 'success' });
+      setToast({ message: 'Đã sao chép Khóa bản quyền vào bộ nhớ tạm.', type: 'success' });
     } catch (err: any) {
-      setToast({ message: err.message || 'Unable to copy LicenseKey.', type: 'error' });
+      setToast({ message: err.message || 'Không thể sao chép Khóa bản quyền.', type: 'error' });
     } finally {
       setCopyingKeyId(null);
     }
@@ -190,13 +190,13 @@ export const Dashboard: React.FC = () => {
     if (!regeneratingId) return;
     try {
       setRegeneratingLoading(true);
-      const data = await api.post<{ api_key: string }>(`/api/license/${regeneratingId}/regenerate`);
+      const data = await api.post<{ api_key: string }>(`/api/license/${regeneratingId}/regenerate`, {});
       await navigator.clipboard.writeText(data.api_key);
-      setToast({ message: 'New LicenseKey generated and copied to clipboard.', type: 'success' });
+      setToast({ message: 'Đã tạo Khóa bản quyền mới và sao chép vào bộ nhớ tạm.', type: 'success' });
       setRegeneratingId(null);
       await loadOrders(true);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to regenerate LicenseKey.', type: 'error' });
+      setToast({ message: err.message || 'Tạo lại Khóa bản quyền thất bại.', type: 'error' });
     } finally {
       setRegeneratingLoading(false);
     }
@@ -204,7 +204,7 @@ export const Dashboard: React.FC = () => {
 
   const calculateNewExpiryDate = (expiresAtStr: string | null, variant: { is_lifetime: boolean; duration_days: number | null; duration_months: number | null }) => {
     if (variant.is_lifetime) {
-      return 'Lifetime (Never Expires)';
+      return 'Trọn đời (Không hết hạn)';
     }
     
     const now = new Date();
@@ -261,12 +261,12 @@ export const Dashboard: React.FC = () => {
 
       await refreshUser();
       setShowRenewModal(false);
-      setToast({ message: "License renewed successfully!", type: "success" });
+      setToast({ message: "Gia hạn bản quyền thành công!", type: "success" });
       setRenewingOrder(null);
       setSelectedVariantId('');
       await loadOrders(true);
     } catch (err: any) {
-      setToast({ message: err.message || 'Checkout failed.', type: 'error' });
+      setToast({ message: err.message || 'Thanh toán thất bại.', type: 'error' });
     } finally {
       setRenewing(false);
     }
@@ -281,7 +281,7 @@ export const Dashboard: React.FC = () => {
       const data = await api.get<Order[]>('/api/orders/my-orders');
       setOrders(data);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch purchased tools ledger.');
+      setError(err.message || 'Không thể tải danh mục sản phẩm đã mua.');
     } finally {
       if (!silent) {
         setLoading(false);
@@ -296,7 +296,7 @@ export const Dashboard: React.FC = () => {
         const detail = await api.get<OrderDetail>(`/api/orders/${orderId}`);
         setOrderDetails(prev => ({ ...prev, [orderId]: detail.purchases }));
       } catch (err: any) {
-        setToast({ message: err.message || 'Failed to load order details.', type: 'error' });
+        setToast({ message: err.message || 'Không thể tải chi tiết đơn hàng.', type: 'error' });
         return;
       }
     }
@@ -316,9 +316,9 @@ export const Dashboard: React.FC = () => {
       const fallbackFilename = `${cleanTitle}.ex5`;
 
       await api.downloadFile(productId, fallbackFilename);
-      setToast({ message: 'Secure file download completed successfully.', type: 'success' });
+      setToast({ message: 'Tải xuống tệp tin bảo mật thành công.', type: 'success' });
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to securely download file.', type: 'error' });
+      setToast({ message: err.message || 'Tải xuống tệp tin thất bại.', type: 'error' });
     } finally {
       setDownloadingId(null);
     }
@@ -354,10 +354,10 @@ export const Dashboard: React.FC = () => {
         >
           <Box>
             <Typography variant="h1" sx={{ ...pageTitleSx, fontSize: { xs: '1.75rem', md: '2rem' }, marginBottom: '0.5rem' }}>
-              Client Dashboard
+              Bảng Điều khiển
             </Typography>
             <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>
-              Logged in as: <strong style={{ color: '#fff' }}>{user?.full_name}</strong> ({user?.email})
+              Đăng nhập bởi: <strong style={{ color: '#fff' }}>{user?.full_name}</strong> ({user?.email})
             </Typography>
           </Box>
           <Button
@@ -375,13 +375,13 @@ export const Dashboard: React.FC = () => {
             }}
           >
             <RefreshCw size={14} />
-            Sync Orders
+            Cập nhật đơn hàng
           </Button>
         </Box>
 
         <Typography variant="h2" sx={{ fontSize: '1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <ShoppingBag size={20} color="#6366f1" />
-          My Orders
+          Đơn hàng của tôi
         </Typography>
 
         {error && (
@@ -394,10 +394,10 @@ export const Dashboard: React.FC = () => {
           <Box sx={{ ...glassPanelSx, padding: '4rem 2rem', textAlign: 'center' }}>
             <Info size={40} style={{ marginBottom: '1rem', color: '#6b7280' }} />
             <Typography sx={{ color: 'text.secondary', fontSize: '1.1rem', marginBottom: '1.5rem' }}>
-              You haven't purchased any quantitative trading tools yet.
+              Bạn chưa mua bất kỳ công cụ giao dịch định lượng nào.
             </Typography>
             <Button component={Link} to="/" sx={btnPrimarySx}>
-              Explore Storefront
+              Xem Cửa hàng
             </Button>
           </Box>
         ) : (
@@ -466,11 +466,11 @@ export const Dashboard: React.FC = () => {
                           </Box>
                         </Box>
                         <Typography sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>
-                          Order created on: {new Date(order.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                          Thời gian mua: {new Date(order.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
                         </Typography>
                         <Typography sx={{ color: 'success.main', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.35rem' }}>
                           <ShieldCheck size={12} />
-                          Verified & cryptographically signed download license.
+                          Bản quyền tải xuống được xác thực & ký bảo mật.
                         </Typography>
                       </Box>
                     </Box>
@@ -493,7 +493,7 @@ export const Dashboard: React.FC = () => {
                           }}
                         >
                           <RefreshCw size={16} />
-                          Renew License
+                          Gia hạn bản quyền
                         </Button>
                       ) : (
                         <Button
@@ -505,17 +505,17 @@ export const Dashboard: React.FC = () => {
                             fontSize: '0.9rem',
                             width: { xs: '100%', sm: 'auto' }
                           }}
-                          title="Download quantitative bot tool"
+                          title="Tải xuống tệp tin bản quyền"
                         >
                           {downloadingId === prod.id ? (
                             <>
                               <CircularProgress size={14} color="inherit" />
-                              Downloading...
+                              Đang tải...
                             </>
                           ) : (
                             <>
                               <Download size={16} />
-                              Secure Download
+                              Tải xuống Bảo mật
                             </>
                           )}
                         </Button>
@@ -538,7 +538,7 @@ export const Dashboard: React.FC = () => {
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
                         <Key size={16} color="#6366f1" />
                         <Typography variant="h4" sx={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                          License & Active Bindings
+                          Bản quyền & Tài khoản liên kết
                         </Typography>
                       </Box>
 
@@ -556,10 +556,10 @@ export const Dashboard: React.FC = () => {
                         }} role="alert">
                           <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <Box component="span" sx={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></Box>
-                            License Deactivated - Expiration Alert
+                            Bản quyền đã Khóa - Cảnh báo Hết hạn
                           </Typography>
                           <Typography sx={{ fontSize: '0.85rem' }}>
-                            Your active trading license for this bot has expired. MT4/MT5 bindings and device activations are locked. Please renew below to reactivate.
+                            Bản quyền giao dịch định lượng của bạn cho robot này đã hết hạn. Các liên kết tài khoản MT4/MT5 và kích hoạt thiết bị đã bị khóa. Vui lòng gia hạn bên dưới để kích hoạt lại.
                           </Typography>
                         </Box>
                       )}
@@ -578,10 +578,10 @@ export const Dashboard: React.FC = () => {
                         }} role="alert">
                           <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <Box component="span" sx={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b' }}></Box>
-                            License Expiring Soon ({daysRemaining} days left)
+                            Bản quyền sắp Hết hạn (Còn lại {daysRemaining} ngày)
                           </Typography>
                           <Typography sx={{ fontSize: '0.85rem' }}>
-                            Your trading license expires on {expiresAt ? expiresAt.toLocaleDateString() : ''}. Renew early to extend coverage and keep your automated strategies running.
+                            Bản quyền giao dịch của bạn sẽ hết hạn vào ngày {expiresAt ? expiresAt.toLocaleDateString() : ''}. Hãy gia hạn sớm để tiếp tục duy trì hoạt động các chiến lược giao dịch tự động của bạn.
                           </Typography>
                         </Box>
                       )}
@@ -590,9 +590,9 @@ export const Dashboard: React.FC = () => {
                         {/* Left: Key and Expiry */}
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: '1 1 250px', minWidth: 0 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                            <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>License Key:</Typography>
+                            <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>Khóa Bản quyền:</Typography>
                             <Box component="code" sx={{ background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.5rem', borderRadius: '4px', color: 'primary.main', fontWeight: 600, fontSize: '0.8rem', wordBreak: 'break-all' }}>
-                              {order.license.key_recoverable ? 'Stored encrypted' : 'Legacy key unavailable'}
+                              {order.license.key_recoverable ? 'Được lưu bảo mật' : 'Không thể khôi phục khóa cũ'}
                             </Box>
                               {order.license.key_recoverable ? (
                               <Box sx={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
@@ -615,7 +615,7 @@ export const Dashboard: React.FC = () => {
                                    gap: '0.25rem'
                                  }}
                                >
-                                 <Copy size={13} /> {copyingKeyId === order.license.id ? 'Copying...' : 'Copy LicenseKey'}
+                                 <Copy size={13} /> {copyingKeyId === order.license.id ? 'Đang sao chép...' : 'Sao chép Khóa'}
                                </Button>
                                <Button
                                  type="button"
@@ -642,20 +642,20 @@ export const Dashboard: React.FC = () => {
                                    }
                                  }}
                                >
-                                 <RefreshCw size={13} /> Regenerate Key
+                                 <RefreshCw size={13} /> Tạo lại Khóa
                                </Button>
                               </Box>
                             ) : (
-                              <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>Cannot recover this legacy key.</Typography>
+                              <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>Không thể khôi phục khóa bản quyền cũ.</Typography>
                             )}
                           </Box>
                           <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
-                            Raw <code>lt_...</code> LicenseKey is fetched only when you click Copy. License ID / Order ID are not credentials.
+                            Khóa bản quyền raw lt_... chỉ được hiển thị và lấy ra khi bạn click vào Sao chép. Mã bản quyền không phải thông tin đăng nhập.
                           </Typography>
                           <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
-                            Status: <Box component="span" sx={{ color: isExpired ? 'error.main' : isExpiringSoon ? 'warning.main' : 'success.main', fontWeight: 700 }}>
-                              {isLifetime ? 'ACTIVE' : isExpired ? 'EXPIRED' : isExpiringSoon ? 'EXPIRING SOON' : 'ACTIVE'}
-                            </Box> | {isLifetime ? 'Lifetime (Never Expires)' : `Expires: ${expiresAt ? expiresAt.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : ''}`} {!isLifetime && !isExpired && `(${daysRemaining} days left)`}
+                            Trạng thái: <Box component="span" sx={{ color: isExpired ? 'error.main' : isExpiringSoon ? 'warning.main' : 'success.main', fontWeight: 700 }}>
+                              {isLifetime ? 'HOẠT ĐỘNG' : isExpired ? 'HẾT HẠN' : isExpiringSoon ? 'SẮP HẾT HẠN' : 'HOẠT ĐỘNG'}
+                            </Box> | {isLifetime ? 'Trọn đời (Không hết hạn)' : `Ngày hết hạn: ${expiresAt ? expiresAt.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : ''}`} {!isLifetime && !isExpired && `(Còn lại ${daysRemaining} ngày)`}
                           </Typography>
                           <Button
                             type="button"
@@ -683,7 +683,7 @@ export const Dashboard: React.FC = () => {
                             }}
                           >
                             <RefreshCw size={12} />
-                            {isExpired ? 'Renew License Now' : 'Renew / Extend License'}
+                            {isExpired ? 'Gia hạn Bản quyền Ngay' : 'Gia hạn / Kéo dài Bản quyền'}
                           </Button>
                         </Box>
 
@@ -691,8 +691,8 @@ export const Dashboard: React.FC = () => {
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: '1 1 280px', width: '100%' }}>
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                              <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>Bound MT4/MT5:</Typography>
-                              <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>{remainingSlots} of 3 slots remaining</Typography>
+                              <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>MT4/MT5 đã liên kết:</Typography>
+                              <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>Còn lại {remainingSlots} trong 3 slot tài khoản</Typography>
                             </Box>
                             {boundAccounts.length > 0 ? (
                               <Box sx={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
@@ -709,12 +709,12 @@ export const Dashboard: React.FC = () => {
                                     alignItems: 'center',
                                     gap: '0.25rem'
                                   }}>
-                                    Account: {account}
+                                    Tài khoản: {account}
                                     <Box
                                       component="button"
                                       type="button"
-                                      title={`Remove account ${account}`}
-                                      aria-label={`Remove account ${account}`}
+                                      title={`Gỡ liên kết tài khoản ${account}`}
+                                      aria-label={`Gỡ liên kết tài khoản ${account}`}
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
@@ -740,18 +740,18 @@ export const Dashboard: React.FC = () => {
                                 ))}
                               </Box>
                             ) : (
-                              <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>No account bound yet.</Typography>
+                              <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>Chưa có tài khoản nào được liên kết.</Typography>
                             )}
                           </Box>
 
                           {remainingSlots > 0 && (
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                               <Box sx={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                                <Typography component="label" htmlFor={`bind-input-${order.license.id}`} sx={{ fontSize: '0.85rem', color: 'text.secondary', minWidth: '90px' }}>Bind Account:</Typography>
+                                <Typography component="label" htmlFor={`bind-input-${order.license.id}`} sx={{ fontSize: '0.85rem', color: 'text.secondary', minWidth: '90px' }}>Liên kết:</Typography>
                                 <InputBase
                                   id={`bind-input-${order.license.id}`}
                                   type="text"
-                                  placeholder={isExpired ? "License expired" : "4-12 digit account no."}
+                                  placeholder={isExpired ? "Bản quyền hết hạn" : "Số tài khoản 4-12 chữ số"}
                                   value={bindInputs[order.license.id] || ''}
                                   onChange={(e) => {
                                     const val = e.target.value;
@@ -791,7 +791,7 @@ export const Dashboard: React.FC = () => {
                                     minWidth: 'auto'
                                   }}
                                 >
-                                  {bindingId === order.license.id ? 'Binding...' : 'Bind Account'}
+                                  {bindingId === order.license.id ? 'Đang liên kết...' : 'Liên kết Tài khoản'}
                                 </Button>
                               </Box>
                               {bindErrors[order.license.id] && (
@@ -804,7 +804,7 @@ export const Dashboard: React.FC = () => {
 
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', fontSize: '0.8rem', flexWrap: 'wrap' }}>
                             <Typography sx={{ color: 'text.disabled', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '240px', fontSize: '0.8rem' }}>
-                              Device ID: {order.license.device_id || 'No device registered yet'}
+                              Device ID: {order.license.device_id || 'Chưa có thiết bị nào đăng ký'}
                             </Typography>
 
                             {(boundAccounts.length > 0 || order.license.device_id) && (
@@ -833,7 +833,7 @@ export const Dashboard: React.FC = () => {
                                   }
                                 }}
                               >
-                                {resettingId === order.license.id ? 'Resetting...' : 'Reset License'}
+                                {resettingId === order.license.id ? 'Đang đặt lại...' : 'Xóa toàn bộ liên kết'}
                               </Button>
                             )}
                           </Box>
@@ -858,7 +858,7 @@ export const Dashboard: React.FC = () => {
                         borderColor: 'rgba(255, 255, 255, 0.08)'
                       }}
                     >
-                      <span>{expandedOrders[order.id] ? 'Hide Purchase History' : 'View Purchase History'}</span>
+                      <span>{expandedOrders[order.id] ? 'Ẩn Lịch sử Mua hàng' : 'Xem Lịch sử Mua hàng'}</span>
                     </Button>
 
                     {expandedOrders[order.id] && (
@@ -887,10 +887,10 @@ export const Dashboard: React.FC = () => {
                                 }}>
                                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
                                     <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#fff' }}>
-                                      {p.variant_name || 'Standard Package'}
+                                      {p.variant_name || 'Gói Standard'}
                                     </Typography>
                                     <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
-                                      Date: {new Date(p.purchase_date).toLocaleString()}
+                                      Ngày mua: {new Date(p.purchase_date).toLocaleString()}
                                     </Typography>
                                   </Box>
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -907,19 +907,19 @@ export const Dashboard: React.FC = () => {
                                       color: p.status === 'completed' ? 'success.main' : p.status === 'pending' ? 'warning.main' : 'error.main',
                                       border: p.status === 'completed' ? '1px solid rgba(16, 185, 129, 0.2)' : p.status === 'pending' ? '1px solid rgba(245, 158, 11, 0.2)' : '1px solid rgba(239, 68, 68, 0.2)'
                                     }}>
-                                      {p.status}
+                                      {p.status === 'completed' ? 'Hoàn thành' : p.status === 'pending' ? 'Chờ thanh toán' : 'Thất bại'}
                                     </Box>
                                   </Box>
                                 </Box>
                               ))}
                             </Box>
                           ) : (
-                            <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>No purchases found for this order.</Typography>
+                            <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>Không tìm thấy lịch sử giao dịch cho đơn hàng này.</Typography>
                           )
                         ) : (
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'text.disabled' }}>
                             <CircularProgress size={12} color="inherit" />
-                            Loading history...
+                            Đang tải lịch sử giao dịch...
                           </Box>
                         )}
                       </Box>
@@ -953,24 +953,24 @@ export const Dashboard: React.FC = () => {
         <DialogTitle sx={{ padding: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <RefreshCw size={24} color="#6366f1" />
           <Typography variant="h2" sx={{ fontSize: '1.5rem', margin: 0, color: '#fff' }}>
-            Extend / Renew License
+            Gia hạn / Kéo dài Bản quyền
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ padding: 0 }}>
           {renewingOrder && (
             <Box>
               <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                Choose a licensing package to renew or extend access for <strong>{renewingOrder.product.title}</strong>.
+                Chọn một gói bản quyền để gia hạn hoặc kéo dài quyền sử dụng cho robot <strong>{renewingOrder.product.title}</strong>.
               </Typography>
 
               {/* Current Expiry info */}
               <Box sx={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '1rem', marginBottom: '1.25rem', fontSize: '0.9rem' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Current Expiry:</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Ngày hết hạn hiện tại:</Typography>
                   <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem' }}>
                     {renewingOrder.license?.expires_at 
                       ? new Date(renewingOrder.license.expires_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-                      : 'Lifetime (Never Expires)'}
+                      : 'Trọn đời (Không hết hạn)'}
                   </Typography>
                 </Box>
                 
@@ -981,7 +981,7 @@ export const Dashboard: React.FC = () => {
                   const newExpiry = calculateNewExpiryDate(renewingOrder.license?.expires_at || null, selectedVariant);
                   return (
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
-                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Estimated New Expiry:</Typography>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Hạn sử dụng mới ước tính:</Typography>
                       <Typography sx={{ color: 'success.main', fontWeight: 700, fontSize: '0.9rem' }}>
                         {newExpiry}
                       </Typography>
@@ -994,7 +994,7 @@ export const Dashboard: React.FC = () => {
               {activeSortedVariants(renewingOrder.product.variants).length > 0 ? (
                 <Box sx={{ marginBottom: '1.5rem' }}>
                   <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.disabled', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Select Package
+                    Chọn Gói Bản quyền
                   </Typography>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '200px', overflowY: 'auto', paddingRight: '0.25rem' }}>
                     {activeSortedVariants(renewingOrder.product.variants).map(v => {
@@ -1053,7 +1053,7 @@ export const Dashboard: React.FC = () => {
                 </Box>
               ) : (
                 <Typography sx={{ color: 'error.main', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-                  No active variants found for this product.
+                  Không tìm thấy gói hoạt động nào cho sản phẩm này.
                 </Typography>
               )}
             </Box>
@@ -1065,14 +1065,14 @@ export const Dashboard: React.FC = () => {
               sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center' }}
               disabled={renewing}
             >
-              Cancel
+              Hủy bỏ
             </Button>
             <Button 
               onClick={handleRenewCheckout} 
               sx={{ ...btnPrimarySx, flex: 1, justifyContent: 'center' }}
               disabled={renewing || !selectedVariantId}
             >
-              {renewing ? 'Processing...' : 'Confirm Pay'}
+              {renewing ? 'Đang xử lý...' : 'Xác nhận Thanh toán'}
             </Button>
           </Box>
         </DialogContent>
@@ -1099,12 +1099,12 @@ export const Dashboard: React.FC = () => {
         <DialogTitle sx={{ padding: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <Key size={24} color="#ef4444" />
           <Typography variant="h2" sx={{ fontSize: '1.5rem', margin: 0, color: '#fff' }}>
-            Regenerate License Key
+            Tạo lại Khóa Bản quyền
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ padding: 0 }}>
           <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', marginBottom: '1.5rem', marginTop: '0.5rem' }}>
-            Are you sure you want to regenerate your license key? The existing key will be immediately deactivated, and you will need to update it in your MT4/MT5 trading terminal.
+            Bạn có chắc chắn muốn tạo lại khóa bản quyền của mình? Khóa cũ sẽ lập tức bị hủy kích hoạt và bạn sẽ cần cập nhật khóa mới trong phần mềm MT4/MT5.
           </Typography>
           <Box sx={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
             <Button 
@@ -1112,7 +1112,7 @@ export const Dashboard: React.FC = () => {
               sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center' }}
               disabled={regeneratingLoading}
             >
-              Cancel
+              Hủy bỏ
             </Button>
             <Button 
               onClick={handleRegenerateLicenseKey} 
@@ -1127,7 +1127,7 @@ export const Dashboard: React.FC = () => {
               }}
               disabled={regeneratingLoading}
             >
-              {regeneratingLoading ? 'Regenerating...' : 'Regenerate'}
+              {regeneratingLoading ? 'Đang tạo...' : 'Tạo lại'}
             </Button>
           </Box>
         </DialogContent>

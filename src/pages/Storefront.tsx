@@ -39,9 +39,9 @@ export const Storefront: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   
   const alertEvent = {
-    title: "High Gold Volatility Warning: US CPI Inflation Data Today",
+    title: "Cảnh báo biến động giá Vàng mạnh: Dữ liệu Lạm phát CPI Hoa Kỳ hôm nay",
     severity: "high", // high -> error-red, medium -> warning-orange
-    details: "The US Consumer Price Index (CPI) inflation report is scheduled for release today at 13:30 UTC. Extreme price spikes and spread widening are anticipated on Gold (XAUUSD). We highly recommend pausing any active EAs 30 minutes before and after the release to mitigate slippage risks."
+    details: "Báo cáo lạm phát Chỉ số Giá Tiêu dùng (CPI) Hoa Kỳ dự kiến công bố lúc 13:30 UTC hôm nay. Dự báo có biến động giá cực mạnh và giãn chênh lệch giá (spread) đối với Vàng (XAUUSD). Chúng tôi khuyến nghị tạm dừng chạy EA 30 phút trước và sau thời gian công bố để giảm thiểu rủi ro trượt giá."
   };
 
   const loadProducts = async () => {
@@ -51,7 +51,7 @@ export const Storefront: React.FC = () => {
       setProducts(data);
       setFilteredProducts(data);
     } catch (err: any) {
-      setError(err.message || 'Failed to load tools catalog.');
+      setError(err.message || 'Không thể tải danh mục công cụ giao dịch.');
     } finally {
       setLoading(false);
     }
@@ -239,7 +239,7 @@ export const Storefront: React.FC = () => {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          Unleash the Power of Automated Trading
+          Khai phá Sức mạnh Giao dịch Tự động
         </Typography>
         <Typography
           variant="body1"
@@ -251,7 +251,7 @@ export const Storefront: React.FC = () => {
             lineHeight: 1.6
           }}
         >
-          Download elite-tier Expert Advisors, high-accuracy indicators, and automated execution scripts built by professional quantitative researchers.
+          Tải xuống các Cố vấn Chuyên gia (EAs) ưu tú, chỉ báo độ chính xác cao và kịch bản thực thi tự động được xây dựng bởi các nhà nghiên cứu định lượng chuyên nghiệp.
         </Typography>
       </Box>
 
@@ -273,7 +273,7 @@ export const Storefront: React.FC = () => {
           <Search size={18} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
           <InputBase
             type="text"
-            placeholder="Search trading tools..."
+            placeholder="Tìm kiếm công cụ giao dịch..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             sx={{
@@ -304,7 +304,7 @@ export const Storefront: React.FC = () => {
                           background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
                           boxShadow: 'none',
                           transform: 'none',
-                        }
+                         }
                       : {
                           background: 'rgba(255, 255, 255, 0.1)',
                           transform: 'none',
@@ -312,7 +312,7 @@ export const Storefront: React.FC = () => {
                   },
                 }}
               >
-                {cat === 'All' ? 'All Tools' : cat + 's'}
+                {cat === 'All' ? 'Tất cả công cụ' : cat === 'EA' ? 'Robot EA' : cat === 'Indicator' ? 'Chỉ báo' : 'Kịch bản'}
               </Button>
             );
           })}
@@ -326,11 +326,11 @@ export const Storefront: React.FC = () => {
       ) : error ? (
         <Box sx={{ ...glassPanelSx, padding: '2rem', textAlign: 'center', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
           <Typography sx={{ color: 'error.main', fontWeight: 600 }}>{error}</Typography>
-          <Button sx={{ ...btnPrimarySx, marginTop: '1rem' }} onClick={loadProducts}>Try Again</Button>
+          <Button sx={{ ...btnPrimarySx, marginTop: '1rem' }} onClick={loadProducts}>Thử lại</Button>
         </Box>
       ) : filteredProducts.length === 0 ? (
         <Box sx={{ ...glassPanelSx, padding: '4rem 2rem', textAlign: 'center' }}>
-          <Typography sx={{ color: 'text.secondary', fontSize: '1.1rem' }}>No trading tools found matching this criteria.</Typography>
+          <Typography sx={{ color: 'text.secondary', fontSize: '1.1rem' }}>Không tìm thấy công cụ giao dịch nào phù hợp với bộ lọc.</Typography>
         </Box>
       ) : (
         <Grid container spacing={4}>
@@ -389,7 +389,7 @@ export const Storefront: React.FC = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem', marginTop: 'auto' }}>
                       <Box>
                         <Typography component="span" sx={{ fontSize: '0.75rem', color: 'text.disabled', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                          Price
+                          Giá bán
                         </Typography>
                         {displayVariant ? (
                           <Typography component="span" sx={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>
@@ -397,7 +397,7 @@ export const Storefront: React.FC = () => {
                           </Typography>
                         ) : (
                           <Typography component="span" sx={{ fontSize: '0.9rem', fontWeight: 700, color: 'error.main' }}>
-                            No package
+                            Chưa có gói
                           </Typography>
                         )}
                       </Box>
@@ -412,7 +412,7 @@ export const Storefront: React.FC = () => {
                           borderRadius: '8px'
                         }}
                       >
-                        View Tool
+                        Chi tiết
                         <ArrowUpRight size={14} />
                       </Button>
                     </Box>
@@ -426,3 +426,5 @@ export const Storefront: React.FC = () => {
     </Container>
   );
 };
+
+export default Storefront;

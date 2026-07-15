@@ -127,7 +127,7 @@ export const Navbar: React.FC = () => {
             '&:hover': { color: '#fff' }
           }}
         >
-          Storefront
+          Cửa hàng
         </Box>
         <Box
           component={Link}
@@ -144,7 +144,7 @@ export const Navbar: React.FC = () => {
             '&:hover': { color: '#fff' }
           }}
         >
-          Support
+          Hỗ trợ
         </Box>
         <Box
           component={Link}
@@ -161,7 +161,7 @@ export const Navbar: React.FC = () => {
             '&:hover': { color: '#fff' }
           }}
         >
-          About Us
+          Về chúng tôi
         </Box>
       </Box>
 
@@ -216,7 +216,7 @@ export const Navbar: React.FC = () => {
                 {userInitials}
               </Box>
               <Typography component="span" sx={{ display: { xs: 'none', sm: 'inline' }, fontSize: '0.85rem', fontWeight: 600, color: 'text.primary', textTransform: 'none' }}>
-                {user.full_name ? user.full_name.trim().split(' ')[0] : 'My Account'} (${user.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                {user.full_name ? user.full_name.trim().split(' ')[0] : 'Tài khoản'} (${user.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
               </Typography>
               <Box component="span" sx={{
                 fontSize: '0.55rem',
@@ -293,7 +293,7 @@ export const Navbar: React.FC = () => {
                     boxShadow: 'inset 0 1px 2px rgba(255, 255, 255, 0.05)'
                   }}>
                     <Typography component="span" sx={{ fontSize: '0.7rem', fontWeight: 600, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      Wallet Balance
+                      Số dư ví
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
                       <Typography component="span" sx={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', background: 'linear-gradient(to right, #fff, #a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
@@ -312,7 +312,7 @@ export const Navbar: React.FC = () => {
                           '&:hover': { color: '#a5b4fc' }
                         }}
                       >
-                        Top Up
+                        Nạp tiền
                       </Box>
                     </Box>
                   </Box>
@@ -345,7 +345,7 @@ export const Navbar: React.FC = () => {
                     }}
                   >
                     <Settings size={15} />
-                    Profile Settings
+                    Cài đặt cá nhân
                   </Box>
 
                   <Box
@@ -370,7 +370,7 @@ export const Navbar: React.FC = () => {
                     }}
                   >
                     <LayoutDashboard size={15} />
-                    My orders
+                    Đơn hàng của tôi
                   </Box>
 
                   <Box
@@ -395,7 +395,7 @@ export const Navbar: React.FC = () => {
                     }}
                   >
                     <Coins size={15} />
-                    My TopUps
+                    Lịch sử nạp tiền
                   </Box>
 
                   {user.role === 'admin' && (
@@ -421,7 +421,7 @@ export const Navbar: React.FC = () => {
                       }}
                     >
                       <FolderLock size={15} />
-                      Admin Panel
+                      Trang quản trị
                     </Box>
                   )}
                 </Box>
@@ -457,7 +457,7 @@ export const Navbar: React.FC = () => {
                     }}
                   >
                     <LogOut size={14} />
-                    Sign Out
+                    Đăng xuất
                   </Button>
                 </Box>
               </Box>
@@ -475,7 +475,7 @@ export const Navbar: React.FC = () => {
             }}
           >
             <LogIn size={14} />
-            Sign In
+            Đăng nhập
           </Button>
         )}
         <IconButton
@@ -531,7 +531,7 @@ export const Navbar: React.FC = () => {
             '&:hover': { color: '#fff' }
           }}
         >
-          Storefront
+          Cửa hàng
         </Box>
         <Box
           component={Link}
@@ -549,7 +549,7 @@ export const Navbar: React.FC = () => {
             '&:hover': { color: '#fff' }
           }}
         >
-          Support
+          Hỗ trợ
         </Box>
         <Box
           component={Link}
@@ -567,7 +567,7 @@ export const Navbar: React.FC = () => {
             '&:hover': { color: '#fff' }
           }}
         >
-          About Us
+          Về chúng tôi
         </Box>
       </Box>
     </Box>

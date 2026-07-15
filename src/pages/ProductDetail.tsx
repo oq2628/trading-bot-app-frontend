@@ -65,7 +65,7 @@ export const ProductDetail: React.FC = () => {
         setOwned(isOwned);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to retrieve trading tool information.');
+      setError(err.message || 'Không thể lấy thông tin công cụ giao dịch.');
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ export const ProductDetail: React.FC = () => {
   const handleCheckout = async () => {
     if (!product) return;
     if (!selectedVariantId) {
-      setToast({ message: 'Please select a license package before checkout.', type: 'error' });
+      setToast({ message: 'Vui lòng chọn gói bản quyền trước khi thanh toán.', type: 'error' });
       return;
     }
     try {
@@ -95,7 +95,7 @@ export const ProductDetail: React.FC = () => {
       await refreshUser();
       navigate('/dashboard?payment=success');
     } catch (err: any) {
-      setToast({ message: err.message || 'Checkout failed.', type: 'error' });
+      setToast({ message: err.message || 'Thanh toán thất bại.', type: 'error' });
     } finally {
       setPurchasing(false);
     }
@@ -113,7 +113,7 @@ export const ProductDetail: React.FC = () => {
     return (
       <Container maxWidth="sm" sx={{ margin: '4rem auto' }}>
         <Box sx={{ ...glassPanelSx, padding: '2rem', textAlign: 'center', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-          <Typography sx={{ color: 'error.main', fontWeight: 600, mb: 2 }}>{error || 'Trading tool not found.'}</Typography>
+          <Typography sx={{ color: 'error.main', fontWeight: 600, mb: 2 }}>{error || 'Không tìm thấy công cụ giao dịch.'}</Typography>
           <Button
             component={Link}
             to="/"
@@ -125,7 +125,7 @@ export const ProductDetail: React.FC = () => {
             }}
           >
             <ArrowLeft size={16} />
-            Back to Catalog
+            Quay lại Cửa hàng
           </Button>
         </Box>
       </Container>
@@ -153,7 +153,7 @@ export const ProductDetail: React.FC = () => {
           }}
         >
           <ArrowLeft size={16} />
-          Back to Catalog
+          Quay lại Cửa hàng
         </Box>
 
         <Grid container spacing={5}>
@@ -168,7 +168,7 @@ export const ProductDetail: React.FC = () => {
               />
             </Box>
 
-            <Typography variant="h2" sx={{ fontSize: { xs: '1.35rem', md: '1.75rem' }, marginBottom: '1rem' }}>Description & Features</Typography>
+            <Typography variant="h2" sx={{ fontSize: { xs: '1.35rem', md: '1.75rem' }, marginBottom: '1rem' }}>Mô tả & Tính năng</Typography>
             <Box sx={{ ...glassPanelSx, padding: '1.5rem', lineHeight: 1.7, color: 'text.secondary' }}>
               <Typography sx={{ whiteSpace: 'pre-line', fontSize: '0.95rem', color: 'text.secondary', lineHeight: 1.7 }}>
                 {product.description}
@@ -199,13 +199,13 @@ export const ProductDetail: React.FC = () => {
               </Typography>
               
               <Typography sx={{ color: 'text.disabled', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-                Product ID: {product.id}
+                Mã sản phẩm: {product.id}
               </Typography>
 
               {activeSortedVariants(product.variants).length > 0 ? (
                 <Box sx={{ marginBottom: '2rem' }}>
                   <Typography component="label" sx={{ fontSize: '0.85rem', color: 'text.secondary', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.75rem' }}>
-                    Select License Package
+                    Chọn Gói Bản quyền
                   </Typography>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     {activeSortedVariants(product.variants).map(v => {
@@ -265,12 +265,12 @@ export const ProductDetail: React.FC = () => {
                   </Box>
                   <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                     <ShieldCheck size={12} color="#10b981" />
-                    VND estimates use fixed rate: 1 USD = 25,000 VND. Webhooks verify and process payments in VND.
+                    Ước tính VND sử dụng tỷ giá cố định: 1 USD = 25.000 VND. Hệ thống xác thực và xử lý thanh toán bằng VND.
                   </Typography>
                 </Box>
               ) : (
                 <Typography sx={{ color: 'error.main', fontWeight: 600, marginBottom: '2rem' }}>
-                  No active license packages are available for this product.
+                  Sản phẩm này chưa có gói bản quyền nào hoạt động.
                 </Typography>
               )}
    
@@ -279,7 +279,7 @@ export const ProductDetail: React.FC = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '0.75rem 1rem', borderRadius: '10px' }}>
                     <CheckCircle2 size={20} color="#10b981" />
                     <Typography component="span" sx={{ fontWeight: 600, color: 'success.main', fontSize: '0.95rem' }}>
-                      You own this tool
+                      Bạn đã sở hữu công cụ này
                     </Typography>
                   </Box>
                   <Button
@@ -291,7 +291,7 @@ export const ProductDetail: React.FC = () => {
                       width: '100%'
                     }}
                   >
-                    Go to Downloads Dashboard
+                    Đi đến Trang Tải xuống & Bản quyền
                   </Button>
                 </Box>
               ) : (
@@ -308,7 +308,7 @@ export const ProductDetail: React.FC = () => {
                       }}
                     >
                       <CreditCard size={18} />
-                      Instant Checkout
+                      Thanh toán Ngay
                     </Button>
                   ) : (
                     <Button
@@ -321,13 +321,13 @@ export const ProductDetail: React.FC = () => {
                         width: '100%'
                       }}
                     >
-                      Sign In to Purchase
+                      Đăng nhập để Mua hàng
                     </Button>
                   )}
                   
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', color: 'text.disabled', fontSize: '0.8rem', marginTop: '0.5rem' }}>
                     <ShieldCheck size={14} color="#10b981" />
-                    Secure mock checkout. No real money charged.
+                    Thanh toán mô phỏng bảo mật. Không trừ tiền thật.
                   </Box>
                 </Box>
               )}
@@ -336,27 +336,27 @@ export const ProductDetail: React.FC = () => {
             {/* Specifications */}
             <Box sx={{ ...glassPanelSx, padding: '1.5rem' }}>
               <Typography variant="h3" sx={{ fontSize: '1.1rem', marginBottom: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
-                Specifications
+                Thông số kỹ thuật
               </Typography>
               
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.9rem' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Format</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Định dạng</Typography>
                   <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.9rem' }}>
                     {product.category === 'EA' ? '.ex5 / .ex4' : product.category === 'Indicator' ? '.ex5 / .mq5' : '.mq5 / .txt'}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Delivery</Typography>
-                  <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.9rem' }}>Instant Secure Download</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Hình thức</Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.9rem' }}>Tải xuống bảo mật tức thì</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>License</Typography>
-                  <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.9rem' }}>Personal use (Unlimited Accounts)</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Bản quyền</Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.9rem' }}>Sử dụng cá nhân (Không giới hạn tài khoản)</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Updates</Typography>
-                  <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.9rem' }}>Free Lifetime Updates</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>Cập nhật</Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.9rem' }}>Cập nhật miễn phí trọn đời</Typography>
                 </Box>
               </Box>
             </Box>
@@ -385,12 +385,12 @@ export const ProductDetail: React.FC = () => {
         <DialogTitle sx={{ padding: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <CreditCard size={24} color="#6366f1" />
           <Typography variant="h2" sx={{ fontSize: '1.5rem', margin: 0, color: '#fff' }}>
-            Secure Checkout
+            Thanh toán Bảo mật
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ padding: 0 }}>
           <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-            Confirm your transaction details below.
+            Xác nhận chi tiết giao dịch của bạn dưới đây.
           </Typography>
 
           {(() => {
@@ -400,15 +400,15 @@ export const ProductDetail: React.FC = () => {
             return (
               <Box sx={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '1.25rem', marginBottom: '1.5rem' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>Trading Tool</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>Công cụ</Typography>
                   <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem' }}>{product.title}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>Package</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>Gói bản quyền</Typography>
                   <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.95rem' }}>{selectedVariant.name}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem', fontSize: '1.1rem' }}>
-                  <Typography sx={{ color: 'text.primary', fontWeight: 600, fontSize: '1.1rem' }}>Total Due</Typography>
+                  <Typography sx={{ color: 'text.primary', fontWeight: 600, fontSize: '1.1rem' }}>Tổng tiền</Typography>
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                     <Typography sx={{ color: 'primary.main', fontWeight: 800, fontSize: '1.1rem' }}>
                       ${selectedVariant.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -428,14 +428,14 @@ export const ProductDetail: React.FC = () => {
               sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center' }}
               disabled={purchasing}
             >
-              Cancel
+              Hủy bỏ
             </Button>
             <Button 
               onClick={handleCheckout} 
               sx={{ ...btnPrimarySx, flex: 1, justifyContent: 'center' }}
               disabled={purchasing}
             >
-              {purchasing ? 'Processing...' : 'Confirm Buy'}
+              {purchasing ? 'Đang xử lý...' : 'Xác nhận Mua'}
             </Button>
           </Box>
         </DialogContent>

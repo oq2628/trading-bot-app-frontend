@@ -40,12 +40,12 @@ export const Profile: React.FC = () => {
         if (data.status === 'completed') {
           clearInterval(interval);
           setPolling(false);
-          setToast({ message: `Top-up of $${data.amount} USD completed successfully!`, type: 'success' });
+          setToast({ message: `Nạp tiền thành công $${data.amount} USD!`, type: 'success' });
           await refreshUser();
         } else if (data.status === 'failed') {
           clearInterval(interval);
           setPolling(false);
-          setToast({ message: `Top-up transaction failed: ${data.error_message || 'Unknown error'}`, type: 'error' });
+          setToast({ message: `Giao dịch nạp tiền thất bại: ${data.error_message || 'Lỗi không xác định'}`, type: 'error' });
         }
       } catch (err) {
         console.error("Polling error", err);
@@ -69,24 +69,24 @@ export const Profile: React.FC = () => {
       const data = await api.get<any>(`/api/top-ups/${activeTopUp.id}`);
       setActiveTopUp(data);
       if (data.status === 'completed') {
-        setToast({ message: `Top-up completed successfully!`, type: 'success' });
+        setToast({ message: `Nạp tiền thành công!`, type: 'success' });
         await refreshUser();
         handleCloseTopUp();
       } else if (data.status === 'failed') {
-        setToast({ message: `Top-up failed: ${data.error_message}`, type: 'error' });
+        setToast({ message: `Nạp tiền thất bại: ${data.error_message}`, type: 'error' });
         handleCloseTopUp();
       } else {
-        setToast({ message: 'Transaction is still pending payment.', type: 'info' });
+        setToast({ message: 'Giao dịch đang chờ thanh toán.', type: 'info' });
       }
     } catch (err) {
-      setToast({ message: 'Failed to refresh status.', type: 'error' });
+      setToast({ message: 'Lỗi cập nhật trạng thái.', type: 'error' });
     }
   };
 
   if (!user) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <Typography sx={{ color: 'text.secondary' }}>Please sign in to view your profile settings.</Typography>
+        <Typography sx={{ color: 'text.secondary' }}>Vui lòng đăng nhập để xem cài đặt hồ sơ của bạn.</Typography>
       </Box>
     );
   }
@@ -94,7 +94,7 @@ export const Profile: React.FC = () => {
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim() || fullName.trim().length < 2) {
-      setToast({ message: 'Full name must be at least 2 characters long.', type: 'error' });
+      setToast({ message: 'Họ và tên phải dài ít nhất 2 ký tự.', type: 'error' });
       return;
     }
     try {
@@ -106,9 +106,9 @@ export const Profile: React.FC = () => {
         address: address.trim() || null
       });
       await refreshUser();
-      setToast({ message: 'Profile details updated successfully.', type: 'success' });
+      setToast({ message: 'Thông tin cá nhân được cập nhật thành công.', type: 'success' });
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to update profile.', type: 'error' });
+      setToast({ message: err.message || 'Cập nhật hồ sơ thất bại.', type: 'error' });
     } finally {
       setSaving(false);
     }
@@ -117,7 +117,7 @@ export const Profile: React.FC = () => {
   const handleTransaction = async () => {
     const numAmount = parseFloat(amount);
     if (isNaN(numAmount) || numAmount <= 0) {
-      setToast({ message: 'Please enter a valid amount greater than $0.', type: 'error' });
+      setToast({ message: 'Vui lòng nhập số tiền hợp lệ lớn hơn $0.', type: 'error' });
       return;
     }
 
@@ -126,10 +126,10 @@ export const Profile: React.FC = () => {
       const data = await api.post<any>('/api/top-ups', { amount: numAmount });
       setActiveTopUp(data);
       setAmount('');
-      setToast({ message: 'Top-up QR code generated successfully. Please pay to proceed.', type: 'success' });
+      setToast({ message: 'Đã tạo mã QR nạp tiền thành công. Vui lòng thanh toán để tiếp tục.', type: 'success' });
       startPolling(data.id);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to generate QR Code.', type: 'error' });
+      setToast({ message: err.message || 'Không thể tạo mã QR.', type: 'error' });
     } finally {
       setTransacting(false);
     }
@@ -211,10 +211,10 @@ export const Profile: React.FC = () => {
         </Box>
         <Box>
           <Typography variant="h1" sx={{ ...pageTitleSx, fontSize: { xs: '1.75rem', md: '2rem' }, marginBottom: '0.25rem' }}>
-            My Account Settings
+            Cài đặt Tài khoản
           </Typography>
           <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>
-            Manage your personal profile, contact information, and simulated wallet balance.
+            Quản lý thông tin hồ sơ cá nhân, liên hệ và số dư ví giả lập của bạn.
           </Typography>
         </Box>
       </Box>
@@ -226,13 +226,13 @@ export const Profile: React.FC = () => {
           <Box sx={{ ...glassPanelSx, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <Typography variant="h2" sx={{ fontSize: '1.35rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem', margin: 0 }}>
               <User size={18} color="#6366f1" />
-              Profile Details
+              Thông tin Cá nhân
             </Typography>
 
             <Box component="form" onSubmit={handleUpdateProfile} sx={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <Typography component="label" sx={labelSx}>
-                  Email Address (ReadOnly)
+                  Địa chỉ Email (Chỉ đọc)
                 </Typography>
                 <InputBase 
                   type="text" 
@@ -244,14 +244,14 @@ export const Profile: React.FC = () => {
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <Typography component="label" htmlFor="fullNameInput" sx={labelSx}>
-                  Full Name
+                  Họ và Tên
                 </Typography>
                 <InputBase 
                   id="fullNameInput"
                   type="text" 
                   value={fullName} 
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Enter your full name"
+                  placeholder="Nhập họ và tên của bạn"
                   required
                   sx={inputSx}
                 />
@@ -259,7 +259,7 @@ export const Profile: React.FC = () => {
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <Typography component="label" htmlFor="phoneInput" sx={labelSx}>
-                  Phone Number
+                  Số điện thoại
                 </Typography>
                 <Box sx={{ position: 'relative' }}>
                   <Phone size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
@@ -268,7 +268,7 @@ export const Profile: React.FC = () => {
                     type="text" 
                     value={phoneNumber} 
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="Enter phone number"
+                    placeholder="Nhập số điện thoại"
                     sx={{
                       ...inputSx,
                       paddingLeft: '2.5rem',
@@ -279,7 +279,7 @@ export const Profile: React.FC = () => {
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <Typography component="label" htmlFor="dobInput" sx={labelSx}>
-                  Date of Birth
+                  Ngày sinh
                 </Typography>
                 <Box sx={{ position: 'relative' }}>
                   <Calendar size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
@@ -302,7 +302,7 @@ export const Profile: React.FC = () => {
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <Typography component="label" htmlFor="addressInput" sx={labelSx}>
-                  Address
+                  Địa chỉ
                 </Typography>
                 <Box sx={{ position: 'relative' }}>
                   <MapPin size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '1rem', zIndex: 2 }} />
@@ -310,7 +310,7 @@ export const Profile: React.FC = () => {
                     id="addressInput"
                     value={address} 
                     onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Enter your street address"
+                    placeholder="Nhập địa chỉ nhà của bạn"
                     multiline
                     rows={3}
                     sx={{
@@ -334,12 +334,12 @@ export const Profile: React.FC = () => {
                 {saving ? (
                   <>
                     <CircularProgress size={16} color="inherit" />
-                    Saving changes...
+                    Đang lưu thay đổi...
                   </>
                 ) : (
                   <>
                     <Save size={16} />
-                    Save Changes
+                    Lưu Thay đổi
                   </>
                 )}
               </Button>
@@ -352,7 +352,7 @@ export const Profile: React.FC = () => {
           <Box sx={{ ...glassPanelSx, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%' }}>
             <Typography variant="h2" sx={{ fontSize: '1.35rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem', margin: 0 }}>
               <Wallet size={18} color="#6366f1" />
-              Simulated Wallet
+              Ví Giả lập
             </Typography>
 
             {/* Current Balance Display */}
@@ -365,7 +365,7 @@ export const Profile: React.FC = () => {
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
             }}>
               <Typography component="span" sx={{ fontSize: '0.75rem', fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Current Available Balance
+                Số dư hiện tại
               </Typography>
               <Typography sx={{ 
                 fontSize: '2.25rem', 
@@ -416,7 +416,7 @@ export const Profile: React.FC = () => {
                 </Box>
                 
                 <Typography variant="h3" sx={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: 'primary.main' }}>
-                  ACB VietQR Payment
+                  Thanh toán ACB VietQR
                 </Typography>
                 
                 {activeTopUp.qr_image_base64 ? (
@@ -435,25 +435,25 @@ export const Profile: React.FC = () => {
                   </Box>
                 ) : (
                   <Box sx={{ width: '160px', height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', color: 'text.secondary' }}>
-                    Loading QR Code...
+                    Đang tải mã QR...
                   </Box>
                 )}
                 
                 <Box sx={{ width: '100%', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
-                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Amount (USD):</Typography>
+                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Số tiền (USD):</Typography>
                     <Typography component="span" sx={{ fontWeight: 700, fontSize: '0.85rem' }}>${activeTopUp.amount.toFixed(2)}</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
-                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Amount (VND):</Typography>
+                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Số tiền (VND):</Typography>
                     <Typography component="span" sx={{ fontWeight: 700, color: '#34d399', fontSize: '0.85rem' }}>{activeTopUp.amount_vnd.toLocaleString()} VND</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
-                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Payment Content:</Typography>
+                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Nội dung chuyển khoản:</Typography>
                     <Typography component="span" sx={{ fontWeight: 700, color: '#a5b4fc', fontFamily: 'monospace', fontSize: '0.85rem' }}>{activeTopUp.payment_reference}</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Status:</Typography>
+                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Trạng thái:</Typography>
                     <Typography component="span" sx={{ 
                       fontWeight: 700,
                       color: activeTopUp.status === 'completed' ? '#10b981' : activeTopUp.status === 'failed' ? '#ef4444' : '#f59e0b',
@@ -463,7 +463,7 @@ export const Profile: React.FC = () => {
                       padding: '2px 8px',
                       borderRadius: '4px'
                     }}>
-                      {activeTopUp.status}
+                      {activeTopUp.status === 'completed' ? 'Hoàn thành' : activeTopUp.status === 'failed' ? 'Thất bại' : 'Chờ xử lý'}
                     </Typography>
                   </Box>
                 </Box>
@@ -484,7 +484,7 @@ export const Profile: React.FC = () => {
                     }}
                   >
                     <RefreshCw size={14} className={polling ? 'animate-spin' : ''} />
-                    Refresh
+                    Cập nhật
                   </Button>
                   <Button
                     type="button"
@@ -507,18 +507,18 @@ export const Profile: React.FC = () => {
                       }
                     }}
                   >
-                    Cancel
+                    Hủy bỏ
                   </Button>
                 </Box>
                 <Typography sx={{ fontSize: '0.72rem', color: 'text.disabled', margin: 0, textAlign: 'center' }}>
-                  Please transfer correct amount and content to top up automatically.
+                  Vui lòng chuyển đúng số tiền và nội dung chuyển khoản để được cộng tiền tự động.
                 </Typography>
               </Box>
             ) : (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <Typography component="label" htmlFor="transactionAmount" sx={labelSx}>
-                    Transaction Amount ($)
+                    Số tiền giao dịch ($)
                   </Typography>
                   <Box sx={{ position: 'relative' }}>
                     <Typography component="span" sx={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'text.secondary', fontWeight: 600, fontSize: '1rem', zIndex: 2 }}>$</Typography>
@@ -564,7 +564,7 @@ export const Profile: React.FC = () => {
                     }}
                   >
                     <ArrowUpRight size={16} />
-                    Top Up
+                    Nạp tiền
                   </Button>
                 </Box>
               </Box>

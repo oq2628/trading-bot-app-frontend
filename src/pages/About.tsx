@@ -21,7 +21,7 @@ export const About: React.FC = () => {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          About AlgoForge
+          Về AlgoForge
         </Typography>
         <Typography
           variant="body1"
@@ -33,7 +33,7 @@ export const About: React.FC = () => {
             lineHeight: 1.6,
           }}
         >
-          Empowering quantitative traders with institutional-grade automation tools and expert execution systems.
+          Cung cấp công cụ tự động hóa cấp tổ chức và hệ thống thực thi chuyên nghiệp cho các nhà giao dịch định lượng.
         </Typography>
       </Box>
 
@@ -51,7 +51,7 @@ export const About: React.FC = () => {
             }}
           >
             <Target size={22} color="#6366f1" />
-            Our Mission
+            Sứ mệnh của chúng tôi
           </Typography>
           <Typography
             variant="body2"
@@ -61,7 +61,7 @@ export const About: React.FC = () => {
               fontSize: '0.95rem',
             }}
           >
-            At AlgoForge, we bridge the gap between retail trading and high-frequency quantitative execution. We design and compile cutting-edge trading bots, Expert Advisors (EAs), and precise indicators for the MetaTrader 5 platform, helping traders automate their strategy execution with minimal latency and maximum reliability.
+            Tại AlgoForge, chúng tôi kết nối khoảng cách giữa giao dịch cá nhân và thực thi định lượng tần số cao. Chúng tôi thiết kế và biên dịch các robot giao dịch tiên tiến, các Cố vấn Chuyên gia (EAs), và các chỉ báo chính xác cho nền tảng MetaTrader 5, giúp các nhà giao dịch tự động hóa chiến lược của họ với độ trễ tối thiểu và độ tin cậy tối đa.
           </Typography>
         </Box>
 
@@ -95,10 +95,10 @@ export const About: React.FC = () => {
                 <Cpu size={24} color="#06b6d4" />
               </Box>
               <Typography variant="h3" sx={{ fontSize: '1.1rem', fontWeight: 700, margin: '0.5rem 0 0.25rem' }}>
-                Institutional Algorithms
+                Thuật toán cấp Tổ chức
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.85rem', lineHeight: 1.5 }}>
-                Expert Advisors backtested on extensive historical tick data with real spread and slippage simulation.
+                Các Cố vấn Chuyên gia (EAs) được kiểm thử lại (backtest) trên dữ liệu lịch sử chi tiết với mô phỏng chênh lệch giá (spread) và trượt giá (slippage) thực tế.
               </Typography>
             </Box>
           </Grid>
@@ -132,10 +132,10 @@ export const About: React.FC = () => {
                 <Zap size={24} color="#6366f1" />
               </Box>
               <Typography variant="h3" sx={{ fontSize: '1.1rem', fontWeight: 700, margin: '0.5rem 0 0.25rem' }}>
-                Ultra-Low Latency
+                Độ trễ Cực thấp
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.85rem', lineHeight: 1.5 }}>
-                Optimized MQL5 source code designed for rapid order execution and minimal terminal overhead.
+                Mã nguồn MQL5 được tối ưu hóa cho việc thực thi lệnh nhanh chóng và giảm thiểu quá tải hệ thống.
               </Typography>
             </Box>
           </Grid>
@@ -169,10 +169,10 @@ export const About: React.FC = () => {
                 <Shield size={24} color="#10b981" />
               </Box>
               <Typography variant="h3" sx={{ fontSize: '1.1rem', fontWeight: 700, margin: '0.5rem 0 0.25rem' }}>
-                Secure Licensing
+                Bản quyền Bảo mật
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.85rem', lineHeight: 1.5 }}>
-                Our custom-built secure API key verification validates your license directly against our secure servers.
+                Hệ thống xác thực khóa API bảo mật tự xây dựng kiểm tra bản quyền của bạn trực tiếp với máy chủ bảo mật của chúng tôi.
               </Typography>
             </Box>
           </Grid>

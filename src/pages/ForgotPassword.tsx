@@ -15,7 +15,7 @@ export const ForgotPassword: React.FC = () => {
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) {
-      setToast({ message: 'Email address is required.', type: 'error' });
+      setToast({ message: 'Vui lòng nhập địa chỉ email.', type: 'error' });
       return;
     }
     setLoading(true);
@@ -25,7 +25,7 @@ export const ForgotPassword: React.FC = () => {
       setSubmitted(true);
     } catch (err) {
       const error = err as { message?: string };
-      setToast({ message: error.message || 'An error occurred. Please try again.', type: 'error' });
+      setToast({ message: error.message || 'Đã xảy ra lỗi. Vui lòng thử lại.', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -86,14 +86,14 @@ export const ForgotPassword: React.FC = () => {
           }}
         >
           <ArrowLeft size={14} />
-          Back to Sign In
+          Quay lại Đăng nhập
         </Box>
 
         <Typography variant="h2" sx={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.5rem', color: '#fff' }}>
-          Forgot Password
+          Quên mật khẩu
         </Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.9rem', marginBottom: '2rem' }}>
-          Enter your email below to recover your password credentials.
+          Nhập email của bạn bên dưới để nhận liên kết khôi phục mật khẩu.
         </Typography>
 
         {/* Tab content */}
@@ -116,10 +116,10 @@ export const ForgotPassword: React.FC = () => {
                   <Mail size={22} color="#10b981" />
                 </Box>
                 <Typography variant="h3" sx={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>
-                  Check your email
+                  Kiểm tra email của bạn
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                  If the email address exists in our system, we have sent a secure password reset link to it. Please check your inbox and spam folders.
+                  Nếu địa chỉ email tồn tại trên hệ thống, chúng tôi đã gửi liên kết khôi phục mật khẩu. Vui lòng kiểm tra hộp thư đến và thư mục thư rác (spam).
                 </Typography>
                 <Button
                   onClick={() => setSubmitted(false)}
@@ -129,7 +129,7 @@ export const ForgotPassword: React.FC = () => {
                     justifyContent: 'center',
                   }}
                 >
-                  Resend Email
+                  Gửi lại Email
                 </Button>
               </Box>
             ) : (
@@ -147,7 +147,7 @@ export const ForgotPassword: React.FC = () => {
                       letterSpacing: '0.05em',
                     }}
                   >
-                    Email Address
+                    Địa chỉ Email
                   </Typography>
                   <Box sx={{ position: 'relative' }}>
                     <Mail
@@ -158,7 +158,7 @@ export const ForgotPassword: React.FC = () => {
                     <InputBase
                       type="email"
                       required
-                      placeholder="e.g. buyer@algo.com"
+                      placeholder="Ví dụ: buyer@algo.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       sx={{
@@ -180,11 +180,11 @@ export const ForgotPassword: React.FC = () => {
                   }}
                 >
                   {loading ? (
-                    'Sending Link...'
+                    'Đang gửi liên kết...'
                   ) : (
                     <>
                       <Send size={15} />
-                      Send Reset Link
+                      Gửi liên kết khôi phục
                     </>
                   )}
                 </Button>

@@ -57,7 +57,7 @@ export const Support: React.FC = () => {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          Customer Support
+          Hỗ trợ Khách hàng
         </Typography>
         <Typography
           variant="body1"
@@ -69,7 +69,7 @@ export const Support: React.FC = () => {
             lineHeight: 1.6,
           }}
         >
-          Have questions or need technical assistance with your trading bot? Our dedicated team of quantitative engineers is here to help.
+          Bạn có câu hỏi hoặc cần hỗ trợ kỹ thuật cho robot giao dịch của mình? Đội ngũ kỹ sư định lượng chuyên nghiệp của chúng tôi luôn sẵn sàng hỗ trợ.
         </Typography>
       </Box>
 
@@ -103,10 +103,10 @@ export const Support: React.FC = () => {
               <MessageSquare size={24} color="#6366f1" />
             </Box>
             <Typography variant="h3" sx={{ fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>
-              Live Discord Community
+              Cộng đồng Discord Trực tiếp
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.9rem', lineHeight: 1.5, margin: 0 }}>
-              Join our professional quant discord server for real-time discussion, setups sharing, and direct developer help.
+              Tham gia máy chủ Discord chuyên nghiệp của chúng tôi để cùng thảo luận trực tiếp, chia sẻ cấu hình cài đặt và nhận trợ giúp từ các nhà phát triển.
             </Typography>
             <Button
               component="a"
@@ -120,7 +120,7 @@ export const Support: React.FC = () => {
                 fontSize: '0.85rem',
               }}
             >
-              Join Server
+              Tham gia Máy chủ
             </Button>
           </Box>
         </Grid>
@@ -154,10 +154,10 @@ export const Support: React.FC = () => {
               <Mail size={24} color="#06b6d4" />
             </Box>
             <Typography variant="h3" sx={{ fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>
-              Email Helpdesk
+              Hỗ trợ qua Email
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.9rem', lineHeight: 1.5, margin: 0 }}>
-              Send us a technical query or license binding request. We respond to all inquiries within 24 business hours.
+              Gửi cho chúng tôi các câu hỏi kỹ thuật hoặc yêu cầu liên kết bản quyền. Chúng tôi phản hồi mọi thắc mắc trong vòng 24 giờ làm việc.
             </Typography>
             <Button
               component="a"
@@ -170,7 +170,7 @@ export const Support: React.FC = () => {
                 fontSize: '0.85rem',
               }}
             >
-              Email Us
+              Gửi Email
             </Button>
           </Box>
         </Grid>
@@ -204,10 +204,10 @@ export const Support: React.FC = () => {
               <HelpCircle size={24} color="#10b981" />
             </Box>
             <Typography variant="h3" sx={{ fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>
-              FAQ & Documentation
+              Câu hỏi thường gặp & Hướng dẫn
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.9rem', lineHeight: 1.5, margin: 0 }}>
-              Read instructions on how to install EX5 files in MT5, configure terminal WebRequests, and troubleshoot session tokens.
+              Đọc hướng dẫn cách cài đặt tệp tin EX5 trong phần mềm MT5, cấu hình WebRequests trên terminal và khắc phục sự cố mã phiên đăng nhập.
             </Typography>
             <Button
               component="a"
@@ -221,7 +221,7 @@ export const Support: React.FC = () => {
                 fontSize: '0.85rem',
               }}
             >
-              Browse Guides
+              Xem Hướng dẫn
             </Button>
           </Box>
         </Grid>

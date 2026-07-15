@@ -50,7 +50,7 @@ export const MyTopUps: React.FC = () => {
       const data = await api.get<TopUp[]>('/api/top-ups');
       setTopUps(data);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to fetch top-up requests.', type: 'error' });
+      setToast({ message: err.message || 'Không thể lấy danh sách yêu cầu nạp tiền.', type: 'error' });
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -71,12 +71,12 @@ export const MyTopUps: React.FC = () => {
         setActiveTopUp(data);
         // If completed or failed, show toast, refresh user, and stop polling
         if (data.status === 'completed') {
-          setToast({ message: 'Top-up completed successfully!', type: 'success' });
+          setToast({ message: 'Nạp tiền thành công!', type: 'success' });
           await refreshUser();
           loadTopUps(false);
           stopPolling();
         } else if (data.status === 'failed') {
-          setToast({ message: `Top-up failed: ${data.error_message}`, type: 'error' });
+          setToast({ message: `Nạp tiền thất bại: ${data.error_message}`, type: 'error' });
           loadTopUps(false);
           stopPolling();
         } else if (data.status === 'cancelled') {
@@ -112,21 +112,21 @@ export const MyTopUps: React.FC = () => {
     e.preventDefault();
     const amountVal = parseFloat(newAmount);
     if (isNaN(amountVal) || amountVal <= 0) {
-      setToast({ message: 'Please enter a valid amount greater than 0 USD.', type: 'error' });
+      setToast({ message: 'Vui lòng nhập số tiền hợp lệ lớn hơn 0 USD.', type: 'error' });
       return;
     }
 
     setSubmitting(true);
     try {
       const data = await api.post<TopUp>('/api/top-ups', { amount: amountVal });
-      setToast({ message: 'Top-up QR code generated successfully!', type: 'success' });
+      setToast({ message: 'Đã tạo mã QR nạp tiền thành công!', type: 'success' });
       setShowCreateModal(false);
       setNewAmount('');
       loadTopUps();
       // Open the detail modal directly for the newly created transaction
       handleOpenDetail(data);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to generate top-up QR.', type: 'error' });
+      setToast({ message: err.message || 'Không thể tạo mã QR nạp tiền.', type: 'error' });
     } finally {
       setSubmitting(false);
     }
@@ -142,7 +142,7 @@ export const MyTopUps: React.FC = () => {
     try {
       setConfirmingTopUpCancelLoading(true);
       const data = await api.post<TopUp>(`/api/top-ups/${topUp.id}/cancel`, {});
-      setToast({ message: 'Top-up request cancelled successfully!', type: 'success' });
+      setToast({ message: 'Đã hủy yêu cầu nạp tiền thành công!', type: 'success' });
       
       // Update topUps list
       setTopUps(prev => prev.map(t => t.id === topUp.id ? data : t));
@@ -154,7 +154,7 @@ export const MyTopUps: React.FC = () => {
       }
       setConfirmingTopUpCancel(null);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to cancel top-up.', type: 'error' });
+      setToast({ message: err.message || 'Không thể hủy yêu cầu nạp tiền.', type: 'error' });
     } finally {
       setConfirmingTopUpCancelLoading(false);
     }
@@ -165,23 +165,23 @@ export const MyTopUps: React.FC = () => {
       const data = await api.get<TopUp>(`/api/top-ups/${topUpId}`);
       setActiveTopUp(data);
       if (data.status === 'completed') {
-        setToast({ message: 'Top-up completed successfully!', type: 'success' });
+        setToast({ message: 'Nạp tiền thành công!', type: 'success' });
         await refreshUser();
         loadTopUps(false);
         stopPolling();
       } else if (data.status === 'failed') {
-        setToast({ message: `Top-up failed: ${data.error_message}`, type: 'error' });
+        setToast({ message: `Nạp tiền thất bại: ${data.error_message}`, type: 'error' });
         loadTopUps(false);
         stopPolling();
       } else if (data.status === 'cancelled') {
-        setToast({ message: 'Top-up request has been cancelled.', type: 'info' });
+        setToast({ message: 'Yêu cầu nạp tiền đã bị hủy.', type: 'info' });
         loadTopUps(false);
         stopPolling();
       } else {
-        setToast({ message: 'Transaction is still pending payment.', type: 'info' });
+        setToast({ message: 'Giao dịch đang chờ thanh toán.', type: 'info' });
       }
     } catch (err: any) {
-      setToast({ message: 'Failed to refresh status.', type: 'error' });
+      setToast({ message: 'Lỗi cập nhật trạng thái.', type: 'error' });
     }
   };
 
@@ -191,28 +191,28 @@ export const MyTopUps: React.FC = () => {
         return (
           <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.2rem 0.5rem', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.15)', color: 'success.main', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
             <CheckCircle2 size={12} />
-            Completed
+            Hoàn thành
           </Box>
         );
       case 'cancelled':
         return (
           <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.2rem 0.5rem', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.05)', color: 'text.secondary', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
             <XCircle size={12} />
-            Cancelled
+            Đã hủy
           </Box>
         );
       case 'failed':
         return (
           <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.2rem 0.5rem', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.15)', color: 'error.main', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
             <AlertTriangle size={12} />
-            Failed
+            Thất bại
           </Box>
         );
       default:
         return (
           <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.2rem 0.5rem', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.15)', color: 'warning.main', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
             <Box sx={{ width: '6px', height: '6px', borderRadius: '50%', background: '#f59e0b', display: 'inline-block', marginRight: '2px', boxShadow: '0 0 6px #f59e0b' }} />
-            Pending
+            Chờ xử lý
           </Box>
         );
     }
@@ -277,10 +277,10 @@ export const MyTopUps: React.FC = () => {
             </Box>
             <Box>
               <Typography variant="h1" sx={{ ...pageTitleSx, fontSize: { xs: '1.75rem', md: '2rem' }, marginBottom: '0.25rem' }}>
-                My Top-Up Transactions
+                Lịch sử Nạp tiền của tôi
               </Typography>
               <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>
-                Top up your wallet balance using instant VietQR wire transfer.
+                Nạp tiền vào tài khoản ví của bạn bằng chuyển khoản VietQR nhanh chóng.
               </Typography>
             </Box>
           </Box>
@@ -298,7 +298,7 @@ export const MyTopUps: React.FC = () => {
               }}
             >
               <RefreshCw size={15} />
-              Refresh
+              Cập nhật
             </Button>
             <Button
               onClick={() => setShowCreateModal(true)}
@@ -312,7 +312,7 @@ export const MyTopUps: React.FC = () => {
               }}
             >
               <Plus size={16} />
-              Top Up Wallet
+              Nạp tiền vào Ví
             </Button>
           </Box>
         </Box>
@@ -323,20 +323,20 @@ export const MyTopUps: React.FC = () => {
             <Box sx={{ ...glassPanelSx, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', height: 'fit-content' }}>
               <Typography variant="h2" sx={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem' }}>
                 <CreditCard size={18} color="#6366f1" />
-                Wallet Account
+                Tài khoản Ví
               </Typography>
               <Box>
                 <Typography component="span" sx={{ fontSize: '0.75rem', fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Available Balance (USD)
+                  Số dư khả dụng (USD)
                 </Typography>
                 <Typography sx={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff', marginTop: '0.25rem', background: 'linear-gradient(to right, #fff, #a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                   ${user ? user.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
                 </Typography>
               </Box>
               <Box sx={{ padding: '1rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.04)', borderRadius: '12px', fontSize: '0.825rem', color: 'text.secondary', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <Box>• Exchange Rate: <Typography component="strong" sx={{ color: '#fff', fontSize: '0.825rem', fontWeight: 700 }}>1 USD = 25,000 VND</Typography></Box>
-                <Box>• Processing Type: <Typography component="strong" sx={{ color: '#fff', fontSize: '0.825rem', fontWeight: 700 }}>Dynamic VietQR</Typography></Box>
-                <Box>• Wire Settlement: <Typography component="strong" sx={{ color: '#fff', fontSize: '0.825rem', fontWeight: 700 }}>Automatic & Instant</Typography></Box>
+                <Box>• Tỷ giá quy đổi: <Typography component="strong" sx={{ color: '#fff', fontSize: '0.825rem', fontWeight: 700 }}>1 USD = 25,000 VND</Typography></Box>
+                <Box>• Hình thức: <Typography component="strong" sx={{ color: '#fff', fontSize: '0.825rem', fontWeight: 700 }}>VietQR Động</Typography></Box>
+                <Box>• Phương thức: <Typography component="strong" sx={{ color: '#fff', fontSize: '0.825rem', fontWeight: 700 }}>Tự động & Tức thì</Typography></Box>
               </Box>
             </Box>
           </Grid>
@@ -345,7 +345,7 @@ export const MyTopUps: React.FC = () => {
           <Grid size={{ xs: 12, md: 8 }}>
             <Box sx={{ ...glassPanelSx, padding: '2rem', height: '100%' }}>
               <Typography variant="h2" sx={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', margin: 0 }}>
-                Transaction History
+                Lịch sử Giao dịch
               </Typography>
 
               {loading ? (
@@ -355,20 +355,20 @@ export const MyTopUps: React.FC = () => {
               ) : topUps.length === 0 ? (
                 <Box sx={{ textAlign: 'center', padding: '4rem 0', color: 'text.disabled' }}>
                   <Coins size={40} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
-                  <Typography sx={{ color: 'text.secondary' }}>You have not made any top-up requests yet.</Typography>
-                  <Button onClick={() => setShowCreateModal(true)} sx={{ ...btnSecondarySx, marginTop: '1rem', fontSize: '0.85rem' }}>Create First Request</Button>
+                  <Typography sx={{ color: 'text.secondary' }}>Bạn chưa thực hiện bất kỳ yêu cầu nạp tiền nào.</Typography>
+                  <Button onClick={() => setShowCreateModal(true)} sx={{ ...btnSecondarySx, marginTop: '1rem', fontSize: '0.85rem' }}>Tạo yêu cầu đầu tiên</Button>
                 </Box>
               ) : (
                 <Box sx={{ overflowX: 'auto', width: '100%' }}>
                   <Table sx={{ minWidth: 650 }}>
                     <TableHead>
                       <TableRow sx={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                        <TableCell sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Created At</TableCell>
-                        <TableCell sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Reference</TableCell>
-                        <TableCell align="right" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Amount (USD)</TableCell>
-                        <TableCell align="right" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Amount (VND)</TableCell>
-                        <TableCell align="center" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Status</TableCell>
-                        <TableCell align="right" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Actions</TableCell>
+                        <TableCell sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Thời gian tạo</TableCell>
+                        <TableCell sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Nội dung CK</TableCell>
+                        <TableCell align="right" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Số tiền (USD)</TableCell>
+                        <TableCell align="right" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Số tiền (VND)</TableCell>
+                        <TableCell align="center" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Trạng thái</TableCell>
+                        <TableCell align="right" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Hành động</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -401,7 +401,7 @@ export const MyTopUps: React.FC = () => {
                                   borderRadius: '6px'
                                 }}
                               >
-                                Details
+                                Chi tiết
                               </Button>
                               {t.status === 'pending' && (
                                 <Button
@@ -420,7 +420,7 @@ export const MyTopUps: React.FC = () => {
                                     }
                                   }}
                                 >
-                                  Cancel
+                                  Hủy bỏ
                                 </Button>
                               )}
                             </Box>
@@ -455,7 +455,7 @@ export const MyTopUps: React.FC = () => {
       >
         <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <Typography variant="h2" sx={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: '#fff' }}>
-            Top Up Wallet Balance
+            Nạp tiền vào ví
           </Typography>
           <Box component="button" onClick={() => setShowCreateModal(false)} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
             <X size={20} />
@@ -466,7 +466,7 @@ export const MyTopUps: React.FC = () => {
           <Box component="form" onSubmit={handleCreateTopUp} sx={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <Box>
               <Typography component="label" sx={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'text.secondary', marginBottom: '0.5rem' }}>
-                Amount in USD *
+                Số tiền nạp (USD) *
               </Typography>
               <Box sx={{ position: 'relative' }}>
                 <Typography component="span" sx={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 700, color: 'text.disabled', zIndex: 2 }}>$</Typography>
@@ -474,7 +474,7 @@ export const MyTopUps: React.FC = () => {
                   type="number"
                   inputProps={{ step: '0.01', min: '1', max: '10000' }}
                   required
-                  placeholder="e.g. 50.00"
+                  placeholder="Ví dụ: 50.00"
                   value={newAmount}
                   onChange={e => setNewAmount(e.target.value)}
                   sx={{
@@ -485,7 +485,7 @@ export const MyTopUps: React.FC = () => {
               </Box>
               {newAmount && !isNaN(parseFloat(newAmount)) && (
                 <Box sx={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'text.secondary', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <Typography component="span" sx={{ fontSize: '0.8rem' }}>Conversion:</Typography>
+                  <Typography component="span" sx={{ fontSize: '0.8rem' }}>Quy đổi:</Typography>
                   <Typography component="strong" sx={{ color: 'success.main', fontSize: '0.8rem', fontWeight: 700 }}>
                     {(parseFloat(newAmount) * 25000).toLocaleString()} VND
                   </Typography>
@@ -494,9 +494,9 @@ export const MyTopUps: React.FC = () => {
             </Box>
 
             <Box sx={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              <Button type="button" onClick={() => setShowCreateModal(false)} sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center' }}>Cancel</Button>
+              <Button type="button" onClick={() => setShowCreateModal(false)} sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center' }}>Hủy bỏ</Button>
               <Button type="submit" disabled={submitting} sx={{ ...btnPrimarySx, flex: 1, justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                {submitting ? 'Creating...' : <>Next <ArrowRight size={14} /></>}
+                {submitting ? 'Đang tạo...' : <>Tiếp tục <ArrowRight size={14} /></>}
               </Button>
             </Box>
           </Box>
@@ -522,7 +522,7 @@ export const MyTopUps: React.FC = () => {
       >
         <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', marginBottom: '1.25rem', fontFamily: '"Outfit", sans-serif' }}>
           <Typography variant="h2" sx={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: '#fff', textAlign: 'center', width: '100%' }}>
-            Top Up Transaction Detail
+            Chi tiết Giao dịch Nạp tiền
           </Typography>
           <Box component="button" onClick={handleCloseDetail} sx={{ position: 'absolute', top: 0, right: 0, background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
             <X size={20} />
@@ -564,7 +564,7 @@ export const MyTopUps: React.FC = () => {
                   </Box>
                 ) : (
                   <Box sx={{ width: '180px', height: '180px', background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', color: 'text.disabled' }}>
-                    Loading VietQR...
+                    Đang tải VietQR...
                   </Box>
                 )}
                 
@@ -591,7 +591,7 @@ export const MyTopUps: React.FC = () => {
                   </Box>
                 ) : (
                   <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', textAlign: 'center' }}>
-                    Scan code using any Banking App to pay instantly.
+                    Quét mã bằng ứng dụng ngân hàng bất kỳ để thanh toán ngay.
                   </Typography>
                 )}
               </Box>
@@ -603,8 +603,8 @@ export const MyTopUps: React.FC = () => {
                 <Box sx={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', color: 'success.main', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <CheckCircle2 size={36} />
                 </Box>
-                <Typography component="strong" sx={{ fontSize: '1.1rem', color: '#fff', fontWeight: 700 }}>Transaction Completed Successfully</Typography>
-                <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>Your wallet has been credited.</Typography>
+                <Typography component="strong" sx={{ fontSize: '1.1rem', color: '#fff', fontWeight: 700 }}>Giao dịch hoàn tất thành công</Typography>
+                <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>Số tiền đã được cộng vào tài khoản ví của bạn.</Typography>
               </Box>
             )}
 
@@ -613,8 +613,8 @@ export const MyTopUps: React.FC = () => {
                 <Box sx={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.05)', color: 'text.secondary', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <XCircle size={36} />
                 </Box>
-                <Typography component="strong" sx={{ fontSize: '1.1rem', color: '#fff', fontWeight: 700 }}>Transaction Cancelled</Typography>
-                <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>Cancelled by request.</Typography>
+                <Typography component="strong" sx={{ fontSize: '1.1rem', color: '#fff', fontWeight: 700 }}>Giao dịch đã hủy</Typography>
+                <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>Đã hủy theo yêu cầu.</Typography>
               </Box>
             )}
 
@@ -623,7 +623,7 @@ export const MyTopUps: React.FC = () => {
                 <Box sx={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', color: 'error.main', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <AlertTriangle size={36} />
                 </Box>
-                <Typography component="strong" sx={{ fontSize: '1.1rem', color: '#fff', fontWeight: 700 }}>Transaction Failed</Typography>
+                <Typography component="strong" sx={{ fontSize: '1.1rem', color: '#fff', fontWeight: 700 }}>Giao dịch thất bại</Typography>
                 {activeTopUp.error_message && (
                   <Typography sx={{ fontSize: '0.85rem', color: 'error.main', textAlign: 'center' }}>{activeTopUp.error_message}</Typography>
                 )}
@@ -633,34 +633,34 @@ export const MyTopUps: React.FC = () => {
             {/* Info Table */}
             <Box sx={{ width: '100%', fontSize: '0.875rem', display: 'flex', flexDirection: 'column', gap: '0.55rem', padding: '1rem', background: 'rgba(0,0,0,0.15)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.02)' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.35rem' }}>
-                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Status:</Typography>
+                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Trạng thái:</Typography>
                 <Box>{getStatusBadge(activeTopUp.status)}</Box>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.35rem' }}>
-                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Amount (USD):</Typography>
+                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Số tiền (USD):</Typography>
                 <Typography component="span" sx={{ fontWeight: 700, fontSize: '0.875rem' }}>${activeTopUp.amount.toFixed(2)}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.35rem' }}>
-                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Amount (VND):</Typography>
+                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Số tiền (VND):</Typography>
                 <Typography component="span" sx={{ fontWeight: 700, color: 'success.main', fontSize: '0.875rem' }}>{activeTopUp.amount_vnd.toLocaleString()} VND</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.35rem' }}>
-                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Payment Content:</Typography>
+                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Nội dung chuyển khoản:</Typography>
                 <Typography component="span" sx={{ fontWeight: 700, color: 'primary.main', fontFamily: 'monospace', fontSize: '0.875rem' }}>{activeTopUp.payment_reference}</Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.35rem' }}>
-                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Created At:</Typography>
+                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Thời gian tạo:</Typography>
                 <Typography component="span" sx={{ fontSize: '0.875rem' }}>{new Date(activeTopUp.created_at).toLocaleString()}</Typography>
               </Box>
               {activeTopUp.acb_transaction_id && (
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.35rem' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>ACB Trans ID:</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Mã giao dịch ACB:</Typography>
                   <Typography component="span" sx={{ fontFamily: 'monospace', fontSize: '0.875rem' }}>{activeTopUp.acb_transaction_id}</Typography>
                 </Box>
               )}
               {activeTopUp.paid_at && (
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Settled At:</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Thời gian xử lý:</Typography>
                   <Typography component="span" sx={{ fontSize: '0.875rem' }}>{new Date(activeTopUp.paid_at).toLocaleString()}</Typography>
                 </Box>
               )}
@@ -677,7 +677,7 @@ export const MyTopUps: React.FC = () => {
                   justifyContent: 'center'
                 }}
               >
-                Close
+                Đóng
               </Button>
               {activeTopUp.status === 'pending' && (
                 <>
@@ -694,7 +694,7 @@ export const MyTopUps: React.FC = () => {
                     }}
                   >
                     <RefreshCw size={14} className={polling ? 'animate-spin' : ''} />
-                    Verify Payment
+                    Kiểm tra Thanh toán
                   </Button>
                   <Button
                     type="button"
@@ -711,7 +711,7 @@ export const MyTopUps: React.FC = () => {
                       }
                     }}
                   >
-                    Cancel
+                    Hủy bỏ
                   </Button>
                 </>
               )}
@@ -724,14 +724,14 @@ export const MyTopUps: React.FC = () => {
 
       <ConfirmationDialog
         open={!!confirmingTopUpCancel}
-        title="Cancel top-up request?"
+        title="Hủy yêu cầu nạp tiền?"
         message={
           <>
-            Are you sure you want to cancel this top-up request? (Reference: <strong style={{ color: '#fff' }}>{confirmingTopUpCancel?.payment_reference}</strong>)
+            Bạn có chắc chắn muốn hủy yêu cầu nạp tiền này không? (Nội dung CK: <strong style={{ color: '#fff' }}>{confirmingTopUpCancel?.payment_reference}</strong>)
           </>
         }
-        confirmLabel="Yes, Cancel"
-        cancelLabel="No"
+        confirmLabel="Đồng ý, Hủy"
+        cancelLabel="Không"
         loading={confirmingTopUpCancelLoading}
         onConfirm={handleConfirmCancelTopUp}
         onCancel={() => {

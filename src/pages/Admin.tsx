@@ -368,7 +368,7 @@ export const Admin: React.FC = () => {
   };
 
   const loadAllData = async (silent = false) => {
-    const hasData = 
+    const hasData =
       (activeTab === 'dashboard' && dashboardStats) ||
       (activeTab === 'products' && products.length > 0) ||
       (activeTab === 'orders' && orders.length > 0) ||
@@ -426,7 +426,7 @@ export const Admin: React.FC = () => {
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      setToast({ message: 'Image file size exceeds the 10MB limit.', type: 'error' });
+      setToast({ message: 'Kích thước tệp ảnh vượt quá giới hạn 10MB.', type: 'error' });
       return;
     }
     setProductImageFile(file);
@@ -436,13 +436,13 @@ export const Admin: React.FC = () => {
 
   const buildVariantFromForm = (): DraftProductVariant | null => {
     if (!newVariantName.trim() || !newVariantPrice.trim()) {
-      setToast({ message: 'Please fill in variant name and price.', type: 'error' });
+      setToast({ message: 'Vui lòng điền đầy đủ tên gói và giá.', type: 'error' });
       return null;
     }
 
     const priceVal = parseFloat(newVariantPrice);
     if (isNaN(priceVal) || priceVal < 0) {
-      setToast({ message: 'Price must be a valid non-negative number.', type: 'error' });
+      setToast({ message: 'Giá phải là số hợp lệ không âm.', type: 'error' });
       return null;
     }
 
@@ -455,7 +455,7 @@ export const Admin: React.FC = () => {
     } else {
       const durationVal = parseInt(newVariantDurationValue);
       if (isNaN(durationVal) || durationVal <= 0) {
-        setToast({ message: 'Duration must be a valid positive integer.', type: 'error' });
+        setToast({ message: 'Thời hạn phải là một số nguyên dương hợp lệ.', type: 'error' });
         return null;
       }
       if (newVariantDurationType === 'days') {
@@ -491,7 +491,7 @@ export const Admin: React.FC = () => {
 
   const handleRemoveDraftVariant = (index: number) => {
     if (draftProductVariants.length <= 1) {
-      setToast({ message: 'At least one variant is required.', type: 'error' });
+      setToast({ message: 'Yêu cầu ít nhất một gói bản quyền.', type: 'error' });
       return;
     }
     setDraftProductVariants(prev => prev.filter((_, idx) => idx !== index));
@@ -500,7 +500,7 @@ export const Admin: React.FC = () => {
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (draftProductVariants.length === 0) {
-      setToast({ message: 'Please add at least one valid variant before creating the product.', type: 'error' });
+      setToast({ message: 'Vui lòng thêm ít nhất một gói bản quyền hợp lệ trước khi tạo sản phẩm.', type: 'error' });
       return;
     }
     setSubmittingProduct(true);
@@ -525,7 +525,7 @@ export const Admin: React.FC = () => {
       }
 
       await api.postForm('/api/admin/products', formData);
-      setToast({ message: 'Product created successfully!', type: 'success' });
+      setToast({ message: 'Tạo sản phẩm thành công!', type: 'success' });
 
       // Reset
       setShowAddProductModal(false);
@@ -547,7 +547,7 @@ export const Admin: React.FC = () => {
 
       loadProductsData();
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to create product.', type: 'error' });
+      setToast({ message: err.message || 'Không thể tạo sản phẩm.', type: 'error' });
     } finally {
       setSubmittingProduct(false);
     }
@@ -558,10 +558,10 @@ export const Admin: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
       await api.postForm(`/api/admin/products/${productId}/upload-file`, formData);
-      setToast({ message: 'Physical tool binary file updated successfully!', type: 'success' });
+      setToast({ message: 'Cập nhật file binary công cụ thành công!', type: 'success' });
       loadProductsData();
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to upload binary file.', type: 'error' });
+      setToast({ message: err.message || 'Không thể tải lên file binary.', type: 'error' });
     } finally {
       setReplacingProductId(null);
     }
@@ -578,11 +578,11 @@ export const Admin: React.FC = () => {
     try {
       setConfirmingProductDeleteLoading(true);
       await api.delete(`/api/admin/products/${productId}`);
-      setToast({ message: 'Product deleted successfully!', type: 'success' });
+      setToast({ message: 'Xóa sản phẩm thành công!', type: 'success' });
       loadProductsData();
       setConfirmingProductDelete(null);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to delete product.', type: 'error' });
+      setToast({ message: err.message || 'Không thể xóa sản phẩm.', type: 'error' });
     } finally {
       setConfirmingProductDeleteLoading(false);
     }
@@ -630,11 +630,11 @@ export const Admin: React.FC = () => {
       }
 
       await api.putForm(`/api/admin/products/${editingProduct.id}`, formData);
-      setToast({ message: 'Product details updated successfully!', type: 'success' });
+      setToast({ message: 'Cập nhật thông tin sản phẩm thành công!', type: 'success' });
       setEditingProduct(null);
       loadProductsData();
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to update product details.', type: 'error' });
+      setToast({ message: err.message || 'Không thể cập nhật thông tin sản phẩm.', type: 'error' });
     } finally {
       setSubmittingProduct(false);
     }
@@ -644,13 +644,13 @@ export const Admin: React.FC = () => {
     e.preventDefault();
     if (!editingProduct) return;
     if (!newVariantName.trim() || !newVariantPrice.trim()) {
-      setToast({ message: 'Please fill in variant name and price.', type: 'error' });
+      setToast({ message: 'Vui lòng điền đầy đủ tên gói và giá.', type: 'error' });
       return;
     }
 
     const priceVal = parseFloat(newVariantPrice);
     if (isNaN(priceVal) || priceVal < 0) {
-      setToast({ message: 'Price must be a valid non-negative number.', type: 'error' });
+      setToast({ message: 'Giá phải là số hợp lệ không âm.', type: 'error' });
       return;
     }
 
@@ -663,7 +663,7 @@ export const Admin: React.FC = () => {
     } else {
       const durationVal = parseInt(newVariantDurationValue);
       if (isNaN(durationVal) || durationVal <= 0) {
-        setToast({ message: 'Duration must be a valid positive integer.', type: 'error' });
+        setToast({ message: 'Thời hạn phải là một số nguyên dương hợp lệ.', type: 'error' });
         return;
       }
       if (newVariantDurationType === 'days') {
@@ -683,7 +683,7 @@ export const Admin: React.FC = () => {
         is_lifetime: isLifetime
       });
 
-      setToast({ message: 'Product variant created successfully!', type: 'success' });
+      setToast({ message: 'Đã tạo gói bản quyền thành công!', type: 'success' });
       setNewVariantName('');
       setNewVariantPrice('');
       setNewVariantDurationValue('');
@@ -692,7 +692,7 @@ export const Admin: React.FC = () => {
       setEditingProduct(updatedProduct);
       loadProductsData();
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to create product variant.', type: 'error' });
+      setToast({ message: err.message || 'Không thể tạo gói bản quyền.', type: 'error' });
     } finally {
       setAddingVariant(false);
     }
@@ -701,21 +701,21 @@ export const Admin: React.FC = () => {
   const handleDeleteVariant = async (variantId: string) => {
     if (!editingProduct) return;
     if (activeSortedVariants(editingProduct.variants).length <= 1) {
-      setToast({ message: 'Cannot delete the last active variant.', type: 'error' });
+      setToast({ message: 'Không thể xóa gói bản quyền duy nhất còn hoạt động.', type: 'error' });
       return;
     }
-    if (!confirm('Are you sure you want to delete this variant?')) return;
+    if (!confirm('Bạn có chắc chắn muốn xóa gói bản quyền này không?')) return;
 
     try {
       setDeletingVariantId(variantId);
       await api.delete(`/api/admin/products/${editingProduct.id}/variants/${variantId}`);
-      setToast({ message: 'Product variant deleted successfully!', type: 'success' });
+      setToast({ message: 'Đã xóa gói bản quyền thành công!', type: 'success' });
 
       const updatedProduct = await api.get<Product>(`/api/products/${editingProduct.id}`);
       setEditingProduct(updatedProduct);
       loadProductsData();
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to delete product variant.', type: 'error' });
+      setToast({ message: err.message || 'Không thể xóa gói bản quyền.', type: 'error' });
     } finally {
       setDeletingVariantId(null);
     }
@@ -726,7 +726,7 @@ export const Admin: React.FC = () => {
       const data = await api.get<OrderDetail>(`/api/admin/orders/${orderId}`);
       setViewingOrder(data);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to fetch order details.', type: 'error' });
+      setToast({ message: err.message || 'Không thể lấy thông tin chi tiết đơn hàng.', type: 'error' });
     }
   };
 
@@ -734,13 +734,14 @@ export const Admin: React.FC = () => {
     setUpdatingOrderStatus(true);
     try {
       await api.put<Order>(`/api/admin/orders/${purchaseId}?new_status=${newStatus}`, {});
-      setToast({ message: `Order status updated to ${newStatus}!`, type: 'success' });
+      const statusText = newStatus === 'completed' ? 'Hoàn thành' : newStatus === 'pending' ? 'Chờ xử lý' : 'Thất bại';
+      setToast({ message: `Đã cập nhật trạng thái đơn hàng thành ${statusText}!`, type: 'success' });
       setOrders(orders.map(o => o.id === purchaseId ? { ...o, status: newStatus } : o));
       if (viewingOrder && viewingOrder.id === purchaseId) {
         handleViewOrderDetail(purchaseId);
       }
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to update order status.', type: 'error' });
+      setToast({ message: err.message || 'Cập nhật trạng thái đơn hàng thất bại.', type: 'error' });
     } finally {
       setUpdatingOrderStatus(false);
     }
@@ -767,7 +768,7 @@ export const Admin: React.FC = () => {
     try {
       const balanceVal = parseFloat(editUserBalance);
       if (isNaN(balanceVal)) {
-        throw new Error('Balance must be a valid number.');
+        throw new Error('Số dư phải là số hợp lệ.');
       }
 
       const payload = {
@@ -780,14 +781,14 @@ export const Admin: React.FC = () => {
       };
 
       const updated = await api.put<User>(`/api/admin/users/${editingUser.id}`, payload);
-      setToast({ message: 'User updated successfully!', type: 'success' });
+      setToast({ message: 'Cập nhật người dùng thành công!', type: 'success' });
       setUsersList(usersList.map(u => u.id === editingUser.id ? updated : u));
       if (viewingUser && viewingUser.id === editingUser.id) {
         setViewingUser(updated);
       }
       setEditingUser(null);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to update user profile.', type: 'error' });
+      setToast({ message: err.message || 'Cập nhật thông tin người dùng thất bại.', type: 'error' });
     } finally {
       setUpdatingUser(false);
     }
@@ -806,10 +807,10 @@ export const Admin: React.FC = () => {
       setConfirmingUserActionLoading(true);
       if (u.is_deleted) {
         await api.post<User>(`/api/admin/users/${u.id}/restore`, {});
-        setToast({ message: 'User account restored successfully!', type: 'success' });
+        setToast({ message: 'Đã khôi phục tài khoản người dùng thành công!', type: 'success' });
       } else {
         await api.delete(`/api/admin/users/${u.id}`);
-        setToast({ message: 'User account suspended (soft-deleted) successfully!', type: 'success' });
+        setToast({ message: 'Đã tạm ngưng tài khoản người dùng thành công!', type: 'success' });
       }
       loadUsersData();
       if (viewingUser && viewingUser.id === u.id) {
@@ -817,7 +818,8 @@ export const Admin: React.FC = () => {
       }
       setConfirmingUserAction(null);
     } catch (err: any) {
-      setToast({ message: err.message || `Failed to ${actionText} user.`, type: 'error' });
+      const displayAction = actionText === 'restore' ? 'khôi phục' : 'tạm ngưng';
+      setToast({ message: err.message || `Không thể ${displayAction} tài khoản người dùng.`, type: 'error' });
     } finally {
       setConfirmingUserActionLoading(false);
     }
@@ -856,10 +858,10 @@ export const Admin: React.FC = () => {
 
       if (editingVoucher) {
         await api.put(`/api/admin/vouchers/${editingVoucher.id}`, payload);
-        setToast({ message: 'Voucher campaign updated successfully!', type: 'success' });
+        setToast({ message: 'Cập nhật chiến dịch Voucher thành công!', type: 'success' });
       } else {
         await api.post('/api/admin/vouchers', payload);
-        setToast({ message: 'Voucher campaign created successfully!', type: 'success' });
+        setToast({ message: 'Tạo chiến dịch Voucher thành công!', type: 'success' });
       }
       setShowVoucherModal(false);
       setVoucherCode('');
@@ -874,22 +876,22 @@ export const Admin: React.FC = () => {
       setEditingVoucher(null);
       loadVouchersData();
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to save voucher campaign.', type: 'error' });
+      setToast({ message: err.message || 'Không thể lưu chiến dịch Voucher.', type: 'error' });
     } finally {
       setSubmittingVoucher(false);
     }
   };
 
   const handleDeleteVoucher = async (voucherId: string) => {
-    if (!confirm('Are you sure you want to permanently delete this voucher campaign?')) {
+    if (!confirm('Bạn có chắc chắn muốn xóa vĩnh viễn chiến dịch voucher này không?')) {
       return;
     }
     try {
       await api.delete(`/api/admin/vouchers/${voucherId}`);
-      setToast({ message: 'Voucher campaign deleted successfully!', type: 'success' });
+      setToast({ message: 'Xóa chiến dịch Voucher thành công!', type: 'success' });
       loadVouchersData();
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to delete voucher.', type: 'error' });
+      setToast({ message: err.message || 'Không thể xóa voucher.', type: 'error' });
     }
   };
 
@@ -897,12 +899,12 @@ export const Admin: React.FC = () => {
   const handleCreateTopUpAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!topUpTargetUserId || !topUpAmount) {
-      setToast({ message: 'Please select a user and enter an amount.', type: 'error' });
+      setToast({ message: 'Vui lòng chọn khách hàng và nhập số tiền.', type: 'error' });
       return;
     }
     const amt = parseFloat(topUpAmount);
     if (isNaN(amt) || amt <= 0) {
-      setToast({ message: 'Amount must be a positive number.', type: 'error' });
+      setToast({ message: 'Số tiền phải là một số dương.', type: 'error' });
       return;
     }
     setSubmittingTopUp(true);
@@ -911,13 +913,13 @@ export const Admin: React.FC = () => {
         user_id: topUpTargetUserId,
         amount: amt
       });
-      setToast({ message: 'Top-up request created successfully!', type: 'success' });
+      setToast({ message: 'Tạo yêu cầu nạp tiền thành công!', type: 'success' });
       setShowAddTopUpModal(false);
       setTopUpTargetUserId('');
       setTopUpAmount('');
       loadTopUpsData();
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to create top-up.', type: 'error' });
+      setToast({ message: err.message || 'Không thể tạo yêu cầu nạp tiền.', type: 'error' });
     } finally {
       setSubmittingTopUp(false);
     }
@@ -943,14 +945,14 @@ export const Admin: React.FC = () => {
         paid_at: editTopUpPaidAt ? new Date(editTopUpPaidAt).toISOString() : null
       };
       const updated = await api.put<TopUpAdmin>(`/api/admin/top-ups/${editingTopUp.id}`, payload);
-      setToast({ message: 'Top-up request updated successfully!', type: 'success' });
+      setToast({ message: 'Cập nhật yêu cầu nạp tiền thành công!', type: 'success' });
       setTopUpsList(topUpsList.map(t => t.id === editingTopUp.id ? updated : t));
       if (viewingTopUp && viewingTopUp.id === editingTopUp.id) {
         setViewingTopUp(updated);
       }
       setEditingTopUp(null);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to update top-up request.', type: 'error' });
+      setToast({ message: err.message || 'Không thể cập nhật yêu cầu nạp tiền.', type: 'error' });
     } finally {
       setUpdatingTopUp(false);
     }
@@ -966,14 +968,14 @@ export const Admin: React.FC = () => {
     try {
       setConfirmingTopUpCancelLoading(true);
       const updated = await api.post<TopUpAdmin>(`/api/admin/top-ups/${topUp.id}/cancel`, {});
-      setToast({ message: 'Top-up cancelled successfully!', type: 'success' });
+      setToast({ message: 'Hủy yêu cầu nạp tiền thành công!', type: 'success' });
       setTopUpsList(topUpsList.map(t => t.id === topUp.id ? updated : t));
       if (viewingTopUp && viewingTopUp.id === topUp.id) {
         setViewingTopUp(updated);
       }
       setConfirmingTopUpCancel(null);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to cancel top-up.', type: 'error' });
+      setToast({ message: err.message || 'Hủy yêu cầu nạp tiền thất bại.', type: 'error' });
     } finally {
       setConfirmingTopUpCancelLoading(false);
     }
@@ -985,12 +987,12 @@ export const Admin: React.FC = () => {
     try {
       setConfirmingTopUpManualCreditLoading(true);
       const updated = await api.post<TopUpAdmin>(`/api/admin/top-ups/${topUp.id}/manual-credit`, {});
-      setToast({ message: 'Top-up manually credited and user balance updated successfully!', type: 'success' });
+      setToast({ message: 'Đã cộng tiền thủ công và cập nhật số dư khách hàng thành công!', type: 'success' });
       setTopUpsList(topUpsList.map(t => t.id === topUp.id ? updated : t));
       if (viewingTopUp && viewingTopUp.id === topUp.id) {
         setViewingTopUp(updated);
       }
-      
+
       if (updated.user) {
         setUsersList(prev => prev.map(u => u.id === updated.user_id ? { ...u, balance: updated.user!.balance } : u));
         if (viewingUser && viewingUser.id === updated.user_id) {
@@ -1002,7 +1004,7 @@ export const Admin: React.FC = () => {
       }
       setConfirmingTopUpManualCredit(null);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to manually credit top-up.', type: 'error' });
+      setToast({ message: err.message || 'Không thể cộng tiền thủ công.', type: 'error' });
     } finally {
       setConfirmingTopUpManualCreditLoading(false);
     }
@@ -1022,14 +1024,14 @@ export const Admin: React.FC = () => {
     try {
       setConfirmingTopUpDeleteLoading(true);
       await api.delete(`/api/admin/top-ups/${topUp.id}`);
-      setToast({ message: 'Top-up request record deleted successfully!', type: 'success' });
+      setToast({ message: 'Xóa bản ghi nạp tiền thành công!', type: 'success' });
       setTopUpsList(topUpsList.filter(t => t.id !== topUp.id));
       if (viewingTopUp && viewingTopUp.id === topUp.id) {
         setViewingTopUp(null);
       }
       setConfirmingTopUpDelete(null);
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to delete top-up record.', type: 'error' });
+      setToast({ message: err.message || 'Không thể xóa bản ghi nạp tiền.', type: 'error' });
     } finally {
       setConfirmingTopUpDeleteLoading(false);
     }
@@ -1042,9 +1044,9 @@ export const Admin: React.FC = () => {
       if (viewingTopUp && viewingTopUp.id === topUpId) {
         setViewingTopUp(updated);
       }
-      setToast({ message: 'Refreshed transaction status successfully.', type: 'success' });
+      setToast({ message: 'Cập nhật trạng thái giao dịch thành công.', type: 'success' });
     } catch (err: any) {
-      setToast({ message: err.message || 'Failed to refresh transaction.', type: 'error' });
+      setToast({ message: err.message || 'Không thể cập nhật trạng thái giao dịch.', type: 'error' });
     }
   };
 
@@ -1128,7 +1130,7 @@ export const Admin: React.FC = () => {
   if (!user || user.role !== 'admin') {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-        <Typography sx={{ color: 'error.main', fontSize: '1.2rem', fontWeight: 600 }}>Access Denied. Redirecting...</Typography>
+        <Typography sx={{ color: 'error.main', fontSize: '1.2rem', fontWeight: 600 }}>Truy cập bị Từ chối. Đang chuyển hướng...</Typography>
       </Box>
     );
   }
@@ -1187,22 +1189,22 @@ export const Admin: React.FC = () => {
         <Box sx={{ marginBottom: { xs: '1.5rem', md: '2rem' }, display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, flexWrap: 'wrap', gap: '1rem' }}>
           <Box>
             <Typography variant="h1" sx={{ ...pageTitleSx, marginBottom: '0.25rem' }}>
-              Admin Management Workspace
+              Không gian Quản lý Admin
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-              System stats, products inventory, logs checkouts ledger, user accounts directory, and voucher campaigns.
+              Thống kê hệ thống, danh mục sản phẩm, nhật ký đơn hàng, danh bạ tài khoản người dùng và chiến dịch voucher.
             </Typography>
           </Box>
-          <Button 
+          <Button
             type="button"
             onClick={(e) => {
               e.preventDefault();
               loadAllData();
-            }} 
+            }}
             sx={{ ...btnSecondarySx, height: '42px', display: 'flex', gap: '0.5rem', alignItems: 'center', width: { xs: '100%', sm: 'auto' } }}
           >
             <RefreshCw size={16} />
-            Sync Data
+            Đồng bộ Dữ liệu
           </Button>
         </Box>
 
@@ -1222,12 +1224,12 @@ export const Admin: React.FC = () => {
           '&::-webkit-scrollbar': { height: '4px' }
         }}>
           {[
-            { id: 'dashboard', label: 'Dashboard', icon: <CreditCard size={14} /> },
+            { id: 'dashboard', label: 'Bảng điều khiển', icon: <CreditCard size={14} /> },
             { id: 'products', label: 'Quản lý sản phẩm', icon: <FileCode size={14} /> },
             { id: 'orders', label: 'Quản lý đơn hàng', icon: <ShoppingBag size={14} /> },
-            { id: 'users', label: 'Quản lý users', icon: <Users size={14} /> },
+            { id: 'users', label: 'Quản lý tài khoản', icon: <Users size={14} /> },
             { id: 'vouchers', label: 'Chiến dịch sale / voucher', icon: <Tag size={14} /> },
-            { id: 'topups', label: 'Quản lý TopUps', icon: <Coins size={14} /> }
+            { id: 'topups', label: 'Quản lý nạp tiền', icon: <Coins size={14} /> }
           ].map(t => {
             const isSel = activeTab === t.id;
             return (
@@ -1286,19 +1288,19 @@ export const Admin: React.FC = () => {
                     <InputBase type="date" value={endDate} onChange={e => setEndDate(e.target.value)} sx={{ ...inputSx, '& input': { colorScheme: 'dark', padding: 0 } }} />
                   </Box>
                   <Box sx={{ display: 'flex', gap: '0.5rem' }}>
-                    <Button type="submit" sx={{ ...btnPrimarySx, padding: '0.65rem 1.5rem', fontSize: '0.85rem' }}>Filter</Button>
-                    <Button type="button" onClick={handleResetDashboard} sx={{ ...btnSecondarySx, padding: '0.65rem 1.5rem', fontSize: '0.85rem' }}>Reset</Button>
+                    <Button type="submit" sx={{ ...btnPrimarySx, padding: '0.65rem 1.5rem', fontSize: '0.85rem' }}>Lọc</Button>
+                    <Button type="button" onClick={handleResetDashboard} sx={{ ...btnSecondarySx, padding: '0.65rem 1.5rem', fontSize: '0.85rem' }}>Đặt lại</Button>
                   </Box>
                 </Box>
 
                 {/* KPI Cards Grid */}
                 <Grid container spacing={3} sx={{ marginBottom: '2.5rem' }}>
                   {[
-                    { title: 'Revenue Summary', val: `$${dashboardStats.kpis.total_revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: 'success.main', bg: 'rgba(16, 185, 129, 0.15)', icon: <DollarSign size={24} /> },
-                    { title: 'Total Orders', val: `${dashboardStats.kpis.total_orders} Completed`, color: '#6366f1', bg: 'rgba(99, 102, 241, 0.15)', icon: <ShoppingBag size={24} /> },
-                    { title: 'Active Tools', val: `${dashboardStats.kpis.active_products} listed`, color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.15)', icon: <FileCode size={24} /> },
-                    { title: 'Pending Uploads', val: `${dashboardStats.kpis.pending_uploads} tools`, color: 'warning.main', bg: 'rgba(245, 158, 11, 0.15)', icon: <AlertTriangle size={24} /> },
-                    { title: 'New Registrations', val: `${dashboardStats.kpis.new_users_registered} users`, color: '#a855f7', bg: 'rgba(168, 85, 247, 0.15)', icon: <Users size={24} /> }
+                    { title: 'Doanh thu Tổng', val: `$${dashboardStats.kpis.total_revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, color: 'success.main', bg: 'rgba(16, 185, 129, 0.15)', icon: <DollarSign size={24} /> },
+                    { title: 'Tổng đơn hàng', val: `${dashboardStats.kpis.total_orders} Hoàn thành`, color: '#6366f1', bg: 'rgba(99, 102, 241, 0.15)', icon: <ShoppingBag size={24} /> },
+                    { title: 'Công cụ hoạt động', val: `${dashboardStats.kpis.active_products} đăng bán`, color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.15)', icon: <FileCode size={24} /> },
+                    { title: 'Chờ tải file', val: `${dashboardStats.kpis.pending_uploads} công cụ`, color: 'warning.main', bg: 'rgba(245, 158, 11, 0.15)', icon: <AlertTriangle size={24} /> },
+                    { title: 'Đăng ký mới', val: `${dashboardStats.kpis.new_users_registered} người dùng`, color: '#a855f7', bg: 'rgba(168, 85, 247, 0.15)', icon: <Users size={24} /> }
                   ].map((card, i) => (
                     <Grid size={{ xs: 12, sm: 6, md: 2.4 }} key={i}>
                       <Box sx={{ ...glassPanelSx, padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem', height: '100%' }}>
@@ -1320,7 +1322,7 @@ export const Admin: React.FC = () => {
                   <Grid size={{ xs: 12, md: 6 }}>
                     <Box sx={{ ...glassPanelSx, padding: '2rem', height: '100%' }}>
                       <Typography variant="h3" sx={{ fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
-                        <DollarSign size={18} color="#10b981" /> Daily Checkout & Revenue Ledger
+                        <DollarSign size={18} color="#10b981" /> Nhật ký Doanh thu & Thanh toán Hàng ngày
                       </Typography>
                       <Box sx={{ maxHeight: '250px', overflowY: 'auto' }}>
                         <Table>
@@ -1333,7 +1335,7 @@ export const Admin: React.FC = () => {
                           </TableHead>
                           <TableBody>
                             {dashboardStats.revenue_by_day.length === 0 ? (
-                              <TableRow><TableCell colSpan={3} align="center" sx={{ borderBottom: 'none', color: 'text.disabled' }}>No statistics recorded</TableCell></TableRow>
+                              <TableRow><TableCell colSpan={3} align="center" sx={{ borderBottom: 'none', color: 'text.disabled' }}>Không có thống kê nào được ghi nhận</TableCell></TableRow>
                             ) : (
                               dashboardStats.revenue_by_day.map((day) => {
                                 const matchingOrders = dashboardStats.orders_by_day.find(o => o.date === day.date)?.count || 0;
@@ -1356,7 +1358,7 @@ export const Admin: React.FC = () => {
                   <Grid size={{ xs: 12, md: 6 }}>
                     <Box sx={{ ...glassPanelSx, padding: '2rem', height: '100%' }}>
                       <Typography variant="h3" sx={{ fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
-                        <Users size={18} color="#a855f7" /> Daily User Registrations Trend
+                        <Users size={18} color="#a855f7" /> Xu hướng Đăng ký Người dùng Hàng ngày
                       </Typography>
                       <Box sx={{ maxHeight: '250px', overflowY: 'auto' }}>
                         <Table>
@@ -1368,7 +1370,7 @@ export const Admin: React.FC = () => {
                           </TableHead>
                           <TableBody>
                             {dashboardStats.registrations_by_day.length === 0 ? (
-                              <TableRow><TableCell colSpan={2} align="center" sx={{ borderBottom: 'none', color: 'text.disabled' }}>No user registrations recorded</TableCell></TableRow>
+                              <TableRow><TableCell colSpan={2} align="center" sx={{ borderBottom: 'none', color: 'text.disabled' }}>Không có người dùng mới đăng ký</TableCell></TableRow>
                             ) : (
                               dashboardStats.registrations_by_day.map((day) => (
                                 <TableRow key={day.date} sx={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
@@ -1387,10 +1389,10 @@ export const Admin: React.FC = () => {
                 {/* Recent Orders List */}
                 <Box sx={{ ...glassPanelSx, padding: '2rem' }}>
                   <Typography variant="h3" sx={{ fontSize: '1.25rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
-                    <History size={20} color="#6366f1" /> Recent System Ledger Transactions
+                    <History size={20} color="#6366f1" /> Lịch sử Giao dịch Gần đây
                   </Typography>
                   {dashboardStats.recent_orders.length === 0 ? (
-                    <Typography sx={{ color: 'text.disabled' }}>No transactions found.</Typography>
+                    <Typography sx={{ color: 'text.disabled' }}>Không tìm thấy giao dịch nào.</Typography>
                   ) : (
                     <Box sx={{ overflowX: 'auto' }}>
                       <Table sx={{ minWidth: 700 }}>
@@ -1449,7 +1451,7 @@ export const Admin: React.FC = () => {
                   <Box sx={{ position: 'relative', width: '320px' }}>
                     <Search size={16} color="#6b7280" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
                     <InputBase
-                      placeholder="Search catalog products..."
+                      placeholder="Tìm kiếm sản phẩm..."
                       value={productSearch}
                       onChange={e => setProductSearch(e.target.value)}
                       sx={{ ...inputSx, paddingLeft: '2.5rem', height: '40px' }}
@@ -1461,7 +1463,7 @@ export const Admin: React.FC = () => {
                 </Box>
 
                 {filteredProducts.length === 0 ? (
-                  <Typography sx={{ color: 'text.disabled', textAlign: 'center', padding: '3rem 0' }}>No products listed.</Typography>
+                  <Typography sx={{ color: 'text.disabled', textAlign: 'center', padding: '3rem 0' }}>Không có sản phẩm nào được đăng bán.</Typography>
                 ) : (
                   <Box sx={{ overflowX: 'auto' }}>
                     <Table sx={{ minWidth: 800 }}>
@@ -1508,7 +1510,7 @@ export const Admin: React.FC = () => {
                                 </Box>
                               </TableCell>
                               <TableCell sx={{ padding: '1rem 0.5rem', fontWeight: 600, borderBottom: 'none' }}>
-                                {displayVariant ? `$${displayVariant.price.toFixed(2)}` : 'No package'}
+                                {displayVariant ? `$${displayVariant.price.toFixed(2)}` : 'Chưa cấu hình gói'}
                               </TableCell>
                               <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
                                 <Box component="span" sx={{
@@ -1567,7 +1569,7 @@ export const Admin: React.FC = () => {
                   <Box sx={{ position: 'relative', width: '320px' }}>
                     <Search size={16} color="#6b7280" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
                     <InputBase
-                      placeholder="Search by buyer or product..."
+                      placeholder="Tìm kiếm theo người mua hoặc sản phẩm..."
                       value={orderSearch}
                       onChange={e => setOrderSearch(e.target.value)}
                       sx={{ ...inputSx, paddingLeft: '2.5rem', height: '40px' }}
@@ -1584,16 +1586,16 @@ export const Admin: React.FC = () => {
                         MenuProps={menuProps}
                       >
                         <MenuItem value="all">Tất cả</MenuItem>
-                        <MenuItem value="completed">Completed</MenuItem>
-                        <MenuItem value="pending">Pending</MenuItem>
-                        <MenuItem value="failed">Failed</MenuItem>
+                        <MenuItem value="completed">Hoàn thành</MenuItem>
+                        <MenuItem value="pending">Chờ xử lý</MenuItem>
+                        <MenuItem value="failed">Thất bại</MenuItem>
                       </Select>
                     </FormControl>
                   </Box>
                 </Box>
 
                 {filteredOrders.length === 0 ? (
-                  <Typography sx={{ color: 'text.disabled', textAlign: 'center', padding: '3rem 0' }}>No orders matching criteria found.</Typography>
+                  <Typography sx={{ color: 'text.disabled', textAlign: 'center', padding: '3rem 0' }}>Không tìm thấy đơn hàng nào khớp với điều kiện.</Typography>
                 ) : (
                   <Box sx={{ overflowX: 'auto' }}>
                     <Table sx={{ minWidth: 800 }}>
@@ -1669,7 +1671,7 @@ export const Admin: React.FC = () => {
                   <Box sx={{ position: 'relative', width: '320px' }}>
                     <Search size={16} color="#6b7280" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
                     <InputBase
-                      placeholder="Search users by name or email..."
+                      placeholder="Tìm kiếm người dùng theo tên hoặc email..."
                       value={userSearch}
                       onChange={e => setUserSearch(e.target.value)}
                       sx={{ ...inputSx, paddingLeft: '2.5rem', height: '40px' }}
@@ -1678,7 +1680,7 @@ export const Admin: React.FC = () => {
                 </Box>
 
                 {filteredUsers.length === 0 ? (
-                  <Typography sx={{ color: 'text.disabled', textAlign: 'center', padding: '3rem 0' }}>No users registered yet.</Typography>
+                  <Typography sx={{ color: 'text.disabled', textAlign: 'center', padding: '3rem 0' }}>Chưa có người dùng nào đăng ký.</Typography>
                 ) : (
                   <Box sx={{ overflowX: 'auto' }}>
                     <Table sx={{ minWidth: 850 }}>
@@ -1727,7 +1729,7 @@ export const Admin: React.FC = () => {
                                 background: u.is_deleted ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
                                 color: u.is_deleted ? 'error.main' : 'success.main'
                               }}>
-                                {u.is_deleted ? 'Suspended' : 'Active'}
+                                {u.is_deleted ? 'Tạm ngưng' : 'Hoạt động'}
                               </Box>
                             </TableCell>
                             <TableCell align="right" sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
@@ -1786,14 +1788,14 @@ export const Admin: React.FC = () => {
             {activeTab === 'vouchers' && (
               <Box sx={{ ...glassPanelSx, padding: '2rem' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                  <Typography variant="h2" sx={{ fontSize: '1.3rem', fontWeight: 700 }}>Active Sale Campaigns & Vouchers</Typography>
+                  <Typography variant="h2" sx={{ fontSize: '1.3rem', fontWeight: 700 }}>Chiến dịch Sale & Voucher đang hoạt động</Typography>
                   <Button onClick={() => { setEditingVoucher(null); setShowVoucherModal(true); }} sx={{ ...btnPrimarySx, height: '40px' }}>
                     <Plus size={16} /> Tạo Voucher mới
                   </Button>
                 </Box>
 
                 {vouchers.length === 0 ? (
-                  <Typography sx={{ color: 'text.disabled', textAlign: 'center', padding: '3rem 0' }}>No voucher campaigns listed.</Typography>
+                  <Typography sx={{ color: 'text.disabled', textAlign: 'center', padding: '3rem 0' }}>Không có chiến dịch voucher nào.</Typography>
                 ) : (
                   <Box sx={{ overflowX: 'auto' }}>
                     <Table sx={{ minWidth: 800 }}>
@@ -1830,7 +1832,7 @@ export const Admin: React.FC = () => {
                                 </Box>
                               </TableCell>
                               <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
-                                {v.usage_count} / {v.usage_limit !== null && v.usage_limit !== undefined ? v.usage_limit : 'unlimited'}
+                                {v.usage_count} / {v.usage_limit !== null && v.usage_limit !== undefined ? v.usage_limit : 'vô hạn'}
                               </TableCell>
                               <TableCell sx={{ padding: '1rem 0.5rem', fontSize: '0.85rem', color: 'text.secondary', borderBottom: 'none' }}>
                                 {v.product_scope ? `Sản phẩm ID: ${v.product_scope.substring(0, 15)}...` : 'Tất cả cửa hàng (Storewide)'}
@@ -1844,7 +1846,7 @@ export const Admin: React.FC = () => {
                                   background: isExpired ? 'rgba(239, 68, 68, 0.15)' : v.is_active ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.05)',
                                   color: isExpired ? 'error.main' : v.is_active ? 'success.main' : 'text.disabled'
                                 }}>
-                                  {isExpired ? 'Expired' : v.is_active ? 'Active' : 'Inactive'}
+                                  {isExpired ? 'Hết hạn' : v.is_active ? 'Hoạt động' : 'Vô hiệu'}
                                 </Box>
                               </TableCell>
                               <TableCell align="right" sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
@@ -1877,275 +1879,275 @@ export const Admin: React.FC = () => {
             {activeTab === 'topups' && (
               <>
                 <Grid container spacing={4}>
-                {/* Left/Top Column: QR Settings Card */}
-                <Grid size={{ xs: 12, md: 4 }}>
-                  <Box sx={{ ...glassPanelSx, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', height: 'fit-content' }}>
-                    <Typography variant="h2" sx={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem' }}>
-                      <Upload size={18} color="#6366f1" />
-                      Cấu hình QR nhận tiền
-                    </Typography>
-                    
-                    {customQrUrl ? (
-                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', width: '100%' }}>
-                        <Box 
-                          onClick={() => setQrPreviewUrl(customQrUrl.startsWith('http') ? customQrUrl : `${API_BASE_URL}${customQrUrl}`)}
-                          sx={{ padding: '8px', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', width: '180px', height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                        >
+                  {/* Left/Top Column: QR Settings Card */}
+                  <Grid size={{ xs: 12, md: 4 }}>
+                    <Box sx={{ ...glassPanelSx, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', height: 'fit-content' }}>
+                      <Typography variant="h2" sx={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem' }}>
+                        <Upload size={18} color="#6366f1" />
+                        Cấu hình QR nhận tiền
+                      </Typography>
+
+                      {customQrUrl ? (
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', width: '100%' }}>
                           <Box
-                            component="img"
-                            src={customQrUrl.startsWith('http') ? customQrUrl : `${API_BASE_URL}${customQrUrl}`}
-                            alt="Custom Bank QR Code"
-                            sx={{ maxWidth: '100%', maxHeight: '100%', display: 'block', objectFit: 'contain' }}
-                          />
-                        </Box>
-                        <Button
-                          onClick={handleDeleteQrCode}
-                          disabled={deletingQr}
-                          sx={{
-                            ...btnSecondarySx,
-                            borderColor: 'rgba(239,68,68,0.2)',
-                            color: 'error.main',
-                            '&:hover': {
-                              background: 'rgba(239, 68, 68, 0.08)',
-                              borderColor: 'rgba(239, 68, 68, 0.3)'
-                            },
-                            width: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.5rem'
-                          }}
-                        >
-                          {deletingQr ? 'Đang xóa...' : (
-                            <>
-                              <Trash2 size={16} />
-                              Xóa QR Code
-                            </>
-                          )}
-                        </Button>
-                      </Box>
-                    ) : (
-                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', textAlign: 'center', py: '1.5rem', width: '100%' }}>
-                        <Coins size={40} style={{ opacity: 0.3, color: '#6366f1' }} />
-                        <Typography sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>
-                          Chưa cấu hình QR Code nhận tiền. Hệ thống sẽ tự động sử dụng ACB VietQR.
-                        </Typography>
-                        <Button
-                          component="label"
-                          disabled={uploadingQr}
-                          sx={{
-                            ...btnPrimarySx,
-                            width: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.5rem',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <Upload size={16} />
-                          {uploadingQr ? 'Đang upload...' : 'Upload QR Image'}
-                          <input
-                            type="file"
-                            hidden
-                            accept="image/*"
-                            onChange={handleUploadQrCode}
-                          />
-                        </Button>
-                      </Box>
-                    )}
-                  </Box>
-                </Grid>
-
-                {/* Right/Bottom Column: Topups List */}
-                <Grid size={{ xs: 12, md: 8 }}>
-                  <Box sx={{ ...glassPanelSx, padding: '2rem' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                      <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <Box sx={{ position: 'relative', width: '320px' }}>
-                          <Search size={16} color="#6b7280" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
-                          <InputBase
-                            placeholder="Search by buyer email or reference..."
-                            value={topUpsSearch}
-                            onChange={e => setTopUpsSearch(e.target.value)}
-                            sx={{ ...inputSx, paddingLeft: '2.5rem', height: '40px' }}
-                          />
-                        </Box>
-                        <FormControl sx={{ width: '170px' }}>
-                          <Select
-                            value={topUpsStatusFilter}
-                            onChange={e => setTopUpsStatusFilter(e.target.value)}
-                            sx={selectSx}
-                            MenuProps={menuProps}
+                            onClick={() => setQrPreviewUrl(customQrUrl.startsWith('http') ? customQrUrl : `${API_BASE_URL}${customQrUrl}`)}
+                            sx={{ padding: '8px', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', width: '180px', height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                           >
-                            <MenuItem value="all">Tất cả trạng thái</MenuItem>
-                            <MenuItem value="pending">Pending</MenuItem>
-                            <MenuItem value="completed">Completed</MenuItem>
-                            <MenuItem value="failed">Failed</MenuItem>
-                            <MenuItem value="cancelled">Cancelled</MenuItem>
-                          </Select>
-                        </FormControl>
-                      </Box>
-                      <Button onClick={() => { setShowAddTopUpModal(true); }} sx={{ ...btnPrimarySx, height: '40px' }}>
-                        <Plus size={16} /> Tạo Top-Up mới
-                      </Button>
+                            <Box
+                              component="img"
+                              src={customQrUrl.startsWith('http') ? customQrUrl : `${API_BASE_URL}${customQrUrl}`}
+                              alt="Custom Bank QR Code"
+                              sx={{ maxWidth: '100%', maxHeight: '100%', display: 'block', objectFit: 'contain' }}
+                            />
+                          </Box>
+                          <Button
+                            onClick={handleDeleteQrCode}
+                            disabled={deletingQr}
+                            sx={{
+                              ...btnSecondarySx,
+                              borderColor: 'rgba(239,68,68,0.2)',
+                              color: 'error.main',
+                              '&:hover': {
+                                background: 'rgba(239, 68, 68, 0.08)',
+                                borderColor: 'rgba(239, 68, 68, 0.3)'
+                              },
+                              width: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.5rem'
+                            }}
+                          >
+                            {deletingQr ? 'Đang xóa...' : (
+                              <>
+                                <Trash2 size={16} />
+                                Xóa QR Code
+                              </>
+                            )}
+                          </Button>
+                        </Box>
+                      ) : (
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', textAlign: 'center', py: '1.5rem', width: '100%' }}>
+                          <Coins size={40} style={{ opacity: 0.3, color: '#6366f1' }} />
+                          <Typography sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>
+                            Chưa cấu hình QR Code nhận tiền. Hệ thống sẽ tự động sử dụng ACB VietQR.
+                          </Typography>
+                          <Button
+                            component="label"
+                            disabled={uploadingQr}
+                            sx={{
+                              ...btnPrimarySx,
+                              width: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.5rem',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <Upload size={16} />
+                            {uploadingQr ? 'Đang upload...' : 'Tải lên hình ảnh QR'}
+                            <input
+                              type="file"
+                              hidden
+                              accept="image/*"
+                              onChange={handleUploadQrCode}
+                            />
+                          </Button>
+                        </Box>
+                      )}
                     </Box>
+                  </Grid>
 
-                    {filteredTopUps.length === 0 ? (
-                      <Typography sx={{ color: 'text.disabled', textAlign: 'center', padding: '3rem 0' }}>No top-up transactions matching criteria found.</Typography>
-                    ) : (
-                      <Box sx={{ overflowX: 'auto' }}>
-                        <Table sx={{ minWidth: 950 }}>
-                          <TableHead>
-                            <TableRow sx={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                              <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Khách Hàng / Email</TableCell>
-                              <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Amount (USD)</TableCell>
-                              <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Amount (VND)</TableCell>
-                              <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Reference</TableCell>
-                              <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>ACB Trans ID</TableCell>
-                              <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Ngày Tạo</TableCell>
-                              <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Trạng Thái</TableCell>
-                              <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Hành động</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {filteredTopUps.map((t) => {
-                              const statusLower = t.status.toLowerCase();
-                              return (
-                                <TableRow key={t.id} sx={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                                  <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
-                                    <Typography component="strong" sx={{ display: 'block', fontSize: '0.9rem', color: '#fff', fontWeight: 700 }}>{t.user?.full_name || 'Guest'}</Typography>
-                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>{t.user?.email || 'N/A'}</Typography>
-                                  </TableCell>
-                                  <TableCell align="right" sx={{ padding: '1rem 0.5rem', fontWeight: 600, borderBottom: 'none' }}>
-                                    ${t.amount.toFixed(2)}
-                                  </TableCell>
-                                  <TableCell align="right" sx={{ padding: '1rem 0.5rem', fontWeight: 600, color: 'success.main', borderBottom: 'none' }}>
-                                    {t.amount_vnd.toLocaleString()} đ
-                                  </TableCell>
-                                  <TableCell sx={{ padding: '1rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem', borderBottom: 'none' }}>
-                                    {t.payment_reference}
-                                  </TableCell>
-                                  <TableCell sx={{ padding: '1rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem', borderBottom: 'none' }}>
-                                    {t.acb_transaction_id || '-'}
-                                  </TableCell>
-                                  <TableCell sx={{ padding: '1rem 0.5rem', fontSize: '0.85rem', color: 'text.secondary', borderBottom: 'none' }}>
-                                    {new Date(t.created_at).toLocaleDateString(undefined, { dateStyle: 'short' })}
-                                  </TableCell>
-                                  <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
-                                    <Box component="span" sx={{
-                                      fontSize: '0.7rem',
-                                      fontWeight: 800,
-                                      padding: '0.2rem 0.5rem',
-                                      borderRadius: '10px',
-                                      background: statusLower === 'completed' ? 'rgba(16, 185, 129, 0.15)' : statusLower === 'cancelled' ? 'rgba(255, 255, 255, 0.05)' : statusLower === 'failed' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                                      color: statusLower === 'completed' ? 'success.main' : statusLower === 'cancelled' ? 'text.disabled' : statusLower === 'failed' ? 'error.main' : 'warning.main',
-                                      textTransform: 'uppercase'
-                                    }}>
-                                      {t.status}
-                                    </Box>
-                                  </TableCell>
-                                  <TableCell align="right" sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
-                                    <Box sx={{ display: 'inline-flex', gap: '0.5rem' }}>
-                                      <Button
-                                        onClick={() => setViewingTopUp(t)}
-                                        sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px' }}
-                                        title="Xem chi tiết"
-                                      >
-                                        <Eye size={14} />
-                                      </Button>
-                                      <Button
-                                        onClick={() => handleStartEditTopUp(t)}
-                                        sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(99,102,241,0.2)' }}
-                                        title="Chỉnh sửa trạng thái"
-                                      >
-                                        <Edit size={14} color="#6366f1" />
-                                      </Button>
-                                      {statusLower === 'pending' && (
-                                        <>
-                                          <Button
-                                            onClick={() => handleManualRefresh(t.id)}
-                                            sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(16, 185, 129, 0.2)' }}
-                                            title="Kiểm tra thanh toán"
-                                          >
-                                            <RefreshCw size={14} color="#10b981" />
-                                          </Button>
-                                          <Button
-                                            onClick={() => handleManualCreditTopUp(t)}
-                                            sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(99, 102, 241, 0.4)' }}
-                                            title="Cộng tiền thủ công (Audited)"
-                                          >
-                                            <Coins size={14} color="#6366f1" />
-                                          </Button>
-                                          <Button
-                                            onClick={() => handleCancelTopUpAdmin(t)}
-                                            sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(239, 68, 68, 0.2)' }}
-                                            title="Hủy giao dịch"
-                                          >
-                                            <X size={14} color="#ef4444" />
-                                          </Button>
-                                        </>
-                                      )}
-                                      {statusLower !== 'completed' && (
-                                        <Button
-                                          onClick={() => handleDeleteTopUp(t)}
-                                          sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(239,68,68,0.2)' }}
-                                          title="Xóa bản ghi"
-                                        >
-                                          <Trash2 size={14} color="#ef4444" />
-                                        </Button>
-                                      )}
-                                    </Box>
-                                  </TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
+                  {/* Right/Bottom Column: Topups List */}
+                  <Grid size={{ xs: 12, md: 8 }}>
+                    <Box sx={{ ...glassPanelSx, padding: '2rem' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+                        <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                          <Box sx={{ position: 'relative', width: '320px' }}>
+                            <Search size={16} color="#6b7280" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
+                            <InputBase
+                              placeholder="Tìm kiếm theo email người mua hoặc mã nạp tiền..."
+                              value={topUpsSearch}
+                              onChange={e => setTopUpsSearch(e.target.value)}
+                              sx={{ ...inputSx, paddingLeft: '2.5rem', height: '40px' }}
+                            />
+                          </Box>
+                          <FormControl sx={{ width: '170px' }}>
+                            <Select
+                              value={topUpsStatusFilter}
+                              onChange={e => setTopUpsStatusFilter(e.target.value)}
+                              sx={selectSx}
+                              MenuProps={menuProps}
+                            >
+                              <MenuItem value="all">Tất cả trạng thái</MenuItem>
+                              <MenuItem value="pending">Chờ xử lý</MenuItem>
+                              <MenuItem value="completed">Hoàn thành</MenuItem>
+                              <MenuItem value="failed">Thất bại</MenuItem>
+                              <MenuItem value="cancelled">Đã hủy</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Box>
+                        <Button onClick={() => { setShowAddTopUpModal(true); }} sx={{ ...btnPrimarySx, height: '40px' }}>
+                          <Plus size={16} /> Tạo Top-Up mới
+                        </Button>
                       </Box>
-                    )}
-                  </Box>
-                </Grid>
-              </Grid>
 
-              {/* QR Code Preview Dialog */}
-              <Dialog
-                open={!!qrPreviewUrl}
-                onClose={() => setQrPreviewUrl(null)}
-                slotProps={{
-                  paper: {
-                    sx: {
-                      ...glassPanelSx,
-                      padding: '1rem',
-                      maxWidth: '500px',
-                      width: '100%',
-                      background: 'rgba(20, 22, 33, 0.95)',
-                      backgroundImage: 'none',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center'
+                      {filteredTopUps.length === 0 ? (
+                        <Typography sx={{ color: 'text.disabled', textAlign: 'center', padding: '3rem 0' }}>Không tìm thấy yêu cầu nạp tiền nào khớp với điều kiện.</Typography>
+                      ) : (
+                        <Box sx={{ overflowX: 'auto' }}>
+                          <Table sx={{ minWidth: 950 }}>
+                            <TableHead>
+                              <TableRow sx={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Khách Hàng / Email</TableCell>
+                                <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Số tiền (USD)</TableCell>
+                                <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Số tiền (VND)</TableCell>
+                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Mã nạp tiền</TableCell>
+                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Mã GD ACB</TableCell>
+                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Ngày Tạo</TableCell>
+                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Trạng Thái</TableCell>
+                                <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Hành động</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {filteredTopUps.map((t) => {
+                                const statusLower = t.status.toLowerCase();
+                                return (
+                                  <TableRow key={t.id} sx={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                                    <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
+                                      <Typography component="strong" sx={{ display: 'block', fontSize: '0.9rem', color: '#fff', fontWeight: 700 }}>{t.user?.full_name || 'Khách'}</Typography>
+                                      <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>{t.user?.email || 'N/A'}</Typography>
+                                    </TableCell>
+                                    <TableCell align="right" sx={{ padding: '1rem 0.5rem', fontWeight: 600, borderBottom: 'none' }}>
+                                      ${t.amount.toFixed(2)}
+                                    </TableCell>
+                                    <TableCell align="right" sx={{ padding: '1rem 0.5rem', fontWeight: 600, color: 'success.main', borderBottom: 'none' }}>
+                                      {t.amount_vnd.toLocaleString()} đ
+                                    </TableCell>
+                                    <TableCell sx={{ padding: '1rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem', borderBottom: 'none' }}>
+                                      {t.payment_reference}
+                                    </TableCell>
+                                    <TableCell sx={{ padding: '1rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem', borderBottom: 'none' }}>
+                                      {t.acb_transaction_id || '-'}
+                                    </TableCell>
+                                    <TableCell sx={{ padding: '1rem 0.5rem', fontSize: '0.85rem', color: 'text.secondary', borderBottom: 'none' }}>
+                                      {new Date(t.created_at).toLocaleDateString(undefined, { dateStyle: 'short' })}
+                                    </TableCell>
+                                    <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
+                                      <Box component="span" sx={{
+                                        fontSize: '0.7rem',
+                                        fontWeight: 800,
+                                        padding: '0.2rem 0.5rem',
+                                        borderRadius: '10px',
+                                        background: statusLower === 'completed' ? 'rgba(16, 185, 129, 0.15)' : statusLower === 'cancelled' ? 'rgba(255, 255, 255, 0.05)' : statusLower === 'failed' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                                        color: statusLower === 'completed' ? 'success.main' : statusLower === 'cancelled' ? 'text.disabled' : statusLower === 'failed' ? 'error.main' : 'warning.main',
+                                        textTransform: 'uppercase'
+                                      }}>
+                                        {statusLower === 'completed' ? 'Hoàn thành' : statusLower === 'pending' ? 'Chờ xử lý' : statusLower === 'failed' ? 'Thất bại' : statusLower === 'cancelled' ? 'Đã hủy' : t.status}
+                                      </Box>
+                                    </TableCell>
+                                    <TableCell align="right" sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
+                                      <Box sx={{ display: 'inline-flex', gap: '0.5rem' }}>
+                                        <Button
+                                          onClick={() => setViewingTopUp(t)}
+                                          sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px' }}
+                                          title="Xem chi tiết"
+                                        >
+                                          <Eye size={14} />
+                                        </Button>
+                                        <Button
+                                          onClick={() => handleStartEditTopUp(t)}
+                                          sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(99,102,241,0.2)' }}
+                                          title="Chỉnh sửa trạng thái"
+                                        >
+                                          <Edit size={14} color="#6366f1" />
+                                        </Button>
+                                        {statusLower === 'pending' && (
+                                          <>
+                                            <Button
+                                              onClick={() => handleManualRefresh(t.id)}
+                                              sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(16, 185, 129, 0.2)' }}
+                                              title="Kiểm tra thanh toán"
+                                            >
+                                              <RefreshCw size={14} color="#10b981" />
+                                            </Button>
+                                            <Button
+                                              onClick={() => handleManualCreditTopUp(t)}
+                                              sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(99, 102, 241, 0.4)' }}
+                                              title="Cộng tiền thủ công (Audited)"
+                                            >
+                                              <Coins size={14} color="#6366f1" />
+                                            </Button>
+                                            <Button
+                                              onClick={() => handleCancelTopUpAdmin(t)}
+                                              sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(239, 68, 68, 0.2)' }}
+                                              title="Hủy giao dịch"
+                                            >
+                                              <X size={14} color="#ef4444" />
+                                            </Button>
+                                          </>
+                                        )}
+                                        {statusLower !== 'completed' && (
+                                          <Button
+                                            onClick={() => handleDeleteTopUp(t)}
+                                            sx={{ ...btnSecondarySx, padding: '0.45rem', minWidth: 'auto', height: '34px', borderColor: 'rgba(239,68,68,0.2)' }}
+                                            title="Xóa bản ghi"
+                                          >
+                                            <Trash2 size={14} color="#ef4444" />
+                                          </Button>
+                                        )}
+                                      </Box>
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+                        </Box>
+                      )}
+                    </Box>
+                  </Grid>
+                </Grid>
+
+                {/* QR Code Preview Dialog */}
+                <Dialog
+                  open={!!qrPreviewUrl}
+                  onClose={() => setQrPreviewUrl(null)}
+                  slotProps={{
+                    paper: {
+                      sx: {
+                        ...glassPanelSx,
+                        padding: '1rem',
+                        maxWidth: '500px',
+                        width: '100%',
+                        background: 'rgba(20, 22, 33, 0.95)',
+                        backgroundImage: 'none',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center'
+                      }
                     }
-                  }
-                }}
-              >
-                <DialogTitle sx={{ width: '100%', padding: 0, display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
-                  <Box component="button" onClick={() => setQrPreviewUrl(null)} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
-                    <X size={20} />
-                  </Box>
-                </DialogTitle>
-                <DialogContent sx={{ padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  {qrPreviewUrl && (
-                    <Box
-                      component="img"
-                      src={qrPreviewUrl}
-                      alt="QR Code Preview"
-                      sx={{ maxWidth: '100%', maxHeight: '75vh', borderRadius: '8px', display: 'block', objectFit: 'contain' }}
-                    />
-                  )}
-                </DialogContent>
-              </Dialog>
-            </>
-          )}
+                  }}
+                >
+                  <DialogTitle sx={{ width: '100%', padding: 0, display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
+                    <Box component="button" onClick={() => setQrPreviewUrl(null)} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
+                      <X size={20} />
+                    </Box>
+                  </DialogTitle>
+                  <DialogContent sx={{ padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    {qrPreviewUrl && (
+                      <Box
+                        component="img"
+                        src={qrPreviewUrl}
+                        alt="QR Code Preview"
+                        sx={{ maxWidth: '100%', maxHeight: '75vh', borderRadius: '8px', display: 'block', objectFit: 'contain' }}
+                      />
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </>
+            )}
           </Box>
         )}
       </Container>
@@ -2158,17 +2160,21 @@ export const Admin: React.FC = () => {
         onClose={() => setShowAddProductModal(false)}
         maxWidth="md"
         fullWidth
-        slotProps={{ paper: { sx: {
-            ...glassPanelSx,
-            padding: '2rem',
-            background: 'rgba(20, 22, 33, 0.95)',
-            backgroundImage: 'none',
-            maxHeight: '90vh'
-          } } }}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '2rem',
+              background: 'rgba(20, 22, 33, 0.95)',
+              backgroundImage: 'none',
+              maxHeight: '90vh'
+            }
+          }
+        }}
       >
         <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <Typography variant="h2" sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>
-            Create New Trading Tool Product
+            Tạo Sản phẩm Công cụ Giao dịch Mới
           </Typography>
           <Box component="button" onClick={() => setShowAddProductModal(false)} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
             <X size={20} />
@@ -2182,11 +2188,12 @@ export const Admin: React.FC = () => {
           },
           msOverflowStyle: 'none',
           scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch'
         }}>
           <Box component="form" onSubmit={handleCreateProduct} sx={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <Box>
               <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>Tên sản phẩm *</Typography>
-              <InputBase required value={productTitle} onChange={e => setProductTitle(e.target.value)} sx={inputSx} placeholder="e.g. Algo HFT Pro Scalper" />
+              <InputBase required value={productTitle} onChange={e => setProductTitle(e.target.value)} sx={inputSx} placeholder="Ví dụ: Algo HFT Pro Scalper" />
             </Box>
 
             <Box>
@@ -2207,8 +2214,8 @@ export const Admin: React.FC = () => {
 
             {productCategory === 'EA' && (
               <Box>
-                <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>EA Magic Number (Optional)</Typography>
-                <InputBase type="number" value={productEaMagic} onChange={e => setProductEaMagic(e.target.value)} sx={inputSx} placeholder="e.g. 9988112" />
+                <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>EA Magic Number (Tùy chọn)</Typography>
+                <InputBase type="number" value={productEaMagic} onChange={e => setProductEaMagic(e.target.value)} sx={inputSx} placeholder="Ví dụ: 9988112" />
               </Box>
             )}
 
@@ -2243,7 +2250,7 @@ export const Admin: React.FC = () => {
             <Box sx={{ ...glassPanelSx, padding: '1.25rem', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.15)' }}>
               <Typography variant="h3" sx={{ fontSize: '1rem', margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#fff' }}>
                 <Tag size={16} color="#6366f1" />
-                VARIANTS * ({draftProductVariants.length})
+                GÓI BẢN QUYỀN * ({draftProductVariants.length})
               </Typography>
 
               {draftProductVariants.length > 0 && (
@@ -2266,17 +2273,17 @@ export const Admin: React.FC = () => {
               )}
 
               <Box sx={{ marginBottom: '0.75rem' }}>
-                <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Package Name *</Typography>
-                <InputBase placeholder="e.g. 1-Month License, Lifetime" value={newVariantName} onChange={e => setNewVariantName(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
+                <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Tên gói bản quyền *</Typography>
+                <InputBase placeholder="Ví dụ: Gói 1 Tháng, Vĩnh viễn" value={newVariantName} onChange={e => setNewVariantName(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
               </Box>
 
               <Grid container spacing={2} sx={{ marginBottom: '0.75rem' }}>
                 <Grid size={{ xs: 6 }}>
-                  <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Price (USD) *</Typography>
+                  <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Giá (USD) *</Typography>
                   <InputBase type="number" placeholder="0.00" value={newVariantPrice} onChange={e => setNewVariantPrice(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Duration Type</Typography>
+                  <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Loại thời hạn</Typography>
                   <FormControl sx={{ width: '100%' }}>
                     <Select
                       value={newVariantDurationType}
@@ -2284,9 +2291,9 @@ export const Admin: React.FC = () => {
                       sx={{ ...selectSx, height: '34px', fontSize: '0.85rem' }}
                       MenuProps={menuProps}
                     >
-                      <MenuItem value="lifetime">Lifetime</MenuItem>
-                      <MenuItem value="days">Days</MenuItem>
-                      <MenuItem value="months">Calendar Months</MenuItem>
+                      <MenuItem value="lifetime">Vĩnh viễn</MenuItem>
+                      <MenuItem value="days">Ngày</MenuItem>
+                      <MenuItem value="months">Tháng</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -2294,13 +2301,13 @@ export const Admin: React.FC = () => {
 
               {newVariantDurationType !== 'lifetime' && (
                 <Box sx={{ marginBottom: '1rem' }}>
-                  <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Duration ({newVariantDurationType}) *</Typography>
-                  <InputBase type="number" placeholder={newVariantDurationType === 'months' ? 'Number of months (e.g. 3)' : 'Number of days (e.g. 90)'} value={newVariantDurationValue} onChange={e => setNewVariantDurationValue(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
+                  <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Thời hạn ({newVariantDurationType === 'months' ? 'Tháng' : 'Ngày'}) *</Typography>
+                  <InputBase type="number" placeholder={newVariantDurationType === 'months' ? 'Số tháng (Ví dụ: 3)' : 'Số ngày (Ví dụ: 90)'} value={newVariantDurationValue} onChange={e => setNewVariantDurationValue(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
                 </Box>
               )}
 
               <Button type="button" onClick={handleAddDraftVariant} sx={{ ...btnSecondarySx, width: '100%', padding: '0.5rem', fontSize: '0.8rem', justifyContent: 'center', gap: '0.35rem', borderColor: 'rgba(99,102,241,0.25)', color: 'primary.main' }}>
-                <Plus size={14} /> Add Draft Variant
+                <Plus size={14} /> Thêm gói bản quyền
               </Button>
             </Box>
 
@@ -2340,17 +2347,21 @@ export const Admin: React.FC = () => {
         onClose={() => setEditingProduct(null)}
         maxWidth="md"
         fullWidth
-        slotProps={{ paper: { sx: {
-            ...glassPanelSx,
-            padding: '2rem',
-            background: 'rgba(20, 22, 33, 0.95)',
-            backgroundImage: 'none',
-            maxHeight: '90vh'
-          } } }}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '2rem',
+              background: 'rgba(20, 22, 33, 0.95)',
+              backgroundImage: 'none',
+              maxHeight: '90vh'
+            }
+          }
+        }}
       >
         <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <Typography variant="h2" sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>
-            Edit Product Details
+            Chỉnh sửa Thông tin Sản phẩm
           </Typography>
           <Box component="button" onClick={() => setEditingProduct(null)} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
             <X size={20} />
@@ -2390,7 +2401,7 @@ export const Admin: React.FC = () => {
 
               {productCategory === 'EA' && (
                 <Box>
-                  <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>EA Magic Number (Optional)</Typography>
+                  <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>EA Magic Number (Tùy chọn)</Typography>
                   <InputBase type="number" value={productEaMagic} onChange={e => setProductEaMagic(e.target.value)} sx={inputSx} />
                 </Box>
               )}
@@ -2431,10 +2442,10 @@ export const Admin: React.FC = () => {
                 >
                   <Typography variant="h3" sx={{ fontSize: '1rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#fff' }}>
                     <Tag size={16} color="#6366f1" />
-                    Product Variants ({activeSortedVariants(editingProduct.variants).length})
+                    Gói bản quyền sản phẩm ({activeSortedVariants(editingProduct.variants).length})
                   </Typography>
                   <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary' }}>
-                    {showVariantsSection ? 'Collapse' : 'Expand'}
+                    {showVariantsSection ? 'Thu gọn' : 'Mở rộng'}
                   </Typography>
                 </Box>
 
@@ -2464,25 +2475,25 @@ export const Admin: React.FC = () => {
                         ))}
                       </Box>
                     ) : (
-                      <Typography sx={{ color: 'error.main', fontSize: '0.8rem', marginBottom: '1.25rem' }}>No variants created for this product. Add one before saving or enabling checkout.</Typography>
+                      <Typography sx={{ color: 'error.main', fontSize: '0.8rem', marginBottom: '1.25rem' }}>Chưa có gói bản quyền nào được tạo cho sản phẩm này. Hãy thêm một gói trước khi lưu hoặc cho phép thanh toán.</Typography>
                     )}
 
                     {/* Form to add a new variant */}
                     <Box sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '1rem' }}>
-                      <Typography variant="h4" sx={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.75rem', color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Add New Variant</Typography>
+                      <Typography variant="h4" sx={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.75rem', color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Thêm gói bản quyền mới</Typography>
 
                       <Box sx={{ marginBottom: '0.75rem' }}>
-                        <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Variant Name *</Typography>
-                        <InputBase placeholder="e.g. 1-Month License, Lifetime" value={newVariantName} onChange={e => setNewVariantName(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
+                        <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Tên gói bản quyền *</Typography>
+                        <InputBase placeholder="Ví dụ: Gói 1 Tháng, Vĩnh viễn" value={newVariantName} onChange={e => setNewVariantName(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
                       </Box>
 
                       <Grid container spacing={2} sx={{ marginBottom: '0.75rem' }}>
                         <Grid size={{ xs: 6 }}>
-                          <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Price (USD) *</Typography>
+                          <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Giá (USD) *</Typography>
                           <InputBase type="number" placeholder="0.00" value={newVariantPrice} onChange={e => setNewVariantPrice(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
                         </Grid>
                         <Grid size={{ xs: 6 }}>
-                          <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Duration Type</Typography>
+                          <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Loại thời hạn</Typography>
                           <FormControl sx={{ width: '100%' }}>
                             <Select
                               value={newVariantDurationType}
@@ -2490,9 +2501,9 @@ export const Admin: React.FC = () => {
                               sx={{ ...selectSx, height: '34px', fontSize: '0.85rem' }}
                               MenuProps={menuProps}
                             >
-                              <MenuItem value="months">Months</MenuItem>
-                              <MenuItem value="days">Days</MenuItem>
-                              <MenuItem value="lifetime">Lifetime</MenuItem>
+                              <MenuItem value="months">Tháng</MenuItem>
+                              <MenuItem value="days">Ngày</MenuItem>
+                              <MenuItem value="lifetime">Vĩnh viễn</MenuItem>
                             </Select>
                           </FormControl>
                         </Grid>
@@ -2500,13 +2511,13 @@ export const Admin: React.FC = () => {
 
                       {newVariantDurationType !== 'lifetime' && (
                         <Box sx={{ marginBottom: '1rem' }}>
-                          <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Duration ({newVariantDurationType}) *</Typography>
-                          <InputBase type="number" placeholder={newVariantDurationType === 'months' ? 'Number of months' : 'Number of days'} value={newVariantDurationValue} onChange={e => setNewVariantDurationValue(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
+                          <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Thời hạn ({newVariantDurationType === 'months' ? 'Tháng' : 'Ngày'}) *</Typography>
+                          <InputBase type="number" placeholder={newVariantDurationType === 'months' ? 'Số tháng' : 'Số ngày'} value={newVariantDurationValue} onChange={e => setNewVariantDurationValue(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
                         </Box>
                       )}
 
                       <Button type="button" onClick={handleAddVariant} disabled={addingVariant} sx={{ ...btnSecondarySx, width: '100%', padding: '0.5rem', fontSize: '0.8rem', justifyContent: 'center', gap: '0.35rem', borderColor: 'rgba(99,102,241,0.25)', color: 'primary.main' }}>
-                        {addingVariant ? 'Creating...' : <><Plus size={14} /> Create Variant</>}
+                        {addingVariant ? 'Đang tạo...' : <><Plus size={14} /> Tạo gói bản quyền</>}
                       </Button>
                     </Box>
                   </Box>
@@ -2514,7 +2525,7 @@ export const Admin: React.FC = () => {
               </Box>
 
               <Button type="submit" disabled={submittingProduct} sx={{ ...btnPrimarySx, width: '100%', justifyContent: 'center', padding: '0.85rem', marginTop: '1rem' }}>
-                {submittingProduct ? 'Updating...' : 'Save Product Details'}
+                {submittingProduct ? 'Đang cập nhật...' : 'Lưu thông tin sản phẩm'}
               </Button>
             </Box>
           )}
@@ -2527,17 +2538,21 @@ export const Admin: React.FC = () => {
         onClose={() => setViewingOrder(null)}
         maxWidth="md"
         fullWidth
-        slotProps={{ paper: { sx: {
-            ...glassPanelSx,
-            padding: '2rem',
-            background: 'rgba(20, 22, 33, 0.95)',
-            backgroundImage: 'none',
-            maxHeight: '90vh'
-          } } }}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '2rem',
+              background: 'rgba(20, 22, 33, 0.95)',
+              backgroundImage: 'none',
+              maxHeight: '90vh'
+            }
+          }
+        }}
       >
         <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <Typography variant="h2" sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>
-            Order Detail & Verification (Admin View)
+            Chi tiết & Xác thực Đơn hàng (Quyền Admin)
           </Typography>
           <Box component="button" onClick={() => setViewingOrder(null)} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
             <X size={20} />
@@ -2564,7 +2579,7 @@ export const Admin: React.FC = () => {
                     display: 'inline-block',
                     marginTop: '0.25rem'
                   }}>
-                    {viewingOrder.status}
+                    {viewingOrder.status === 'completed' ? 'Hoàn thành' : viewingOrder.status === 'pending' ? 'Chờ xử lý' : 'Thất bại'}
                   </Box>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -2582,7 +2597,7 @@ export const Admin: React.FC = () => {
               {/* Transactions Ledger */}
               <Box sx={{ ...glassPanelSx, padding: '1.25rem', background: 'rgba(0,0,0,0.15)', border: '1px solid rgba(255,255,255,0.02)' }}>
                 <Typography variant="h3" sx={{ fontSize: '0.9rem', color: '#fff', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem', marginBottom: '0.75rem', fontWeight: 700 }}>
-                  Checkout Transactions ledger ({viewingOrder.purchases.length})
+                  Nhật ký giao dịch thanh toán ({viewingOrder.purchases.length})
                 </Typography>
                 {viewingOrder.purchases.length > 0 ? (
                   <Box sx={{ overflowX: 'auto' }}>
@@ -2617,13 +2632,13 @@ export const Admin: React.FC = () => {
                               <Box component="span" sx={{
                                 fontSize: '0.7rem',
                                 fontWeight: 800,
-                                padding: '0.1rem 0.4rem',
+                                padding: '0.1/0.4rem',
                                 borderRadius: '4px',
                                 background: p.status === 'completed' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
                                 color: p.status === 'completed' ? 'success.main' : 'error.main',
                                 textTransform: 'uppercase'
                               }}>
-                                {p.status}
+                                {p.status === 'completed' ? 'Hoàn thành' : p.status === 'pending' ? 'Chờ xử lý' : 'Thất bại'}
                               </Box>
                             </TableCell>
                             <TableCell sx={{ padding: '0.5rem', color: 'text.secondary', borderBottom: 'none' }}>
@@ -2645,21 +2660,21 @@ export const Admin: React.FC = () => {
                   disabled={updatingOrderStatus || viewingOrder.status === 'completed'}
                   sx={{ ...btnPrimarySx, flex: 1, justifyContent: 'center', background: '#10b981', '&:hover': { background: '#059669' } }}
                 >
-                  Mark Completed
+                  Đánh dấu Hoàn thành
                 </Button>
                 <Button
                   onClick={() => handleUpdateOrderStatus(viewingOrder.id, 'pending')}
                   disabled={updatingOrderStatus || viewingOrder.status === 'pending'}
                   sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center', borderColor: 'warning.main', color: 'warning.main', '&:hover': { background: 'rgba(245, 158, 11, 0.08)' } }}
                 >
-                  Mark Pending
+                  Đánh dấu Chờ xử lý
                 </Button>
                 <Button
                   onClick={() => handleUpdateOrderStatus(viewingOrder.id, 'failed')}
                   disabled={updatingOrderStatus || viewingOrder.status === 'failed'}
                   sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center', borderColor: 'error.main', color: 'error.main', '&:hover': { background: 'rgba(239, 68, 68, 0.08)' } }}
                 >
-                  Mark Failed
+                  Đánh dấu Thất bại
                 </Button>
               </Box>
             </Box>
@@ -2673,17 +2688,21 @@ export const Admin: React.FC = () => {
         onClose={() => setViewingUser(null)}
         maxWidth="sm"
         fullWidth
-        slotProps={{ paper: { sx: {
-            ...glassPanelSx,
-            padding: '2rem',
-            background: 'rgba(20, 22, 33, 0.95)',
-            backgroundImage: 'none',
-            maxHeight: '90vh'
-          } } }}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '2rem',
+              background: 'rgba(20, 22, 33, 0.95)',
+              backgroundImage: 'none',
+              maxHeight: '90vh'
+            }
+          }
+        }}
       >
         <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <Typography variant="h2" sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>
-            User Profile details & Secrets
+            Thông tin Hồ sơ & Bảo mật Người dùng
           </Typography>
           <Box component="button" onClick={() => setViewingUser(null)} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
             <X size={20} />
@@ -2714,7 +2733,7 @@ export const Admin: React.FC = () => {
                     display: 'inline-block',
                     marginTop: '0.25rem'
                   }}>
-                    {viewingUser.role}
+                    {viewingUser.role === 'admin' ? 'Quản trị viên (Admin)' : 'Người dùng (User)'}
                   </Box>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
@@ -2738,13 +2757,13 @@ export const Admin: React.FC = () => {
               {/* Masked Sensitive Fields Section */}
               <Box sx={{ ...glassPanelSx, padding: '1rem 1.25rem', marginBottom: '1.5rem', background: 'rgba(0,0,0,0.15)' }}>
                 <Typography variant="h3" sx={{ fontSize: '0.9rem', color: '#fff', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem', marginBottom: '0.75rem', fontWeight: 700 }}>
-                  Sensitive Data & Secrets Boundaries
+                  Dữ liệu nhạy cảm & Ranh giới bảo mật
                 </Typography>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <Box>
-                    <Typography component="label" sx={{ fontSize: '0.7rem', display: 'inline-block', marginRight: '0.5rem', color: 'text.secondary' }}>Password Hash (Secret)</Typography>
-                    <Box component="span" sx={{ fontSize: '0.7rem', color: 'text.disabled', background: 'rgba(255,255,255,0.05)', padding: '0.1rem 0.3rem', borderRadius: '4px' }}>Stored as hash; cannot reveal</Box>
+                    <Typography component="label" sx={{ fontSize: '0.7rem', display: 'inline-block', marginRight: '0.5rem', color: 'text.secondary' }}>Mã băm mật khẩu (Bảo mật)</Typography>
+                    <Box component="span" sx={{ fontSize: '0.7rem', color: 'text.disabled', background: 'rgba(255,255,255,0.05)', padding: '0.1rem 0.3rem', borderRadius: '4px' }}>Được lưu dưới dạng mã băm; không thể hiển thị</Box>
                     <InputBase
                       readOnly
                       value="************************************************"
@@ -2754,13 +2773,13 @@ export const Admin: React.FC = () => {
 
                   <Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography component="label" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>API Key / License Key hash</Typography>
+                      <Typography component="label" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>Mã băm API Key / License Key</Typography>
                       <Box
                         component="button"
                         onClick={() => toggleShowSensitive('apiKey')}
                         sx={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'primary.main', fontSize: '0.75rem' }}
                       >
-                        {showSensitives['apiKey'] ? <><EyeOff size={12} /> Hide</> : <><Eye size={12} /> Reveal</>}
+                        {showSensitives['apiKey'] ? <><EyeOff size={12} /> Ẩn</> : <><Eye size={12} /> Hiện</>}
                       </Box>
                     </Box>
                     <InputBase
@@ -2786,7 +2805,7 @@ export const Admin: React.FC = () => {
                     }
                   }}
                 >
-                  {viewingUser.is_deleted ? 'Restore user' : 'Suspend user (soft-delete)'}
+                  {viewingUser.is_deleted ? 'Khôi phục tài khoản' : 'Tạm ngưng tài khoản'}
                 </Button>
                 <Button
                   onClick={() => { setViewingUser(null); handleStartEditUser(viewingUser); }}
@@ -2804,15 +2823,19 @@ export const Admin: React.FC = () => {
       <Dialog
         open={!!editingUser}
         onClose={() => setEditingUser(null)}
-        slotProps={{ paper: { sx: {
-            ...glassPanelSx,
-            padding: '2rem',
-            maxWidth: '500px',
-            width: '100%',
-            background: 'rgba(20, 22, 33, 0.95)',
-            backgroundImage: 'none',
-            maxHeight: '90vh'
-          } } }}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '2rem',
+              maxWidth: '500px',
+              width: '100%',
+              background: 'rgba(20, 22, 33, 0.95)',
+              backgroundImage: 'none',
+              maxHeight: '90vh'
+            }
+          }
+        }}
       >
         <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <Typography variant="h2" sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>
@@ -2882,19 +2905,23 @@ export const Admin: React.FC = () => {
       <Dialog
         open={showVoucherModal}
         onClose={() => setShowVoucherModal(false)}
-        slotProps={{ paper: { sx: {
-            ...glassPanelSx,
-            padding: '2rem',
-            maxWidth: '550px',
-            width: '100%',
-            background: 'rgba(20, 22, 33, 0.95)',
-            backgroundImage: 'none',
-            maxHeight: '90vh'
-          } } }}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '2rem',
+              maxWidth: '550px',
+              width: '100%',
+              background: 'rgba(20, 22, 33, 0.95)',
+              backgroundImage: 'none',
+              maxHeight: '90vh'
+            }
+          }
+        }}
       >
         <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <Typography variant="h2" sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>
-            {editingVoucher ? 'Edit Voucher Campaign' : 'Create New Voucher Campaign'}
+            {editingVoucher ? 'Chỉnh sửa Chiến dịch Voucher' : 'Tạo Chiến dịch Voucher Mới'}
           </Typography>
           <Box component="button" onClick={() => setShowVoucherModal(false)} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
             <X size={20} />
@@ -2909,14 +2936,14 @@ export const Admin: React.FC = () => {
                   required
                   value={voucherCode}
                   onChange={e => setVoucherCode(e.target.value)}
-                  placeholder="e.g. TRADING30"
+                  placeholder="Ví dụ: TRADING30"
                   disabled={editingVoucher !== null}
                   sx={{ ...inputSx, '& input': { textTransform: 'uppercase', fontFamily: 'monospace', padding: 0 } }}
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
                 <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>Tên chiến dịch *</Typography>
-                <InputBase required value={voucherName} onChange={e => setVoucherName(e.target.value)} sx={inputSx} placeholder="e.g. Summer Sale 2026" />
+                <InputBase required value={voucherName} onChange={e => setVoucherName(e.target.value)} sx={inputSx} placeholder="Ví dụ: Summer Sale 2026" />
               </Grid>
             </Grid>
 
@@ -2937,7 +2964,7 @@ export const Admin: React.FC = () => {
               </Grid>
               <Grid size={{ xs: 6 }}>
                 <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>Giá trị giảm *</Typography>
-                <InputBase type="number" inputProps={{ step: '0.01', min: 0 }} required value={voucherDiscountValue} onChange={e => setVoucherDiscountValue(e.target.value)} sx={inputSx} placeholder="e.g. 20 or 50.00" />
+                <InputBase type="number" inputProps={{ step: '0.01', min: 0 }} required value={voucherDiscountValue} onChange={e => setVoucherDiscountValue(e.target.value)} sx={inputSx} placeholder="Ví dụ: 20 hoặc 50.00" />
               </Grid>
             </Grid>
 
@@ -2954,11 +2981,11 @@ export const Admin: React.FC = () => {
 
             <Grid container spacing={2}>
               <Grid size={{ xs: 6 }}>
-                <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>Giới hạn số lượt dùng (Optional)</Typography>
-                <InputBase type="number" inputProps={{ min: 1 }} value={voucherUsageLimit} onChange={e => setVoucherUsageLimit(e.target.value)} sx={inputSx} placeholder="e.g. 100 (Để trống = Vô hạn)" />
+                <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>Giới hạn số lượt dùng (Tùy chọn)</Typography>
+                <InputBase type="number" inputProps={{ min: 1 }} value={voucherUsageLimit} onChange={e => setVoucherUsageLimit(e.target.value)} sx={inputSx} placeholder="Ví dụ: 100 (Để trống = Vô hạn)" />
               </Grid>
               <Grid size={{ xs: 6 }}>
-                <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>Sản phẩm áp dụng (Optional ID)</Typography>
+                <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>Sản phẩm áp dụng (Tùy chọn ID)</Typography>
                 <InputBase value={voucherProductScope} onChange={e => setVoucherProductScope(e.target.value)} sx={inputSx} placeholder="Mã UUID sản phẩm (Trống = Toàn sàn)" />
               </Grid>
             </Grid>
@@ -2990,19 +3017,23 @@ export const Admin: React.FC = () => {
       <Dialog
         open={!!viewingTopUp}
         onClose={() => setViewingTopUp(null)}
-        slotProps={{ paper: { sx: {
-            ...glassPanelSx,
-            padding: '2rem',
-            maxWidth: '600px',
-            width: '100%',
-            background: 'rgba(20, 22, 33, 0.95)',
-            backgroundImage: 'none',
-            maxHeight: '90vh'
-          } } }}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '2rem',
+              maxWidth: '600px',
+              width: '100%',
+              background: 'rgba(20, 22, 33, 0.95)',
+              backgroundImage: 'none',
+              maxHeight: '90vh'
+            }
+          }
+        }}
       >
         <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <Typography variant="h2" sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>
-            Top-Up Detail (Admin View)
+            Chi tiết nạp tiền (Quyền Admin)
           </Typography>
           <Box component="button" onClick={() => setViewingTopUp(null)} sx={{ background: 'none', border: 'none', cursor: 'pointer', color: 'text.secondary', display: 'flex', '&:hover': { color: '#fff' } }}>
             <X size={20} />
@@ -3029,12 +3060,12 @@ export const Admin: React.FC = () => {
                     display: 'inline-block',
                     marginTop: '0.25rem'
                   }}>
-                    {viewingTopUp.status}
+                    {viewingTopUp.status === 'completed' ? 'Hoàn thành' : viewingTopUp.status === 'pending' ? 'Chờ xử lý' : viewingTopUp.status === 'failed' ? 'Thất bại' : 'Đã hủy'}
                   </Box>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
                   <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled', textTransform: 'uppercase' }}>Khách Hàng</Typography>
-                  <Typography sx={{ fontSize: '0.95rem', fontWeight: 700 }}>{viewingTopUp.user?.full_name || 'Guest'}</Typography>
+                  <Typography sx={{ fontSize: '0.95rem', fontWeight: 700 }}>{viewingTopUp.user?.full_name || 'Khách'}</Typography>
                   <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary' }}>{viewingTopUp.user?.email}</Typography>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
@@ -3042,7 +3073,7 @@ export const Admin: React.FC = () => {
                   <Typography sx={{ fontSize: '0.95rem', fontWeight: 700 }}>{new Date(viewingTopUp.created_at).toLocaleString()}</Typography>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled', textTransform: 'uppercase' }}>Reference Content</Typography>
+                  <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled', textTransform: 'uppercase' }}>Nội dung chuyển khoản</Typography>
                   <Typography sx={{ fontSize: '0.95rem', fontFamily: 'monospace', color: 'primary.main', fontWeight: 700 }}>{viewingTopUp.payment_reference}</Typography>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
@@ -3105,15 +3136,19 @@ export const Admin: React.FC = () => {
       <Dialog
         open={!!editingTopUp}
         onClose={() => setEditingTopUp(null)}
-        slotProps={{ paper: { sx: {
-            ...glassPanelSx,
-            padding: '2rem',
-            maxWidth: '500px',
-            width: '100%',
-            background: 'rgba(20, 22, 33, 0.95)',
-            backgroundImage: 'none',
-            maxHeight: '90vh'
-          } } }}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '2rem',
+              maxWidth: '500px',
+              width: '100%',
+              background: 'rgba(20, 22, 33, 0.95)',
+              backgroundImage: 'none',
+              maxHeight: '90vh'
+            }
+          }
+        }}
       >
         <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <Typography variant="h2" sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>
@@ -3135,10 +3170,10 @@ export const Admin: React.FC = () => {
                     sx={selectSx}
                     MenuProps={menuProps}
                   >
-                    <MenuItem value="pending">Pending</MenuItem>
-                    <MenuItem value="completed">Completed</MenuItem>
-                    <MenuItem value="failed">Failed</MenuItem>
-                    <MenuItem value="cancelled">Cancelled</MenuItem>
+                    <MenuItem value="pending">Chờ xử lý</MenuItem>
+                    <MenuItem value="completed">Hoàn thành</MenuItem>
+                    <MenuItem value="failed">Thất bại</MenuItem>
+                    <MenuItem value="cancelled">Đã hủy</MenuItem>
                   </Select>
                 </FormControl>
                 <Typography sx={{ fontSize: '0.72rem', color: 'warning.main', marginTop: '0.25rem', display: 'block' }}>
@@ -3176,15 +3211,19 @@ export const Admin: React.FC = () => {
       <Dialog
         open={showAddTopUpModal}
         onClose={() => setShowAddTopUpModal(false)}
-        slotProps={{ paper: { sx: {
-            ...glassPanelSx,
-            padding: '2rem',
-            maxWidth: '500px',
-            width: '100%',
-            background: 'rgba(20, 22, 33, 0.95)',
-            backgroundImage: 'none',
-            maxHeight: '90vh'
-          } } }}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '2rem',
+              maxWidth: '500px',
+              width: '100%',
+              background: 'rgba(20, 22, 33, 0.95)',
+              backgroundImage: 'none',
+              maxHeight: '90vh'
+            }
+          }
+        }}
       >
         <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <Typography variant="h2" sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>
@@ -3244,15 +3283,19 @@ export const Admin: React.FC = () => {
             setReplacingSelectedFile(null);
           }
         }}
-        slotProps={{ paper: { sx: {
-            ...glassPanelSx,
-            padding: '2rem',
-            maxWidth: '500px',
-            width: '100%',
-            background: 'rgba(20, 22, 33, 0.95)',
-            backgroundImage: 'none',
-            maxHeight: '90vh'
-          } } }}
+        slotProps={{
+          paper: {
+            sx: {
+              ...glassPanelSx,
+              padding: '2rem',
+              maxWidth: '500px',
+              width: '100%',
+              background: 'rgba(20, 22, 33, 0.95)',
+              backgroundImage: 'none',
+              maxHeight: '90vh'
+            }
+          }
+        }}
       >
         <DialogTitle sx={{ padding: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', fontFamily: '"Outfit", sans-serif' }}>
           <Typography variant="h2" sx={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>
@@ -3405,7 +3448,7 @@ export const Admin: React.FC = () => {
 
       <ConfirmationDialog
         open={!!confirmingUserAction}
-        title={confirmingUserAction?.is_deleted ? 'Restore user account?' : 'Suspend user account?'}
+        title={confirmingUserAction?.is_deleted ? 'Khôi phục tài khoản người dùng?' : 'Tạm ngưng tài khoản người dùng?'}
         message={
           confirmingUserAction?.is_deleted
             ? <>Bạn có chắc muốn khôi phục tài khoản <strong style={{ color: '#fff' }}>{confirmingUserAction.full_name}</strong>?</>

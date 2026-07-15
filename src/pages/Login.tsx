@@ -66,7 +66,7 @@ export const Login: React.FC = () => {
         await login(data.access_token);
       } else if (mode === 'register') {
         if (password !== confirmPassword) {
-          throw new Error('Passwords do not match.');
+          throw new Error('Mật khẩu xác nhận không khớp.');
         }
         
         await api.post<RegisterResponse>('/api/auth/register', {
@@ -75,13 +75,13 @@ export const Login: React.FC = () => {
           full_name: fullName
         });
         
-        setSuccess('Registration successful! Please sign in below.');
+        setSuccess('Đăng ký thành công! Vui lòng đăng nhập bên dưới.');
         setMode('email');
         setPassword('');
         setConfirmPassword('');
       }
     } catch (err: any) {
-      setError(err.message || 'Authentication process encountered an error.');
+      setError(err.message || 'Quá trình xác thực xảy ra lỗi.');
     } finally {
       setLoading(false);
     }
@@ -161,7 +161,7 @@ export const Login: React.FC = () => {
               '&:hover': { background: 'none', color: '#fff' }
             }}
           >
-            Email Sign In
+            Đăng nhập
           </Button>
           <Button
             onClick={() => { setMode('register'); setError(''); setSuccess(''); }}
@@ -179,7 +179,7 @@ export const Login: React.FC = () => {
               '&:hover': { background: 'none', color: '#fff' }
             }}
           >
-            Register
+            Đăng ký
           </Button>
         </Box>
 
@@ -222,13 +222,13 @@ export const Login: React.FC = () => {
           <Box component="form" onSubmit={handleSubmitEmail}>
             {mode === 'register' && (
               <Box sx={{ marginBottom: '1rem' }}>
-                <Typography component="label" sx={labelSx}>Full Name</Typography>
+                <Typography component="label" sx={labelSx}>Họ và Tên</Typography>
                 <Box sx={{ position: 'relative' }}>
                   <User size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
                   <InputBase
                     type="text"
                     required
-                    placeholder="e.g. John Doe"
+                    placeholder="Ví dụ: Nguyễn Văn A"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     sx={{
@@ -241,13 +241,13 @@ export const Login: React.FC = () => {
             )}
 
             <Box sx={{ marginBottom: '1rem' }}>
-              <Typography component="label" sx={labelSx}>Email Address</Typography>
+              <Typography component="label" sx={labelSx}>Địa chỉ Email</Typography>
               <Box sx={{ position: 'relative' }}>
                 <Mail size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
                 <InputBase
                   type="email"
                   required
-                  placeholder="e.g. buyer@algo.com"
+                  placeholder="Ví dụ: buyer@algo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   sx={{
@@ -260,7 +260,7 @@ export const Login: React.FC = () => {
 
             <Box sx={{ marginBottom: '1rem' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography component="label" sx={labelSx}>Password</Typography>
+                <Typography component="label" sx={labelSx}>Mật khẩu</Typography>
                 {mode === 'email' && (
                   <Box
                     component={Link}
@@ -273,7 +273,7 @@ export const Login: React.FC = () => {
                       '&:hover': { textDecoration: 'underline' }
                     }}
                   >
-                    Forgot Password?
+                    Quên mật khẩu?
                   </Box>
                 )}
               </Box>
@@ -295,7 +295,7 @@ export const Login: React.FC = () => {
 
             {mode === 'register' && (
               <Box sx={{ marginBottom: '2rem' }}>
-                <Typography component="label" sx={labelSx}>Confirm Password</Typography>
+                <Typography component="label" sx={labelSx}>Xác nhận Mật khẩu</Typography>
                 <Box sx={{ position: 'relative' }}>
                   <Key size={16} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
                   <InputBase
@@ -325,16 +325,16 @@ export const Login: React.FC = () => {
               }}
             >
               {loading ? (
-                'Processing...'
+                'Đang xử lý...'
               ) : mode === 'email' ? (
                 <>
                   <LogIn size={16} />
-                  Sign In
+                  Đăng nhập
                 </>
               ) : (
                 <>
                   <UserPlus size={16} />
-                  Create Account
+                  Đăng ký tài khoản
                 </>
               )}
             </Button>
@@ -355,7 +355,7 @@ export const Login: React.FC = () => {
             }}
           >
             <Typography component="strong" sx={{ color: 'primary.main', display: 'block', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 700 }}>
-              Bootstrap Test Accounts:
+              Tài khoản thử nghiệm hệ thống:
             </Typography>
             • Admin: <Box component="code" sx={{ color: '#fff' }}>admin@tradingbot.com</Box> / pass: <Box component="code" sx={{ color: '#fff' }}>admin123</Box><br/>
             • Buyer: <Box component="code" sx={{ color: '#fff' }}>buyer@tradingbot.com</Box> / pass: <Box component="code" sx={{ color: '#fff' }}>buyer123</Box>
