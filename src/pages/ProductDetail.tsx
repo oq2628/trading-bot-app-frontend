@@ -6,7 +6,7 @@ import { getExchangeRate } from '../api/exchange';
 import { ArrowLeft, CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
 import { Toast } from '../components/Toast';
 import { activeSortedVariants, formatVariantDuration } from '../utils/variants';
-import { Box, Container, Typography, Button, Dialog, DialogTitle, DialogContent, CircularProgress } from '@mui/material';
+import { Box, Container, Typography, Button, Dialog, DialogTitle, DialogContent, CircularProgress, InputBase } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx } from '../theme';
 
@@ -22,6 +22,7 @@ interface Product {
     product_id: string;
     name: string;
     price: number;
+    original_price: number | null;
     duration_days: number | null;
     duration_months: number | null;
     is_lifetime: boolean;
@@ -49,6 +50,19 @@ export const ProductDetail: React.FC = () => {
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [exchangeRate, setExchangeRate] = useState(25000);
+  
+  // Voucher states
+  const [voucherCode, setVoucherCode] = useState('');
+  const [validatingVoucher, setValidatingVoucher] = useState(false);
+  const [appliedVoucher, setAppliedVoucher] = useState<any>(null);
+  const [voucherError, setVoucherError] = useState('');
+
+  // Clear voucher on variant change
+  useEffect(() => {
+    setVoucherCode('');
+    setAppliedVoucher(null);
+    setVoucherError('');
+  }, [selectedVariantId]);
 
   const loadProductAndOwnership = async () => {
     if (!id) return;
@@ -86,6 +100,39 @@ export const ProductDetail: React.FC = () => {
     loadProductAndOwnership();
   }, [id, user]);
 
+  const handleApplyVoucher = async () => {
+    if (!voucherCode.trim()) {
+      setVoucherError('Vui lòng nhập mã khuyến mãi');
+      return;
+    }
+    const selectedVariant = activeSortedVariants(product?.variants).find(v => v.id === selectedVariantId);
+    if (!selectedVariant) return;
+
+    setValidatingVoucher(true);
+    setVoucherError('');
+    try {
+      const res = await api.post<any>('/api/purchases/validate-voucher', {
+        voucher_code: voucherCode.trim(),
+        product_id: product?.id,
+        original_price: selectedVariant.price
+      });
+      setAppliedVoucher(res);
+      setToast({ message: 'Áp dụng mã giảm giá thành công!', type: 'success' });
+    } catch (err: any) {
+      setVoucherError(err.message || 'Mã giảm giá không hợp lệ.');
+      setAppliedVoucher(null);
+    } finally {
+      setValidatingVoucher(false);
+    }
+  };
+
+  const handleCloseCheckoutModal = () => {
+    setShowCheckoutModal(false);
+    setVoucherCode('');
+    setAppliedVoucher(null);
+    setVoucherError('');
+  };
+
   const handleCheckout = async () => {
     if (!product) return;
     if (!selectedVariantId) {
@@ -96,7 +143,8 @@ export const ProductDetail: React.FC = () => {
       setPurchasing(true);
       const purchase = await api.post<Purchase>('/api/purchases/checkout', {
         product_id: product.id,
-        variant_id: selectedVariantId
+        variant_id: selectedVariantId,
+        voucher_code: appliedVoucher ? appliedVoucher.code : undefined
       });
       if (purchase.status === 'pending') {
         await api.post<Purchase>(`/api/purchases/${purchase.id}/pay`, {});
@@ -262,9 +310,29 @@ export const ProductDetail: React.FC = () => {
                               </Typography>
                             </Box>
                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', sm: 'flex-end' } }}>
-                              <Typography component="span" sx={{ fontWeight: 800, fontSize: '1.1rem', color: 'primary.main' }}>
-                                ${v.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                              </Typography>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                                {v.original_price && v.original_price > v.price && (
+                                  <>
+                                    <Typography component="span" sx={{ fontSize: '0.8rem', color: 'text.disabled', textDecoration: 'line-through', fontWeight: 500 }}>
+                                      ${v.original_price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                    </Typography>
+                                    <Box component="span" sx={{
+                                      fontSize: '0.65rem',
+                                      fontWeight: 700,
+                                      color: '#ef4444',
+                                      background: 'rgba(239, 68, 68, 0.1)',
+                                      padding: '0.1rem 0.25rem',
+                                      borderRadius: '3px',
+                                      display: 'inline-block'
+                                    }}>
+                                      -{Math.round(((v.original_price - v.price) / v.original_price) * 100)}%
+                                    </Box>
+                                  </>
+                                )}
+                                <Typography component="span" sx={{ fontWeight: 800, fontSize: '1.1rem', color: 'primary.main' }}>
+                                  ${v.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </Typography>
+                              </Box>
                               <Typography component="span" sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
                                 ≈ {vndEstimate} VND
                               </Typography>
@@ -378,7 +446,7 @@ export const ProductDetail: React.FC = () => {
       {/* Checkout Modal Simulation */}
       <Dialog
         open={showCheckoutModal}
-        onClose={() => setShowCheckoutModal(false)}
+        onClose={handleCloseCheckoutModal}
         slotProps={{
           paper: {
             sx: {
@@ -407,35 +475,101 @@ export const ProductDetail: React.FC = () => {
           {(() => {
             const selectedVariant = activeSortedVariants(product.variants).find(v => v.id === selectedVariantId);
             if (!selectedVariant) return null;
-            const vndAmount = (selectedVariant.price * exchangeRate).toLocaleString('vi-VN');
+            const originalPrice = selectedVariant.price;
+            const finalPrice = appliedVoucher ? appliedVoucher.discounted_price : originalPrice;
+            const vndAmount = (finalPrice * exchangeRate).toLocaleString('vi-VN');
             return (
-              <Box sx={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '1.25rem', marginBottom: '1.5rem' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>Công cụ</Typography>
-                  <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem' }}>{product.title}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>Gói bản quyền</Typography>
-                  <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.95rem' }}>{selectedVariant.name}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem', fontSize: '1.1rem' }}>
-                  <Typography sx={{ color: 'text.primary', fontWeight: 600, fontSize: '1.1rem' }}>Tổng tiền</Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                    <Typography sx={{ color: 'primary.main', fontWeight: 800, fontSize: '1.1rem' }}>
-                      ${selectedVariant.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </Typography>
-                    <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
-                      ≈ {vndAmount} VND
-                    </Typography>
+              <>
+                <Box sx={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '1.25rem', marginBottom: '1.25rem' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+                    <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>Công cụ</Typography>
+                    <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem' }}>{product.title}</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+                    <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>Gói bản quyền</Typography>
+                    <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.95rem' }}>{selectedVariant.name}</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem', fontSize: '1.1rem' }}>
+                    <Typography sx={{ color: 'text.primary', fontWeight: 600, fontSize: '1.1rem' }}>Tổng tiền</Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                      {appliedVoucher && (
+                        <Typography sx={{ color: 'text.disabled', textDecoration: 'line-through', fontSize: '0.9rem', marginBottom: '0.15rem' }}>
+                          ${originalPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </Typography>
+                      )}
+                      <Typography sx={{ color: 'primary.main', fontWeight: 800, fontSize: '1.1rem' }}>
+                        ${finalPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </Typography>
+                      <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
+                        ≈ {vndAmount} VND
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
+
+                {/* Voucher Input */}
+                <Box sx={{ marginBottom: '1.5rem' }}>
+                  <Typography component="label" sx={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'text.secondary', marginBottom: '0.5rem' }}>
+                    Mã khuyến mãi
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: '0.5rem' }}>
+                    <InputBase
+                      placeholder="Nhập mã (ví dụ: NEWLIFE)"
+                      value={voucherCode}
+                      onChange={e => {
+                        setVoucherCode(e.target.value);
+                        if (voucherError) setVoucherError('');
+                      }}
+                      disabled={validatingVoucher || purchasing}
+                      sx={{
+                        flex: 1,
+                        backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        borderRadius: '8px',
+                        padding: '0.5rem 0.75rem',
+                        color: '#fff',
+                        fontSize: '0.9rem',
+                        fontFamily: '"Outfit", sans-serif',
+                        '&.Mui-focused': {
+                          borderColor: '#6366f1',
+                        },
+                        '& input': {
+                          padding: 0
+                        }
+                      }}
+                    />
+                    <Button
+                      onClick={handleApplyVoucher}
+                      disabled={validatingVoucher || purchasing || !voucherCode.trim()}
+                      sx={{
+                        ...btnPrimarySx,
+                        padding: '0 1rem',
+                        height: '38px',
+                        fontSize: '0.85rem',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {validatingVoucher ? 'Đang áp dụng...' : 'Áp dụng'}
+                    </Button>
+                  </Box>
+                  {voucherError && (
+                    <Typography sx={{ color: 'error.main', fontSize: '0.75rem', marginTop: '0.35rem' }}>
+                      {voucherError}
+                    </Typography>
+                  )}
+                  {appliedVoucher && (
+                    <Typography sx={{ color: 'success.main', fontSize: '0.75rem', marginTop: '0.35rem', fontWeight: 600 }}>
+                      Đã áp dụng mã {appliedVoucher.code} thành công (-{appliedVoucher.discount_type === 'percentage' ? `${appliedVoucher.discount_value}%` : `$${appliedVoucher.discount_value}`})
+                    </Typography>
+                  )}
+                </Box>
+              </>
             );
           })()}
 
           <Box sx={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
             <Button 
-              onClick={() => setShowCheckoutModal(false)} 
+              onClick={handleCloseCheckoutModal} 
               sx={{ ...btnSecondarySx, flex: 1, justifyContent: 'center' }}
               disabled={purchasing}
             >

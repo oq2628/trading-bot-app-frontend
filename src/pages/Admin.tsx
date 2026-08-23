@@ -34,6 +34,7 @@ interface ProductVariant {
   duration_months: number | null;
   is_lifetime: boolean;
   is_deleted: boolean;
+  original_price: number | null;
   created_at: string;
 }
 
@@ -52,6 +53,7 @@ interface Product {
 interface DraftProductVariant {
   name: string;
   price: number;
+  original_price: number | null;
   duration_days: number | null;
   duration_months: number | null;
   is_lifetime: boolean;
@@ -199,6 +201,7 @@ export const Admin: React.FC = () => {
   // Product Variant Management States
   const [newVariantName, setNewVariantName] = useState('');
   const [newVariantPrice, setNewVariantPrice] = useState('');
+  const [newVariantOriginalPrice, setNewVariantOriginalPrice] = useState('');
   const [newVariantDurationType, setNewVariantDurationType] = useState<'lifetime' | 'days' | 'months'>('months');
   const [newVariantDurationValue, setNewVariantDurationValue] = useState('');
   const [addingVariant, setAddingVariant] = useState(false);
@@ -454,6 +457,12 @@ export const Admin: React.FC = () => {
       return null;
     }
 
+    const originalPriceVal = newVariantOriginalPrice.trim() ? parseFloat(newVariantOriginalPrice) : null;
+    if (originalPriceVal !== null && (isNaN(originalPriceVal) || originalPriceVal < 0)) {
+      setToast({ message: 'Giá gốc phải là số hợp lệ không âm.', type: 'error' });
+      return null;
+    }
+
     let durationDays: number | null = null;
     let durationMonths: number | null = null;
     let isLifetime = false;
@@ -476,6 +485,7 @@ export const Admin: React.FC = () => {
     return {
       name: newVariantName.trim(),
       price: priceVal,
+      original_price: originalPriceVal,
       duration_days: durationDays,
       duration_months: durationMonths,
       is_lifetime: isLifetime
@@ -485,6 +495,7 @@ export const Admin: React.FC = () => {
   const resetVariantForm = () => {
     setNewVariantName('');
     setNewVariantPrice('');
+    setNewVariantOriginalPrice('');
     setNewVariantDurationType('months');
     setNewVariantDurationValue('');
   };
@@ -662,6 +673,12 @@ export const Admin: React.FC = () => {
       return;
     }
 
+    const originalPriceVal = newVariantOriginalPrice.trim() ? parseFloat(newVariantOriginalPrice) : null;
+    if (originalPriceVal !== null && (isNaN(originalPriceVal) || originalPriceVal < 0)) {
+      setToast({ message: 'Giá gốc phải là số hợp lệ không âm.', type: 'error' });
+      return;
+    }
+
     let durationDays: number | null = null;
     let durationMonths: number | null = null;
     let isLifetime = false;
@@ -686,6 +703,7 @@ export const Admin: React.FC = () => {
       await api.post(`/api/admin/products/${editingProduct.id}/variants`, {
         name: newVariantName.trim(),
         price: priceVal,
+        original_price: originalPriceVal,
         duration_days: durationDays,
         duration_months: durationMonths,
         is_lifetime: isLifetime
@@ -694,6 +712,7 @@ export const Admin: React.FC = () => {
       setToast({ message: 'Đã tạo gói bản quyền thành công!', type: 'success' });
       setNewVariantName('');
       setNewVariantPrice('');
+      setNewVariantOriginalPrice('');
       setNewVariantDurationValue('');
 
       const updatedProduct = await api.get<Product>(`/api/products/${editingProduct.id}`);
@@ -2008,14 +2027,14 @@ export const Admin: React.FC = () => {
                           <Table sx={{ minWidth: 950 }}>
                             <TableHead>
                               <TableRow sx={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Khách Hàng / Email</TableCell>
-                                <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Số tiền (USD)</TableCell>
-                                <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Số tiền (VND)</TableCell>
-                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Mã nạp tiền</TableCell>
-                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Mã GD ACB</TableCell>
-                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Ngày Tạo</TableCell>
-                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Trạng Thái</TableCell>
-                                <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none' }}>Hành động</TableCell>
+                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none', whiteSpace: 'nowrap' }}>Khách Hàng / Email</TableCell>
+                                <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none', whiteSpace: 'nowrap' }}>Số tiền (USD)</TableCell>
+                                <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none', whiteSpace: 'nowrap' }}>Số tiền (VND)</TableCell>
+                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none', whiteSpace: 'nowrap' }}>Mã nạp tiền</TableCell>
+                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none', whiteSpace: 'nowrap' }}>Mã GD ACB</TableCell>
+                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none', whiteSpace: 'nowrap' }}>Ngày Tạo</TableCell>
+                                <TableCell sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none', whiteSpace: 'nowrap' }}>Trạng Thái</TableCell>
+                                <TableCell align="right" sx={{ padding: '1rem 0.5rem', color: 'text.secondary', borderBottom: 'none', whiteSpace: 'nowrap' }}>Hành động</TableCell>
                               </TableRow>
                             </TableHead>
                             <TableBody>
@@ -2027,10 +2046,10 @@ export const Admin: React.FC = () => {
                                       <Typography component="strong" sx={{ display: 'block', fontSize: '0.9rem', color: '#fff', fontWeight: 700 }}>{t.user?.full_name || 'Khách'}</Typography>
                                       <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>{t.user?.email || 'N/A'}</Typography>
                                     </TableCell>
-                                    <TableCell align="right" sx={{ padding: '1rem 0.5rem', fontWeight: 600, borderBottom: 'none' }}>
+                                    <TableCell align="right" sx={{ padding: '1rem 0.5rem', fontWeight: 600, borderBottom: 'none', whiteSpace: 'nowrap' }}>
                                       ${t.amount.toFixed(2)}
                                     </TableCell>
-                                    <TableCell align="right" sx={{ padding: '1rem 0.5rem', fontWeight: 600, color: 'success.main', borderBottom: 'none' }}>
+                                    <TableCell align="right" sx={{ padding: '1rem 0.5rem', fontWeight: 600, color: 'success.main', borderBottom: 'none', whiteSpace: 'nowrap' }}>
                                       {t.amount_vnd.toLocaleString()} đ
                                     </TableCell>
                                     <TableCell sx={{ padding: '1rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem', borderBottom: 'none' }}>
@@ -2039,10 +2058,10 @@ export const Admin: React.FC = () => {
                                     <TableCell sx={{ padding: '1rem 0.5rem', fontFamily: 'monospace', fontSize: '0.85rem', borderBottom: 'none' }}>
                                       {t.acb_transaction_id || '-'}
                                     </TableCell>
-                                    <TableCell sx={{ padding: '1rem 0.5rem', fontSize: '0.85rem', color: 'text.secondary', borderBottom: 'none' }}>
+                                    <TableCell sx={{ padding: '1rem 0.5rem', fontSize: '0.85rem', color: 'text.secondary', borderBottom: 'none', whiteSpace: 'nowrap' }}>
                                       {new Date(t.created_at).toLocaleDateString(undefined, { dateStyle: 'short' })}
                                     </TableCell>
-                                    <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none' }}>
+                                    <TableCell sx={{ padding: '1rem 0.5rem', borderBottom: 'none', whiteSpace: 'nowrap' }}>
                                       <Box component="span" sx={{
                                         fontSize: '0.7rem',
                                         fontWeight: 800,
@@ -2270,7 +2289,14 @@ export const Admin: React.FC = () => {
                         <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>{formatVariantDuration({ ...variant, id: `${index}` })}</Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: 'primary.main' }}>${variant.price.toFixed(2)}</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                          {variant.original_price && variant.original_price > variant.price && (
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', textDecoration: 'line-through' }}>
+                              ${variant.original_price.toFixed(2)}
+                            </Typography>
+                          )}
+                          <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: 'primary.main' }}>${variant.price.toFixed(2)}</Typography>
+                        </Box>
                         <Button type="button" onClick={() => handleRemoveDraftVariant(index)} disabled={draftProductVariants.length <= 1} sx={{ ...btnSecondarySx, padding: '0.25rem', height: '28px', minWidth: '40px', borderColor: 'rgba(239, 68, 68, 0.25)', color: 'error.main', opacity: draftProductVariants.length <= 1 ? 0.5 : 1 }}>
                           <Trash2 size={12} />
                         </Button>
@@ -2287,10 +2313,6 @@ export const Admin: React.FC = () => {
 
               <Grid container spacing={2} sx={{ marginBottom: '0.75rem' }}>
                 <Grid size={{ xs: 6 }}>
-                  <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Giá (USD) *</Typography>
-                  <InputBase type="number" placeholder="0.00" value={newVariantPrice} onChange={e => setNewVariantPrice(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
-                </Grid>
-                <Grid size={{ xs: 6 }}>
                   <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Loại thời hạn</Typography>
                   <FormControl sx={{ width: '100%' }}>
                     <Select
@@ -2305,14 +2327,26 @@ export const Admin: React.FC = () => {
                     </Select>
                   </FormControl>
                 </Grid>
+                <Grid size={{ xs: 6 }}>
+                  {newVariantDurationType !== 'lifetime' && (
+                    <>
+                      <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Thời hạn ({newVariantDurationType === 'months' ? 'Tháng' : 'Ngày'}) *</Typography>
+                      <InputBase type="number" placeholder={newVariantDurationType === 'months' ? 'Số tháng (Ví dụ: 3)' : 'Số ngày (Ví dụ: 90)'} value={newVariantDurationValue} onChange={e => setNewVariantDurationValue(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
+                    </>
+                  )}
+                </Grid>
               </Grid>
 
-              {newVariantDurationType !== 'lifetime' && (
-                <Box sx={{ marginBottom: '1rem' }}>
-                  <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Thời hạn ({newVariantDurationType === 'months' ? 'Tháng' : 'Ngày'}) *</Typography>
-                  <InputBase type="number" placeholder={newVariantDurationType === 'months' ? 'Số tháng (Ví dụ: 3)' : 'Số ngày (Ví dụ: 90)'} value={newVariantDurationValue} onChange={e => setNewVariantDurationValue(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
-                </Box>
-              )}
+              <Grid container spacing={2} sx={{ marginBottom: '0.75rem' }}>
+                <Grid size={{ xs: 6 }}>
+                  <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Giá bán (USD) *</Typography>
+                  <InputBase type="number" placeholder="0.00" value={newVariantPrice} onChange={e => setNewVariantPrice(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Giá gốc (USD) (Nếu có)</Typography>
+                  <InputBase type="number" placeholder="0.00" value={newVariantOriginalPrice} onChange={e => setNewVariantOriginalPrice(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
+                </Grid>
+              </Grid>
 
               <Button type="button" onClick={handleAddDraftVariant} sx={{ ...btnSecondarySx, width: '100%', padding: '0.5rem', fontSize: '0.8rem', justifyContent: 'center', gap: '0.35rem', borderColor: 'rgba(99,102,241,0.25)', color: 'primary.main' }}>
                 <Plus size={14} /> Thêm gói bản quyền
@@ -2441,7 +2475,6 @@ export const Admin: React.FC = () => {
                 <Typography component="label" sx={{ fontSize: '0.8rem', color: 'text.secondary', fontWeight: 600, display: 'block', mb: 0.5 }}>Mô tả sản phẩm *</Typography>
                 <InputBase required multiline rows={4} value={productDescription} onChange={e => setProductDescription(e.target.value)} sx={inputSx} />
               </Box>
-
               {/* COLLAPSIBLE SECTION: PRODUCT VARIANTS */}
               <Box sx={{ ...glassPanelSx, padding: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.05)', background: 'rgba(0, 0, 0, 0.15)' }}>
                 <Box
@@ -2469,7 +2502,14 @@ export const Admin: React.FC = () => {
                               <Typography sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>{formatVariantDuration(v)}</Typography>
                             </Box>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                              <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: 'primary.main' }}>${v.price.toFixed(2)}</Typography>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                                {v.original_price && v.original_price > v.price && (
+                                  <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', textDecoration: 'line-through' }}>
+                                    ${v.original_price.toFixed(2)}
+                                  </Typography>
+                                )}
+                                <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: 'primary.main' }}>${v.price.toFixed(2)}</Typography>
+                              </Box>
                               <Button
                                 type="button"
                                 onClick={() => handleDeleteVariant(v.id)}
@@ -2497,10 +2537,6 @@ export const Admin: React.FC = () => {
 
                       <Grid container spacing={2} sx={{ marginBottom: '0.75rem' }}>
                         <Grid size={{ xs: 6 }}>
-                          <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Giá (USD) *</Typography>
-                          <InputBase type="number" placeholder="0.00" value={newVariantPrice} onChange={e => setNewVariantPrice(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
-                        </Grid>
-                        <Grid size={{ xs: 6 }}>
                           <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Loại thời hạn</Typography>
                           <FormControl sx={{ width: '100%' }}>
                             <Select
@@ -2515,14 +2551,26 @@ export const Admin: React.FC = () => {
                             </Select>
                           </FormControl>
                         </Grid>
+                        <Grid size={{ xs: 6 }}>
+                          {newVariantDurationType !== 'lifetime' && (
+                            <>
+                              <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Thời hạn ({newVariantDurationType === 'months' ? 'Tháng' : 'Ngày'}) *</Typography>
+                              <InputBase type="number" placeholder={newVariantDurationType === 'months' ? 'Số tháng' : 'Số ngày'} value={newVariantDurationValue} onChange={e => setNewVariantDurationValue(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
+                            </>
+                          )}
+                        </Grid>
                       </Grid>
 
-                      {newVariantDurationType !== 'lifetime' && (
-                        <Box sx={{ marginBottom: '1rem' }}>
-                          <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Thời hạn ({newVariantDurationType === 'months' ? 'Tháng' : 'Ngày'}) *</Typography>
-                          <InputBase type="number" placeholder={newVariantDurationType === 'months' ? 'Số tháng' : 'Số ngày'} value={newVariantDurationValue} onChange={e => setNewVariantDurationValue(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
-                        </Box>
-                      )}
+                      <Grid container spacing={2} sx={{ marginBottom: '0.75rem' }}>
+                        <Grid size={{ xs: 6 }}>
+                          <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Giá bán (USD) *</Typography>
+                          <InputBase type="number" placeholder="0.00" value={newVariantPrice} onChange={e => setNewVariantPrice(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
+                        </Grid>
+                        <Grid size={{ xs: 6 }}>
+                          <Typography component="label" sx={{ fontSize: '0.75rem', color: 'text.secondary', display: 'block', mb: 0.5 }}>Giá gốc (USD) (Nếu có)</Typography>
+                          <InputBase type="number" placeholder="0.00" value={newVariantOriginalPrice} onChange={e => setNewVariantOriginalPrice(e.target.value)} sx={{ ...inputSx, padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} />
+                        </Grid>
+                      </Grid>
 
                       <Button type="button" onClick={handleAddVariant} disabled={addingVariant} sx={{ ...btnSecondarySx, width: '100%', padding: '0.5rem', fontSize: '0.8rem', justifyContent: 'center', gap: '0.35rem', borderColor: 'rgba(99,102,241,0.25)', color: 'primary.main' }}>
                         {addingVariant ? 'Đang tạo...' : <><Plus size={14} /> Tạo gói bản quyền</>}

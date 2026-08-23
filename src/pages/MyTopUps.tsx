@@ -371,30 +371,30 @@ export const MyTopUps: React.FC = () => {
                   <Table sx={{ minWidth: 650 }}>
                     <TableHead>
                       <TableRow sx={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                        <TableCell sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Thời gian tạo</TableCell>
-                        <TableCell sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Nội dung CK</TableCell>
-                        <TableCell align="right" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Số tiền (USD)</TableCell>
-                        <TableCell align="right" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Số tiền (VND)</TableCell>
-                        <TableCell align="center" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Trạng thái</TableCell>
-                        <TableCell align="right" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none' }}>Hành động</TableCell>
+                        <TableCell sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none', whiteSpace: 'nowrap' }}>Thời gian tạo</TableCell>
+                        <TableCell sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none', whiteSpace: 'nowrap' }}>Nội dung CK</TableCell>
+                        <TableCell align="right" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none', whiteSpace: 'nowrap' }}>Số tiền (USD)</TableCell>
+                        <TableCell align="right" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none', whiteSpace: 'nowrap' }}>Số tiền (VND)</TableCell>
+                        <TableCell align="center" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none', whiteSpace: 'nowrap' }}>Trạng thái</TableCell>
+                        <TableCell align="right" sx={{ padding: '0.75rem 0.5rem', color: 'text.secondary', fontSize: '0.8rem', textTransform: 'uppercase', borderBottom: 'none', whiteSpace: 'nowrap' }}>Hành động</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {topUps.map((t) => (
                         <TableRow key={t.id} sx={{ borderBottom: '1px solid rgba(255,255,255,0.02)', '&:hover': { background: 'rgba(255,255,255,0.01)' } }}>
-                          <TableCell sx={{ padding: '0.85rem 0.5rem', fontSize: '0.85rem', color: 'text.secondary', borderBottom: 'none' }}>
+                          <TableCell sx={{ padding: '0.85rem 0.5rem', fontSize: '0.85rem', color: 'text.secondary', borderBottom: 'none', whiteSpace: 'nowrap' }}>
                             {new Date(t.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                           </TableCell>
                           <TableCell sx={{ padding: '0.85rem 0.5rem', fontSize: '0.85rem', fontFamily: 'monospace', fontWeight: 600, borderBottom: 'none' }}>
                             {t.payment_reference}
                           </TableCell>
-                          <TableCell align="right" sx={{ padding: '0.85rem 0.5rem', fontWeight: 600, borderBottom: 'none' }}>
+                          <TableCell align="right" sx={{ padding: '0.85rem 0.5rem', fontWeight: 600, borderBottom: 'none', whiteSpace: 'nowrap' }}>
                             ${t.amount.toFixed(2)}
                           </TableCell>
-                          <TableCell align="right" sx={{ padding: '0.85rem 0.5rem', fontWeight: 600, color: 'success.main', fontSize: '0.85rem', borderBottom: 'none' }}>
+                          <TableCell align="right" sx={{ padding: '0.85rem 0.5rem', fontWeight: 600, color: 'success.main', fontSize: '0.85rem', borderBottom: 'none', whiteSpace: 'nowrap' }}>
                             {t.amount_vnd.toLocaleString()} đ
                           </TableCell>
-                          <TableCell align="center" sx={{ padding: '0.85rem 0.5rem', borderBottom: 'none' }}>
+                          <TableCell align="center" sx={{ padding: '0.85rem 0.5rem', borderBottom: 'none', whiteSpace: 'nowrap' }}>
                             {getStatusBadge(t.status)}
                           </TableCell>
                           <TableCell align="right" sx={{ padding: '0.85rem 0.5rem', borderBottom: 'none' }}>

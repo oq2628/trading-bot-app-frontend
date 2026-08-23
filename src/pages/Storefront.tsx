@@ -1,426 +1,207 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import api from '../utils/api';
-import { Search, ArrowUpRight, Cpu, LineChart, FileCode, AlertTriangle } from 'lucide-react';
-import { shortestVariant } from '../utils/variants';
-import { Box, Container, Typography, Button, InputBase, CircularProgress } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
+import { RotateCcw, Search, SlidersHorizontal } from 'lucide-react';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  InputBase,
+  MenuItem,
+  Select,
+  Typography,
+} from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { glassPanelSx, glassCardSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx } from '../theme';
+import api from '../utils/api';
+import { shortestVariant } from '../utils/variants';
+import type { Product } from '../types/product';
+import { ProductCard } from '../components/ProductCard';
+import { btnPrimarySx, btnSecondarySx, glassPanelSx, pageContainerSx, pageTitleSx } from '../theme';
 
-interface ProductVariant {
-  id: string;
-  name: string;
-  price: number;
-  duration_days: number | null;
-  duration_months: number | null;
-  is_lifetime: boolean;
-  is_deleted: boolean;
-}
+type SortMode = 'newest' | 'best_selling' | 'price_asc' | 'price_desc';
 
-interface Product {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  image_url: string;
-  created_at: string;
-  variants?: ProductVariant[];
-}
+const categoryLabel = (category: string): string => {
+  switch (category.toLowerCase()) {
+    case 'all': return 'Tất cả';
+    case 'ea': return 'Robot EA';
+    case 'indicator': return 'Chỉ báo';
+    case 'script': return 'Script';
+    default: return category;
+  }
+};
 
 export const Storefront: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const [showAlert, setShowAlert] = useState(true);
-  const [isCollapsed, setIsCollapsed] = useState(true);
-  
-  const alertEvent = {
-    title: "Cảnh báo biến động giá Vàng mạnh: Dữ liệu Lạm phát CPI Hoa Kỳ hôm nay",
-    severity: "high", // high -> error-red, medium -> warning-orange
-    details: "Báo cáo lạm phát Chỉ số Giá Tiêu dùng (CPI) Hoa Kỳ dự kiến công bố lúc 13:30 UTC hôm nay. Dự báo có biến động giá cực mạnh và giãn chênh lệch giá (spread) đối với Vàng (XAUUSD). Chúng tôi khuyến nghị tạm dừng chạy EA 30 phút trước và sau thời gian công bố để giảm thiểu rủi ro trượt giá."
-  };
+  const [sortMode, setSortMode] = useState<SortMode>('newest');
+
+  const serverSort = sortMode === 'best_selling' ? 'best_selling' : 'newest';
 
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const data = await api.get<Product[]>('/api/products');
+      setError('');
+      const data = await api.get<Product[]>(`/api/products?sort=${serverSort}`);
       setProducts(data);
-      setFilteredProducts(data);
-    } catch (err: any) {
-      setError(err.message || 'Không thể tải danh mục công cụ giao dịch.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Không thể tải danh mục công cụ giao dịch.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    // Product data is synchronized with the selected server-side ordering.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadProducts();
-  }, []);
+  }, [serverSort]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    let result = products;
+  const categories = useMemo(() => {
+    const available = Array.from(new Set(products.map(product => product.category).filter(Boolean)));
+    const preferred = ['EA', 'Indicator', 'Script'].filter(category => available.some(item => item.toLowerCase() === category.toLowerCase()));
+    const other = available.filter(category => !preferred.some(item => item.toLowerCase() === category.toLowerCase()));
+    return ['All', ...preferred, ...other];
+  }, [products]);
 
-    if (activeCategory !== 'All') {
-      result = result.filter(p => p.category.toLowerCase() === activeCategory.toLowerCase());
+  const filteredProducts = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    const result = products.filter(product => {
+      const matchesCategory = activeCategory === 'All' || product.category.toLowerCase() === activeCategory.toLowerCase();
+      const matchesSearch = !query || product.title.toLowerCase().includes(query) || product.description.toLowerCase().includes(query);
+      return matchesCategory && matchesSearch;
+    });
+
+    if (sortMode === 'price_asc' || sortMode === 'price_desc') {
+      result.sort((a, b) => {
+        const aPrice = shortestVariant(a.variants)?.price ?? Number.POSITIVE_INFINITY;
+        const bPrice = shortestVariant(b.variants)?.price ?? Number.POSITIVE_INFINITY;
+        const diff = aPrice - bPrice;
+        return sortMode === 'price_asc' ? diff : -diff;
+      });
     }
 
-    if (searchQuery.trim() !== '') {
-      result = result.filter(p => 
-        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
+    return result;
+  }, [activeCategory, products, searchQuery, sortMode]);
 
-    setFilteredProducts(result);
-  }, [activeCategory, searchQuery, products]);
-
-  const getCategoryIcon = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'ea':
-        return <Cpu size={16} color="#6366f1" />;
-      case 'indicator':
-        return <LineChart size={16} color="#06b6d4" />;
-      case 'script':
-        return <FileCode size={16} color="#10b981" />;
-      default:
-        return null;
-    }
+  const resetFilters = () => {
+    setActiveCategory('All');
+    setSearchQuery('');
+    setSortMode('newest');
   };
 
-  const inputSx = {
-    width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    border: '1px solid rgba(255, 255, 255, 0.06)',
-    borderRadius: '8px',
-    padding: '0.75rem 1rem',
-    color: '#fff',
-    fontSize: '0.95rem',
-    fontFamily: '"Outfit", sans-serif',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    '&.Mui-focused': {
-      borderColor: '#6366f1',
-      boxShadow: '0 0 10px 0 rgba(99, 102, 241, 0.2)',
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    },
-    '& input': {
-      padding: 0,
-      '&::placeholder': {
-        color: '#6b7280',
-        opacity: 1,
-      }
-    }
-  };
+  const hasActiveFilters = activeCategory !== 'All' || searchQuery.trim() !== '' || sortMode !== 'newest';
 
   return (
-    <Container
-      maxWidth="xl"
-      sx={pageContainerSx}
-    >
-      {/* News Alerts Banner */}
-      {showAlert && (
-        <Box
-          sx={{
-            ...glassPanelSx,
-            marginTop: '1.5rem',
-            borderRadius: '12px',
-            border: alertEvent.severity === 'high' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(245, 158, 11, 0.3)',
-            background: alertEvent.severity === 'high' ? 'rgba(239, 68, 68, 0.08)' : 'rgba(245, 158, 11, 0.08)',
-            boxShadow: alertEvent.severity === 'high' ? '0 8px 32px 0 rgba(239, 68, 68, 0.05)' : '0 8px 32px 0 rgba(245, 158, 11, 0.05)',
-            overflow: 'hidden',
-            transition: 'all 0.3s ease',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '0.85rem 1.25rem',
-              cursor: 'pointer',
-            }}
-            onClick={() => setIsCollapsed(!isCollapsed)}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0 }}>
-              <AlertTriangle
-                size={18}
-                color={alertEvent.severity === 'high' ? '#ef4444' : '#f59e0b'}
-                style={{ flexShrink: 0 }}
-              />
-              <Typography
-                component="span"
-                sx={{
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
-                  color: '#fff',
-                  whiteSpace: { xs: 'nowrap', sm: 'normal' },
-                  overflow: { xs: 'hidden', sm: 'visible' },
-                  textOverflow: { xs: 'ellipsis', sm: 'clip' },
-                  maxWidth: { xs: '65vw', sm: 'none' }
-                }}
-              >
-                {alertEvent.title}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0 }}>
-              <Box
-                component="button"
-                onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }}
-                sx={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'text.secondary',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  transition: 'transform 0.2s',
-                  transform: isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)',
-                  '&:hover': { color: '#fff' }
-                }}
-              >
-                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Box>
-              <Box
-                component="button"
-                onClick={(e) => { e.stopPropagation(); setShowAlert(false); }}
-                sx={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'text.disabled',
-                  cursor: 'pointer',
-                  fontSize: '1.2rem',
-                  padding: '0 4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  fontWeight: 'bold',
-                  lineHeight: 1,
-                  '&:hover': { color: '#fff' }
-                }}
-                aria-label="Close Alert"
-              >
-                &times;
-              </Box>
-            </Box>
-          </Box>
-          
-          {!isCollapsed && (
-            <Box
-              sx={{
-                padding: '0.75rem 1.25rem 1.25rem 2.75rem',
-                fontSize: '0.85rem',
-                color: 'text.secondary',
-                lineHeight: 1.6,
-                borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-                paddingTop: '0.75rem'
-              }}
-            >
-              {alertEvent.details}
-            </Box>
-          )}
+    <Container maxWidth="xl" sx={{ ...pageContainerSx, pt: { xs: 1, md: 2 } }}>
+      <Box component="header" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1.2fr .8fr' }, gap: 3, alignItems: 'end', mb: { xs: 4, md: 5 } }}>
+        <Box>
+          <Typography sx={{ color: '#818cf8', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '.13em', textTransform: 'uppercase', mb: 1 }}>
+            AlgoForge Marketplace
+          </Typography>
+          <Typography variant="h1" sx={{ ...pageTitleSx, fontSize: { xs: '2.25rem', md: '3.5rem' }, mb: 1.2 }}>
+            Bộ công cụ cho nhà giao dịch hiện đại
+          </Typography>
         </Box>
-      )}
-
-      {/* Hero Header */}
-      <Box component="header" sx={{ textAlign: 'center', margin: { xs: '2rem 0 2.5rem', md: '3rem 0 4rem' } }}>
-        <Typography
-          variant="h1"
-          sx={{
-            ...pageTitleSx,
-            fontSize: { xs: '2rem', sm: '2.4rem', md: '3rem' },
-            marginBottom: '1rem',
-            background: 'linear-gradient(135deg, #fff 30%, #9ca3af)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          Khai phá Sức mạnh Giao dịch Tự động
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: 'text.secondary',
-            fontSize: '1.2rem',
-            maxWidth: '600px',
-            margin: '0 auto',
-            lineHeight: 1.6
-          }}
-        >
-          Tải xuống các Cố vấn Chuyên gia (EAs) ưu tú, chỉ báo độ chính xác cao và kịch bản thực thi tự động được xây dựng bởi các nhà nghiên cứu định lượng chuyên nghiệp.
+        <Typography sx={{ color: 'text.secondary', lineHeight: 1.75, maxWidth: 560, justifySelf: { md: 'end' } }}>
+          Tìm kiếm robot EA, chỉ báo và script theo nhu cầu. Giá hiển thị bắt đầu từ gói có thời hạn ngắn nhất đang hoạt động.
         </Typography>
       </Box>
 
-      {/* Catalog Filters and Search */}
-      <Box
-        sx={{
-          ...glassPanelSx,
-          padding: '1rem 1.5rem',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '1.5rem',
-          marginBottom: '2.5rem'
-        }}
-      >
-        {/* Search */}
-        <Box sx={{ position: 'relative', flex: '1', minWidth: '280px' }}>
-          <Search size={18} color="#6b7280" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} />
-          <InputBase
-            type="text"
-            placeholder="Tìm kiếm công cụ giao dịch..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            sx={{
-              ...inputSx,
-              paddingLeft: '2.75rem'
-            }}
-          />
+      <Box sx={{ ...glassPanelSx, p: { xs: 2, md: 2.5 }, mb: 3.5, background: 'rgba(14,17,28,.78)' }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(280px, 1fr) 230px auto' }, gap: 1.5, alignItems: 'center' }}>
+          <Box sx={{ position: 'relative' }}>
+            <Search size={18} color="#778199" style={{ position: 'absolute', left: 15, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} />
+            <InputBase
+              value={searchQuery}
+              onChange={event => setSearchQuery(event.target.value)}
+              placeholder="Tìm theo tên hoặc mô tả sản phẩm..."
+              inputProps={{ 'aria-label': 'Tìm kiếm sản phẩm' }}
+              sx={{
+                width: '100%',
+                height: 46,
+                pl: 5,
+                pr: 1.5,
+                color: '#fff',
+                borderRadius: '11px',
+                background: 'rgba(255,255,255,.035)',
+                border: '1px solid rgba(255,255,255,.08)',
+                '&.Mui-focused': { borderColor: 'rgba(129,140,248,.72)', boxShadow: '0 0 0 3px rgba(99,102,241,.12)' },
+              }}
+            />
+          </Box>
+
+          <Select
+            value={sortMode}
+            onChange={event => setSortMode(event.target.value as SortMode)}
+            aria-label="Sắp xếp sản phẩm"
+            startAdornment={<SlidersHorizontal size={16} color="#818cf8" style={{ marginRight: 9 }} />}
+            sx={{ height: 46, color: '#e5e7eb', borderRadius: '11px', background: 'rgba(255,255,255,.035)', '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,.08)' } }}
+          >
+            <MenuItem value="newest">Mới nhất</MenuItem>
+            <MenuItem value="best_selling">Bán chạy</MenuItem>
+            <MenuItem value="price_asc">Giá: thấp đến cao</MenuItem>
+            <MenuItem value="price_desc">Giá: cao đến thấp</MenuItem>
+          </Select>
+
+          <Button onClick={resetFilters} disabled={!hasActiveFilters} sx={{ ...btnSecondarySx, height: 46, whiteSpace: 'nowrap' }}>
+            <RotateCcw size={15} /> Đặt lại
+          </Button>
         </Box>
 
-        {/* Categories Tabs */}
-        <Box sx={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {['All', 'EA', 'Indicator', 'Script'].map((cat) => {
-            const isSelected = activeCategory === cat;
+        <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid rgba(255,255,255,.06)', display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+          {categories.map(category => {
+            const active = activeCategory.toLowerCase() === category.toLowerCase();
             return (
               <Button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                aria-pressed={active}
                 sx={{
-                  ...(isSelected ? btnPrimarySx : btnSecondarySx),
-                  padding: '0.5rem 1.25rem',
-                  fontSize: '0.85rem',
-                  borderRadius: '8px',
-                  transform: 'none',
+                  ...(active ? btnPrimarySx : btnSecondarySx),
+                  px: 1.5,
+                  py: 0.65,
+                  borderRadius: '9px',
+                  fontSize: '0.82rem',
                   boxShadow: 'none',
-                  '&:hover': {
-                    ...(isSelected
-                      ? {
-                          background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-                          boxShadow: 'none',
-                          transform: 'none',
-                         }
-                      : {
-                          background: 'rgba(255, 255, 255, 0.1)',
-                          transform: 'none',
-                        }),
-                  },
+                  '&:hover': { transform: 'none', boxShadow: 'none' },
                 }}
               >
-                {cat === 'All' ? 'Tất cả công cụ' : cat === 'EA' ? 'Robot EA' : cat === 'Indicator' ? 'Chỉ báo' : 'Kịch bản'}
+                {categoryLabel(category)}
               </Button>
             );
           })}
         </Box>
       </Box>
 
+      {!loading && !error && (
+        <Typography sx={{ color: 'text.secondary', fontSize: '0.84rem', mb: 2.2 }} aria-live="polite">
+          Hiển thị <Box component="span" sx={{ color: '#fff', fontWeight: 750 }}>{filteredProducts.length}</Box> sản phẩm
+        </Typography>
+      )}
+
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
-          <CircularProgress color="primary" />
-        </Box>
+        <Box sx={{ minHeight: 320, display: 'grid', placeItems: 'center' }}><CircularProgress /></Box>
       ) : error ? (
-        <Box sx={{ ...glassPanelSx, padding: '2rem', textAlign: 'center', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-          <Typography sx={{ color: 'error.main', fontWeight: 600 }}>{error}</Typography>
-          <Button sx={{ ...btnPrimarySx, marginTop: '1rem' }} onClick={loadProducts}>Thử lại</Button>
+        <Box sx={{ ...glassPanelSx, p: 4, textAlign: 'center', borderColor: 'rgba(239,68,68,.24)' }}>
+          <Typography sx={{ color: 'error.main', fontWeight: 650, mb: 1.5 }}>{error}</Typography>
+          <Button onClick={loadProducts} sx={btnPrimarySx}>Thử lại</Button>
         </Box>
       ) : filteredProducts.length === 0 ? (
-        <Box sx={{ ...glassPanelSx, padding: '4rem 2rem', textAlign: 'center' }}>
-          <Typography sx={{ color: 'text.secondary', fontSize: '1.1rem' }}>Không tìm thấy công cụ giao dịch nào phù hợp với bộ lọc.</Typography>
+        <Box sx={{ ...glassPanelSx, p: { xs: 4, md: 7 }, textAlign: 'center' }}>
+          <Search size={34} color="#64748b" />
+          <Typography variant="h2" sx={{ fontSize: '1.25rem', mt: 1.5, mb: 0.7 }}>Không tìm thấy sản phẩm phù hợp</Typography>
+          <Typography sx={{ color: 'text.secondary', mb: 2 }}>Hãy thử từ khóa khác hoặc đặt lại bộ lọc.</Typography>
+          <Button onClick={resetFilters} sx={btnSecondarySx}>Đặt lại bộ lọc</Button>
         </Box>
       ) : (
-        <Grid container spacing={4}>
-          {filteredProducts.map((product) => {
-            const displayVariant = shortestVariant(product.variants);
-            return (
-              <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={product.id} sx={{ display: 'flex' }}>
-                <Box sx={{ ...glassCardSx, width: '100%' }}>
-                  {/* Product Thumbnail */}
-                  <Box sx={{ height: '180px', overflow: 'hidden', position: 'relative' }}>
-                    <Box 
-                      component="img"
-                      src={product.image_url} 
-                      alt={product.title} 
-                      sx={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'cover', 
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        '&:hover': {
-                          transform: 'scale(1.05)'
-                        }
-                      }} 
-                    />
-                    <Box sx={{
-                      position: 'absolute',
-                      top: '0.75rem',
-                      left: '0.75rem',
-                      background: 'rgba(10, 11, 14, 0.8)',
-                      backdropFilter: 'blur(4px)',
-                      padding: '0.35rem 0.75rem',
-                      borderRadius: '20px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.4rem',
-                      border: '1px solid rgba(255, 255, 255, 0.06)'
-                    }}>
-                      {getCategoryIcon(product.category)}
-                      <Typography component="span" sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', textTransform: 'uppercase' }}>
-                        {product.category}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {/* Product Info */}
-                  <Box sx={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                    <Box>
-                      <Typography variant="h3" sx={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: 700 }}>
-                        {product.title}
-                      </Typography>
-                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', lineHeight: 1.5, marginBottom: '1.5rem', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                        {product.description}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem', marginTop: 'auto' }}>
-                      <Box>
-                        <Typography component="span" sx={{ fontSize: '0.75rem', color: 'text.disabled', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                          Giá bán
-                        </Typography>
-                        {displayVariant ? (
-                          <Typography component="span" sx={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>
-                            ${displayVariant.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </Typography>
-                        ) : (
-                          <Typography component="span" sx={{ fontSize: '0.9rem', fontWeight: 700, color: 'error.main' }}>
-                            Chưa có gói
-                          </Typography>
-                        )}
-                      </Box>
-
-                      <Button
-                        component={Link}
-                        to={`/products/${product.id}`}
-                        sx={{
-                          ...btnPrimarySx,
-                          padding: '0.5rem 1rem',
-                          fontSize: '0.85rem',
-                          borderRadius: '8px'
-                        }}
-                      >
-                        Chi tiết
-                        <ArrowUpRight size={14} />
-                      </Button>
-                    </Box>
-                  </Box>
-                </Box>
-              </Grid>
-            );
-          })}
+        <Grid container spacing={3}>
+          {filteredProducts.map(product => (
+            <Grid key={product.id} size={{ xs: 12, sm: 6, lg: 4 }} sx={{ display: 'flex' }}>
+              <ProductCard product={product} badge={sortMode === 'best_selling' ? 'Bán chạy' : undefined} />
+            </Grid>
+          ))}
         </Grid>
       )}
     </Container>
