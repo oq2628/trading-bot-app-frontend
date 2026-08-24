@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
+import { Home } from './pages/Home';
 import { Storefront } from './pages/Storefront';
 import { ProductDetail } from './pages/ProductDetail';
 import { Dashboard } from './pages/Dashboard';
@@ -13,7 +15,7 @@ import { About } from './pages/About';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
 import { MyTopUps } from './pages/MyTopUps';
-import { Box, CircularProgress, Container, Typography } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 
 
 // Protected Route wrapper for regular users/buyers
@@ -63,7 +65,8 @@ const AppContent: React.FC = () => {
       <Navbar />
       <Box component="main" sx={{ minHeight: 'calc(100vh - 180px)' }}>
         <Routes>
-          <Route path="/" element={<Storefront />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Storefront />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/support" element={<Support />} />
@@ -112,26 +115,7 @@ const AppContent: React.FC = () => {
         </Routes>
       </Box>
       
-      <Box 
-        component="footer" 
-        sx={{
-          textAlign: 'center',
-          padding: '3rem 1.5rem',
-          borderTop: '1px solid rgba(255, 255, 255, 0.04)',
-          marginTop: '4rem',
-          color: 'text.secondary',
-          fontSize: '0.85rem'
-        }}
-      >
-        <Container maxWidth="xl" sx={{ maxWidth: '1600px !important' }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 0.5 }}>
-            © {new Date().getFullYear()} AlgoForge Marketplace. All rights reserved.
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', fontSize: '0.75rem' }}>
-            Built for professional quantitative traders. Secure physical asset storage & verification active.
-          </Typography>
-        </Container>
-      </Box>
+      <Footer />
     </Router>
   );
 };
