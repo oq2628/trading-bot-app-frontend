@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { getExchangeRate } from '../api/exchange';
-import { Download, ShoppingBag, ShieldCheck, RefreshCw, Info, Key, Copy, X } from 'lucide-react';
+import { Download, ShoppingBag, ShieldCheck, RefreshCw, Info, Key, Copy, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Toast } from '../components/Toast';
 import { activeSortedVariants, formatVariantDuration } from '../utils/variants';
@@ -86,8 +86,6 @@ export const Dashboard: React.FC = () => {
   const [bindInputs, setBindInputs] = useState<Record<string, string>>({});
   const [bindErrors, setBindErrors] = useState<Record<string, string>>({});
   const [bindingId, setBindingId] = useState<string | null>(null);
-  const [resettingId, setResettingId] = useState<string | null>(null);
-  const [removingAccountKey, setRemovingAccountKey] = useState<string | null>(null);
   const [copyingKeyId, setCopyingKeyId] = useState<string | null>(null);
 
   // States for renewal flow
@@ -144,34 +142,6 @@ export const Dashboard: React.FC = () => {
       setToast({ message: err.message || 'Liên kết tài khoản thất bại.', type: 'error' });
     } finally {
       setBindingId(null);
-    }
-  };
-
-  const handleResetLicense = async (licenseId: string) => {
-    try {
-      setResettingId(licenseId);
-      await api.post('/api/license/reset', { license_id: licenseId });
-      setToast({ message: 'Đã xóa toàn bộ liên kết tài khoản thành công.', type: 'success' });
-      setBindInputs(prev => ({ ...prev, [licenseId]: '' }));
-      loadOrders(true);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Lỗi xóa liên kết bản quyền.', type: 'error' });
-    } finally {
-      setResettingId(null);
-    }
-  };
-
-  const handleRemoveAccountBinding = async (licenseId: string, account: string) => {
-    const loadingKey = `${licenseId}:${account}`;
-    try {
-      setRemovingAccountKey(loadingKey);
-      await api.delete(`/api/license/${licenseId}/bindings/${encodeURIComponent(account)}`);
-      setToast({ message: 'Đã gỡ liên kết tài khoản MT4/MT5 thành công.', type: 'success' });
-      loadOrders(true);
-    } catch (err: unknown) {
-      setToast({ message: err instanceof Error ? err.message : 'Không thể gỡ liên kết tài khoản.', type: 'error' });
-    } finally {
-      setRemovingAccountKey(null);
     }
   };
 
@@ -425,7 +395,8 @@ export const Dashboard: React.FC = () => {
               const boundAccounts = order.license
                 ? (order.license.mt5_accounts?.length ? order.license.mt5_accounts : (order.license.mt5_account ? [order.license.mt5_account] : []))
                 : [];
-              const remainingSlots = Math.max(0, 3 - boundAccounts.length);
+              // One MT4/MT5 account per license, and the owner cannot release it.
+              const hasBinding = boundAccounts.length > 0;
               return (
                 <Box key={order.id} sx={{
                   ...glassPanelSx,
@@ -700,59 +671,39 @@ export const Dashboard: React.FC = () => {
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                               <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>MT4/MT5 đã liên kết:</Typography>
-                              <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>Còn lại {remainingSlots} trong 3 slot tài khoản</Typography>
+                              <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>Mỗi bản quyền chỉ liên kết 1 tài khoản</Typography>
                             </Box>
-                            {boundAccounts.length > 0 ? (
+                            {hasBinding ? (
                               <Box sx={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                                 {boundAccounts.map((account) => (
                                   <Box key={account} sx={{
                                     background: 'rgba(16, 185, 129, 0.1)',
                                     color: 'success.main',
-                                    padding: '0.2rem 0.35rem 0.2rem 0.6rem',
+                                    padding: '0.2rem 0.6rem',
                                     borderRadius: '20px',
                                     fontSize: '0.8rem',
                                     fontWeight: 700,
                                     border: '1px solid rgba(16, 185, 129, 0.2)',
                                     display: 'inline-flex',
                                     alignItems: 'center',
-                                    gap: '0.25rem'
+                                    gap: '0.3rem'
                                   }}>
+                                    <Lock size={11} />
                                     Tài khoản: {account}
-                                    <Box
-                                      component="button"
-                                      type="button"
-                                      title={`Gỡ liên kết tài khoản ${account}`}
-                                      aria-label={`Gỡ liên kết tài khoản ${account}`}
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleRemoveAccountBinding(order.license!.id, account);
-                                      }}
-                                      disabled={isExpired || removingAccountKey === `${order.license!.id}:${account}`}
-                                      sx={{
-                                        background: 'transparent',
-                                        border: 'none',
-                                        color: 'success.main',
-                                        cursor: (isExpired || removingAccountKey === `${order.license!.id}:${account}`) ? 'not-allowed' : 'pointer',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        padding: '0.05rem',
-                                        opacity: (isExpired || removingAccountKey === `${order.license!.id}:${account}`) ? 0.45 : 0.85,
-                                        '&:hover': { color: '#fff' }
-                                      }}
-                                    >
-                                      <X size={12} />
-                                    </Box>
                                   </Box>
                                 ))}
                               </Box>
                             ) : (
                               <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>Chưa có tài khoản nào được liên kết.</Typography>
                             )}
+                            {hasBinding && (
+                              <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', lineHeight: 1.6 }}>
+                                Tài khoản đã liên kết không thể tự gỡ. Nếu cần đổi sang tài khoản khác, vui lòng liên hệ quản trị viên để được hỗ trợ.
+                              </Typography>
+                            )}
                           </Box>
 
-                          {remainingSlots > 0 && (
+                          {!hasBinding && (
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                               <Box sx={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
                                 <Typography component="label" htmlFor={`bind-input-${order.license.id}`} sx={{ fontSize: '0.85rem', color: 'text.secondary', minWidth: '90px' }}>Liên kết:</Typography>
@@ -807,6 +758,9 @@ export const Dashboard: React.FC = () => {
                                   {bindErrors[order.license.id]}
                                 </Typography>
                               )}
+                              <Typography sx={{ fontSize: '0.75rem', color: 'warning.main', lineHeight: 1.6 }}>
+                                Lưu ý: mỗi bản quyền chỉ liên kết được 1 tài khoản MT4/MT5 và bạn không thể tự gỡ sau khi liên kết. Hãy kiểm tra kỹ số tài khoản trước khi xác nhận.
+                              </Typography>
                             </Box>
                           )}
 
@@ -815,35 +769,6 @@ export const Dashboard: React.FC = () => {
                               Device ID: {order.license.device_id || 'Chưa có thiết bị nào đăng ký'}
                             </Typography>
 
-                            {(boundAccounts.length > 0 || order.license.device_id) && (
-                              <Button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  handleResetLicense(order.license!.id);
-                                }}
-                                disabled={isExpired || resettingId === order.license.id}
-                                sx={{
-                                  ...btnSecondarySx,
-                                  padding: '0.2rem 0.5rem',
-                                  fontSize: '0.75rem',
-                                  borderRadius: '4px',
-                                  background: 'transparent',
-                                  borderColor: 'rgba(239, 68, 68, 0.3)',
-                                  color: 'error.main',
-                                  height: '24px',
-                                  minWidth: 'auto',
-                                  opacity: isExpired ? 0.5 : 1,
-                                  '&:hover': {
-                                    background: 'rgba(239, 68, 68, 0.08)',
-                                    borderColor: 'rgba(239, 68, 68, 0.4)'
-                                  }
-                                }}
-                              >
-                                {resettingId === order.license.id ? 'Đang đặt lại...' : 'Xóa toàn bộ liên kết'}
-                              </Button>
-                            )}
                           </Box>
                         </Box>
                       </Box>

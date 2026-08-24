@@ -65,6 +65,7 @@ interface License {
   user_id: string;
   product_id: string;
   mt5_account?: string;
+  mt5_accounts?: string[];
   device_id?: string;
   status: string;
   expires_at?: string;
@@ -240,6 +241,8 @@ export const Admin: React.FC = () => {
   const [orderStatusFilter, setOrderStatusFilter] = useState('all');
   const [viewingOrder, setViewingOrder] = useState<OrderDetail | null>(null);
   const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
+  const [bindingAccountInput, setBindingAccountInput] = useState('');
+  const [savingBinding, setSavingBinding] = useState(false);
 
   // 4. Users State
   const [usersList, setUsersList] = useState<User[]>([]);
@@ -752,10 +755,51 @@ export const Admin: React.FC = () => {
     try {
       const data = await api.get<OrderDetail>(`/api/admin/orders/${orderId}`);
       setViewingOrder(data);
+      setBindingAccountInput('');
     } catch (err: any) {
       setToast({ message: err.message || 'Không thể lấy thông tin chi tiết đơn hàng.', type: 'error' });
     }
   };
+
+  // Owners bind one MT4/MT5 account and cannot release it, so changing or
+  // clearing a binding is only possible from here.
+  const handleSetLicenseBinding = async (licenseId: string) => {
+    const account = bindingAccountInput.trim();
+    if (!/^\d{4,12}$/.test(account)) {
+      setToast({ message: 'Số tài khoản MT4/MT5 phải gồm 4 đến 12 chữ số.', type: 'error' });
+      return;
+    }
+
+    setSavingBinding(true);
+    try {
+      await api.put(`/api/admin/licenses/${licenseId}/binding`, { mt5_account: account });
+      setToast({ message: `Đã chuyển bản quyền sang tài khoản ${account}.`, type: 'success' });
+      setBindingAccountInput('');
+      if (viewingOrder) await handleViewOrderDetail(viewingOrder.id);
+    } catch (err: unknown) {
+      setToast({ message: err instanceof Error ? err.message : 'Không thể cập nhật liên kết tài khoản.', type: 'error' });
+    } finally {
+      setSavingBinding(false);
+    }
+  };
+
+  const handleClearLicenseBinding = async (licenseId: string) => {
+    setSavingBinding(true);
+    try {
+      await api.delete(`/api/admin/licenses/${licenseId}/binding`);
+      setToast({ message: 'Đã gỡ liên kết tài khoản. Khách hàng có thể liên kết lại 1 lần.', type: 'success' });
+      setBindingAccountInput('');
+      if (viewingOrder) await handleViewOrderDetail(viewingOrder.id);
+    } catch (err: unknown) {
+      setToast({ message: err instanceof Error ? err.message : 'Không thể gỡ liên kết tài khoản.', type: 'error' });
+    } finally {
+      setSavingBinding(false);
+    }
+  };
+
+  const viewingBoundAccount = viewingOrder?.license
+    ? (viewingOrder.license.mt5_accounts?.[0] || viewingOrder.license.mt5_account || '')
+    : '';
 
   const handleUpdateOrderStatus = async (purchaseId: string, newStatus: string) => {
     setUpdatingOrderStatus(true);
@@ -2709,6 +2753,75 @@ export const Admin: React.FC = () => {
                   <Typography sx={{ color: 'text.disabled', fontSize: '0.85rem' }}>Chưa có giao dịch nào.</Typography>
                 )}
               </Box>
+
+              {/* Account binding: customers bind once and cannot release it themselves. */}
+              {viewingOrder.license && (
+                <Box sx={{ ...glassPanelSx, padding: '1.25rem', background: 'rgba(0,0,0,0.15)', border: '1px solid rgba(255,255,255,0.02)', marginTop: '1rem' }}>
+                  <Typography variant="h3" sx={{ fontSize: '0.9rem', color: '#fff', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem', marginBottom: '0.75rem', fontWeight: 700 }}>
+                    Liên kết tài khoản MT4/MT5
+                  </Typography>
+
+                  <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary', marginBottom: '0.85rem', lineHeight: 1.6 }}>
+                    Mỗi bản quyền chỉ liên kết được 1 tài khoản và khách hàng không thể tự gỡ. Chỉ quản trị viên mới đổi hoặc gỡ được liên kết này.
+                  </Typography>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.85rem' }}>
+                    <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled', textTransform: 'uppercase' }}>Đang liên kết:</Typography>
+                    {viewingBoundAccount ? (
+                      <Box component="span" sx={{ background: 'rgba(16, 185, 129, 0.15)', color: 'success.main', padding: '0.15rem 0.6rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700, fontFamily: 'monospace' }}>
+                        {viewingBoundAccount}
+                      </Box>
+                    ) : (
+                      <Typography sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>Chưa liên kết tài khoản nào</Typography>
+                    )}
+                  </Box>
+
+                  <Box sx={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <InputBase
+                      id="admin-binding-account"
+                      placeholder="Số tài khoản 4-12 chữ số"
+                      value={bindingAccountInput}
+                      onChange={(e) => setBindingAccountInput(e.target.value)}
+                      disabled={savingBinding}
+                      sx={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255,255,255,0.06)',
+                        borderRadius: '6px',
+                        padding: '0.3rem 0.75rem',
+                        fontSize: '0.85rem',
+                        color: '#fff',
+                        width: '190px'
+                      }}
+                    />
+                    <Button
+                      onClick={() => handleSetLicenseBinding(viewingOrder.license!.id)}
+                      disabled={savingBinding || !bindingAccountInput.trim()}
+                      sx={{ ...btnPrimarySx, padding: '0.35rem 0.9rem', fontSize: '0.8rem', borderRadius: '6px', minWidth: 'auto' }}
+                    >
+                      {savingBinding ? 'Đang lưu...' : viewingBoundAccount ? 'Đổi tài khoản' : 'Liên kết tài khoản'}
+                    </Button>
+                    {viewingBoundAccount && (
+                      <Button
+                        onClick={() => handleClearLicenseBinding(viewingOrder.license!.id)}
+                        disabled={savingBinding}
+                        sx={{
+                          ...btnSecondarySx,
+                          padding: '0.35rem 0.9rem',
+                          fontSize: '0.8rem',
+                          borderRadius: '6px',
+                          minWidth: 'auto',
+                          background: 'transparent',
+                          borderColor: 'rgba(239, 68, 68, 0.3)',
+                          color: 'error.main',
+                          '&:hover': { background: 'rgba(239, 68, 68, 0.08)', borderColor: 'rgba(239, 68, 68, 0.45)' }
+                        }}
+                      >
+                        Gỡ liên kết
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
+              )}
 
               <Box sx={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' }}>
                 <Button
