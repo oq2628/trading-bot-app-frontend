@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ExternalLink, MessageCircle, MessagesSquare, Send, TrendingUp } from 'lucide-react';
 import { Box, Container, IconButton, Typography } from '@mui/material';
 import { getSupportChannel, getSupportHref, siteContent, type SupportChannelKey } from '../config/siteContent';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 
 const footerChannels: SupportChannelKey[] = ['zalo', 'telegram', 'facebook'];
 
@@ -13,6 +14,8 @@ const channelIcon = (key: SupportChannelKey) => {
 };
 
 export const Footer: React.FC = () => {
+  const { partner } = useSiteSettings();
+
   return (
     <Box component="footer" sx={{ mt: { xs: 7, md: 10 }, borderTop: '1px solid rgba(255,255,255,0.07)', background: 'rgba(5, 7, 12, 0.75)' }}>
       <Container maxWidth="xl" sx={{ maxWidth: '1600px !important', py: { xs: 5, md: 6 }, px: { xs: 2, md: 4 } }}>
@@ -24,7 +27,7 @@ export const Footer: React.FC = () => {
               </Box>
               <Typography sx={{ color: '#fff', fontSize: '1.15rem', fontWeight: 800 }}>{siteContent.brand.name}</Typography>
               <Typography component="span" sx={{ color: '#a5b4fc', fontSize: '0.68rem', fontWeight: 800, px: 0.9, py: 0.35, borderRadius: '999px', border: '1px solid rgba(129,140,248,.3)', background: 'rgba(79,70,229,.12)' }}>
-                × {siteContent.partner.name}
+                × {partner.name}
               </Typography>
             </Box>
             <Typography sx={{ color: 'text.secondary', maxWidth: 480, lineHeight: 1.75, fontSize: '0.9rem' }}>

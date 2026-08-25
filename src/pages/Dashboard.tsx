@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { Toast } from '../components/Toast';
 import { activeSortedVariants, formatVariantDuration } from '../utils/variants';
 import { Box, Container, Typography, Button, InputBase, Dialog, DialogTitle, DialogContent, CircularProgress } from '@mui/material';
-import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx } from '../theme';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx, panelPaddingSx, dialogPaperSx, breakLongValueSx } from '../theme';
 
 interface Variant {
   id: string;
@@ -320,7 +320,7 @@ export const Dashboard: React.FC = () => {
         <Box
           sx={{
             ...glassPanelSx,
-            padding: '2rem',
+            padding: panelPaddingSx,
             marginBottom: '2.5rem',
             display: 'flex',
             alignItems: 'center',
@@ -330,11 +330,11 @@ export const Dashboard: React.FC = () => {
             border: '1px solid rgba(99, 102, 241, 0.15)'
           }}
         >
-          <Box>
+          <Box sx={{ minWidth: 0 }}>
             <Typography variant="h1" sx={{ ...pageTitleSx, fontSize: { xs: '1.75rem', md: '2rem' }, marginBottom: '0.5rem' }}>
               Bảng Điều khiển
             </Typography>
-            <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>
+            <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem', ...breakLongValueSx }}>
               Đăng nhập bởi: <strong style={{ color: '#fff' }}>{user?.full_name}</strong> ({user?.email})
             </Typography>
           </Box>
@@ -727,7 +727,7 @@ export const Dashboard: React.FC = () => {
                                     fontSize: '0.85rem',
                                     fontFamily: '"Outfit", sans-serif',
                                     color: '#fff',
-                                    width: '160px',
+                                    width: { xs: '100%', sm: '160px' },
                                     opacity: isExpired ? 0.5 : 1,
                                     '& input': { padding: 0 }
                                   }}
@@ -754,7 +754,7 @@ export const Dashboard: React.FC = () => {
                                 </Button>
                               </Box>
                               {bindErrors[order.license.id] && (
-                                <Typography sx={{ color: 'error.main', fontSize: '0.75rem', marginLeft: '95px' }}>
+                                <Typography sx={{ color: 'error.main', fontSize: '0.75rem', marginLeft: { xs: 0, sm: '95px' } }}>
                                   {bindErrors[order.license.id]}
                                 </Typography>
                               )}
@@ -873,9 +873,8 @@ export const Dashboard: React.FC = () => {
           paper: {
             sx: {
               ...glassPanelSx,
-              padding: '2rem',
+              ...dialogPaperSx,
               maxWidth: '480px',
-              width: '100%',
               background: 'rgba(20, 22, 33, 0.9)',
               backgroundImage: 'none',
               border: '1px solid rgba(99, 102, 241, 0.3)'
@@ -963,14 +962,14 @@ export const Dashboard: React.FC = () => {
                             onChange={() => setSelectedVariantId(v.id)}
                             style={{ cursor: 'pointer', accentColor: '#6366f1' }}
                           />
-                          <Box component="label" htmlFor={`renew-variant-${v.id}`} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', flex: 1, margin: 0 }}>
-                            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Box component="label" htmlFor={`renew-variant-${v.id}`} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: '0.35rem', sm: '0.75rem' }, cursor: 'pointer', flex: 1, minWidth: 0, margin: 0 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                               <Typography component="span" sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#fff' }}>{v.name}</Typography>
                               <Typography component="span" sx={{ fontSize: '0.7rem', color: 'text.disabled' }}>
                                 {formatVariantDuration(v)}
                               </Typography>
                             </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', sm: 'flex-end' }, flexShrink: 0 }}>
                               <Typography component="span" sx={{ fontWeight: 800, fontSize: '0.95rem', color: 'primary.main' }}>
                                 ${v.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                               </Typography>
@@ -1019,9 +1018,8 @@ export const Dashboard: React.FC = () => {
           paper: {
             sx: {
               ...glassPanelSx,
-              padding: '2rem',
+              ...dialogPaperSx,
               maxWidth: '480px',
-              width: '100%',
               background: 'rgba(20, 22, 33, 0.95)',
               backgroundImage: 'none',
               border: '1px solid rgba(239, 68, 68, 0.3)'

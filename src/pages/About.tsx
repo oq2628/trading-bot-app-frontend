@@ -4,9 +4,13 @@ import { ArrowRight, BadgeCheck, Building2, FileText, Handshake, ShieldAlert, Us
 import { Box, Button, Container, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { siteContent } from '../config/siteContent';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import { btnPrimarySx, glassPanelSx, pageContainerSx, pageTitleSx } from '../theme';
 
-export const About: React.FC = () => (
+export const About: React.FC = () => {
+  const { partner } = useSiteSettings();
+
+  return (
   <Container maxWidth="xl" sx={{ ...pageContainerSx, pt: { xs: 1, md: 2 } }}>
     <Box component="header" sx={{ position: 'relative', overflow: 'hidden', p: { xs: 3, sm: 5, md: 7 }, borderRadius: { xs: '20px', md: '28px' }, border: '1px solid rgba(129,140,248,.18)', background: 'radial-gradient(circle at 85% 15%, rgba(79,70,229,.28), transparent 35%), linear-gradient(135deg, rgba(18,22,38,.96), rgba(7,9,16,.96))', mb: { xs: 6, md: 9 } }}>
       <Typography sx={{ color: '#818cf8', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '.13em', textTransform: 'uppercase', mb: 1.3 }}>Về AlgoForge</Typography>
@@ -14,7 +18,7 @@ export const About: React.FC = () => (
         Nơi công nghệ giao dịch gặp trải nghiệm hỗ trợ có trách nhiệm
       </Typography>
       <Typography sx={{ color: 'text.secondary', fontSize: { xs: '0.98rem', md: '1.1rem' }, lineHeight: 1.8, maxWidth: 760 }}>
-        {siteContent.brand.name} được định hướng như một website bán và quản lý công cụ giao dịch số. Trong trải nghiệm đồng thương hiệu, GTC là đối tác được giới thiệu để mở rộng điểm chạm cho nhà giao dịch.
+        {siteContent.brand.name} được định hướng như một website bán và quản lý công cụ giao dịch số. Trong trải nghiệm đồng thương hiệu, {partner.name} là đối tác được giới thiệu để mở rộng điểm chạm cho nhà giao dịch.
       </Typography>
     </Box>
 
@@ -37,11 +41,12 @@ export const About: React.FC = () => (
         <Box component="section" sx={{ ...glassPanelSx, p: { xs: 3, md: 4.5 }, width: '100%', background: 'linear-gradient(145deg, rgba(79,70,229,.16), rgba(10,12,20,.85))' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 2 }}>
             <Box sx={{ color: '#a5b4fc', display: 'flex' }}><Handshake size={23} /></Box>
-            <Typography variant="h2" sx={{ fontSize: '1.55rem' }}>AlgoForge × GTC</Typography>
+            <Typography variant="h2" sx={{ fontSize: '1.55rem', wordBreak: 'break-word' }}>{siteContent.brand.name} × {partner.name}</Typography>
           </Box>
-          <Typography sx={{ color: 'text.secondary', lineHeight: 1.8, mb: 2 }}>{siteContent.partner.introduction}</Typography>
+          <Typography sx={{ color: 'text.secondary', lineHeight: 1.8, mb: 2 }}>{partner.introduction}</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#cbd5e1', fontSize: '0.86rem' }}>
-            <BadgeCheck size={17} color="#818cf8" /> Đối tác đồng thương hiệu · Thành lập {siteContent.partner.foundedYear}
+            <BadgeCheck size={17} color="#818cf8" />
+            {partner.relationship}{partner.founded_year ? ` · Thành lập ${partner.founded_year}` : ''}
           </Box>
         </Box>
       </Grid>
@@ -111,6 +116,7 @@ export const About: React.FC = () => (
       </Box>
     </Box>
   </Container>
-);
+  );
+};
 
 export default About;
