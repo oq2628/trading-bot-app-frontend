@@ -351,7 +351,9 @@ export const Login: React.FC = () => {
               padding: '1rem',
               fontSize: '0.8rem',
               color: 'text.secondary',
-              lineHeight: '1.4'
+              lineHeight: '1.4',
+              wordBreak: 'break-word',
+              overflowWrap: 'anywhere'
             }}
           >
             <Typography component="strong" sx={{ color: 'primary.main', display: 'block', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 700 }}>

@@ -19,6 +19,7 @@ import api from '../utils/api';
 import type { Product } from '../types/product';
 import { ProductCard } from '../components/ProductCard';
 import { getPartnerWebsite, siteContent } from '../config/siteContent';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import { btnOutlineGradientSx, btnPrimarySx, glassPanelSx, pageContainerSx } from '../theme';
 import heroImage from '../assets/algoforge-hero.png';
 
@@ -298,7 +299,8 @@ export const Home: React.FC = () => {
   const [bestSellingProducts, setBestSellingProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const partnerWebsite = getPartnerWebsite();
+  const { partner } = useSiteSettings();
+  const partnerWebsite = getPartnerWebsite(partner);
 
   const loadProducts = async () => {
     try {
@@ -373,14 +375,14 @@ export const Home: React.FC = () => {
           <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.8, px: 1.25, py: 0.65, mb: 2.4, borderRadius: '999px', color: '#c7d2fe', border: '1px solid rgba(129,140,248,.3)', background: 'rgba(79,70,229,.12)', backdropFilter: 'blur(12px)' }}>
             <Sparkles size={14} />
             <Typography component="span" sx={{ fontSize: '0.73rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              AlgoForge × GTC
+              {siteContent.brand.name} × {partner.name}
             </Typography>
           </Box>
           <Typography id="home-hero-title" variant="h1" sx={{ fontSize: { xs: '2.45rem', sm: '3.4rem', md: '4.5rem' }, lineHeight: 1.02, letterSpacing: '-0.045em', maxWidth: 720, mb: 2.2 }}>
             Công nghệ vững vàng cho hành trình giao dịch kỷ luật.
           </Typography>
           <Typography sx={{ color: '#b9c1d4', fontSize: { xs: '1rem', md: '1.15rem' }, lineHeight: 1.75, maxWidth: 620, mb: 3.4 }}>
-            Khám phá robot EA, chỉ báo và công cụ MetaTrader được tuyển chọn trong hệ sinh thái AlgoForge, đồng hành cùng đối tác giao dịch GTC.
+            Khám phá robot EA, chỉ báo và công cụ MetaTrader được tuyển chọn trong hệ sinh thái {siteContent.brand.name}, đồng hành cùng đối tác giao dịch {partner.name}.
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.4 }}>
             <Button component={Link} to="/products" sx={{ ...btnPrimarySx, px: 2.2, py: 1.05 }}>
@@ -388,11 +390,11 @@ export const Home: React.FC = () => {
             </Button>
             {partnerWebsite ? (
               <Button component="a" href={partnerWebsite} target="_blank" rel="noopener noreferrer" sx={{ ...btnOutlineGradientSx, px: 2.2, py: 1.05 }}>
-                Website GTC <ExternalLink size={16} />
+                Website {partner.name} <ExternalLink size={16} />
               </Button>
             ) : (
               <Button disabled sx={{ ...btnOutlineGradientSx, px: 2.2, py: 1.05, opacity: 0.55 }}>
-                Website GTC đang cập nhật
+                Website {partner.name} đang cập nhật
               </Button>
             )}
           </Box>
@@ -410,25 +412,27 @@ export const Home: React.FC = () => {
         <Box sx={{ ...glassPanelSx, p: { xs: 3, md: 4.5 }, background: 'linear-gradient(145deg, rgba(79,70,229,.17), rgba(10,12,20,.82))' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2, mb: 3 }}>
             <Box>
-              <Typography sx={{ color: '#a5b4fc', fontSize: '0.74rem', fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase' }}>{siteContent.partner.relationship}</Typography>
-              <Typography variant="h2" sx={{ fontSize: { xs: '2.3rem', md: '3.2rem' }, mt: 0.5 }}>{siteContent.partner.name}</Typography>
+              <Typography sx={{ color: '#a5b4fc', fontSize: '0.74rem', fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase' }}>{partner.relationship}</Typography>
+              <Typography variant="h2" sx={{ fontSize: { xs: '2.3rem', md: '3.2rem' }, mt: 0.5, wordBreak: 'break-word' }}>{partner.name}</Typography>
             </Box>
-            <Box aria-label="Logo demo GTC" sx={{ width: 72, height: 72, borderRadius: '20px', display: 'grid', placeItems: 'center', color: '#fff', fontSize: '1.05rem', fontWeight: 900, letterSpacing: '.08em', background: 'linear-gradient(135deg, #2563eb, #7c3aed)', boxShadow: '0 14px 38px rgba(79,70,229,.3)' }}>
-              GTC
+            <Box aria-label={`Logo ${partner.name}`} sx={{ width: 72, height: 72, flexShrink: 0, borderRadius: '20px', display: 'grid', placeItems: 'center', color: '#fff', fontSize: '1.05rem', fontWeight: 900, letterSpacing: '.08em', background: 'linear-gradient(135deg, #2563eb, #7c3aed)', boxShadow: '0 14px 38px rgba(79,70,229,.3)' }}>
+              {partner.name.slice(0, 4).toUpperCase()}
             </Box>
           </Box>
-          <Typography sx={{ color: 'text.secondary', lineHeight: 1.8, mb: 3 }}>{siteContent.partner.introduction}</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#cbd5e1' }}>
-            <Building2 size={17} color="#818cf8" />
-            <Typography sx={{ fontSize: '0.86rem' }}>Năm thành lập demo: {siteContent.partner.foundedYear}</Typography>
-          </Box>
+          <Typography sx={{ color: 'text.secondary', lineHeight: 1.8, mb: 3 }}>{partner.introduction}</Typography>
+          {partner.founded_year && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#cbd5e1' }}>
+              <Building2 size={17} color="#818cf8" />
+              <Typography sx={{ fontSize: '0.86rem' }}>Năm thành lập: {partner.founded_year}</Typography>
+            </Box>
+          )}
         </Box>
 
         <Box sx={{ ...glassPanelSx, p: { xs: 3, md: 4.5 } }}>
           <Typography sx={{ color: '#818cf8', fontSize: '0.74rem', fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', mb: 1 }}>Giá trị kết nối</Typography>
           <Typography variant="h2" sx={{ fontSize: { xs: '1.7rem', md: '2.1rem' }, mb: 2.6 }}>Một hệ sinh thái, nhiều điểm chạm hỗ trợ</Typography>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 1.5 }}>
-            {siteContent.partner.benefits.map((benefit, index) => {
+            {partner.benefits.map((benefit, index) => {
               const icons = [<Gauge size={20} />, <BadgeCheck size={20} />, <Users size={20} />];
               return (
                 <Box key={benefit} sx={{ p: 2, minHeight: 142, borderRadius: '14px', background: 'rgba(255,255,255,.025)', border: '1px solid rgba(255,255,255,.06)' }}>

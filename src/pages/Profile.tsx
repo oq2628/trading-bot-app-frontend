@@ -4,7 +4,7 @@ import { Toast } from '../components/Toast';
 import { User, Wallet, Save, ArrowUpRight, Calendar, MapPin, Phone, X, RefreshCw } from 'lucide-react';
 import { Box, Container, Typography, Button, InputBase, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx } from '../theme';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx, panelPaddingSx, breakLongValueSx, labelValueRowSx } from '../theme';
 
 export const Profile: React.FC = () => {
   const { user, refreshUser } = useAuth();
@@ -223,7 +223,7 @@ export const Profile: React.FC = () => {
       <Grid container spacing={4}>
         {/* Left Column: Account Profile */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Box sx={{ ...glassPanelSx, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <Box sx={{ ...glassPanelSx, padding: panelPaddingSx, display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <Typography variant="h2" sx={{ fontSize: '1.35rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem', margin: 0 }}>
               <User size={18} color="#6366f1" />
               Thông tin Cá nhân
@@ -349,7 +349,7 @@ export const Profile: React.FC = () => {
 
         {/* Right Column: Wallet Transactions */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Box sx={{ ...glassPanelSx, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%' }}>
+          <Box sx={{ ...glassPanelSx, padding: panelPaddingSx, display: 'flex', flexDirection: 'column', gap: '1.5rem', height: '100%' }}>
             <Typography variant="h2" sx={{ fontSize: '1.35rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.6rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem', margin: 0 }}>
               <Wallet size={18} color="#6366f1" />
               Ví Giả lập
@@ -444,13 +444,13 @@ export const Profile: React.FC = () => {
                     <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Số tiền (USD):</Typography>
                     <Typography component="span" sx={{ fontWeight: 700, fontSize: '0.85rem' }}>${activeTopUp.amount.toFixed(2)}</Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
-                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Số tiền (VND):</Typography>
-                    <Typography component="span" sx={{ fontWeight: 700, color: '#34d399', fontSize: '0.85rem' }}>{activeTopUp.amount_vnd.toLocaleString()} VND</Typography>
+                  <Box sx={{ ...labelValueRowSx, borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
+                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem', flexShrink: 0 }}>Số tiền (VND):</Typography>
+                    <Typography component="span" sx={{ fontWeight: 700, color: '#34d399', fontSize: '0.85rem', textAlign: 'right' }}>{activeTopUp.amount_vnd.toLocaleString()} VND</Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
-                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Nội dung chuyển khoản:</Typography>
-                    <Typography component="span" sx={{ fontWeight: 700, color: '#a5b4fc', fontFamily: 'monospace', fontSize: '0.85rem' }}>{activeTopUp.payment_reference}</Typography>
+                  <Box sx={{ ...labelValueRowSx, borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.25rem' }}>
+                    <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem', flexShrink: 0 }}>Nội dung chuyển khoản:</Typography>
+                    <Typography component="span" sx={{ fontWeight: 700, color: '#a5b4fc', fontFamily: 'monospace', fontSize: '0.85rem', textAlign: 'right', ...breakLongValueSx }}>{activeTopUp.payment_reference}</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography component="span" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>Trạng thái:</Typography>

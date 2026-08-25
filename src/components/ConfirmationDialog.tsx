@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
-import { btnPrimarySx, btnSecondarySx, glassPanelSx } from '../theme';
+import { btnPrimarySx, btnSecondarySx, glassPanelSx, dialogPaperSx, breakLongValueSx } from '../theme';
 
 interface ConfirmationDialogProps {
   open: boolean;
@@ -31,8 +31,8 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         paper: {
           sx: {
             ...glassPanelSx,
+            ...dialogPaperSx,
             padding: '1.5rem',
-            width: '100%',
             maxWidth: '420px',
             border: '1px solid rgba(99, 102, 241, 0.18)',
             background: 'rgba(20, 22, 33, 0.9)',
@@ -69,12 +69,13 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           lineHeight: 1.6,
           marginBottom: '1.5rem',
           fontFamily: '"Outfit", sans-serif',
+          ...breakLongValueSx,
         }}
       >
         {message}
       </DialogContent>
-      
-      <DialogActions sx={{ padding: 0, gap: '0.75rem', justifyContent: 'flex-end' }}>
+
+      <DialogActions sx={{ padding: 0, gap: '0.75rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
         <Button
           onClick={onCancel}
           disabled={loading}

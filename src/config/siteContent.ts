@@ -19,26 +19,41 @@ export interface PolicyItem {
   summary: string;
 }
 
+// Mirrors the backend PartnerInfo schema (GET /api/settings/partner). Field
+// names are snake_case to match the API payload exactly.
+export interface PartnerInfo {
+  name: string;
+  relationship: string;
+  website: string;
+  founded_year: string;
+  introduction: string;
+  note: string;
+  benefits: string[];
+}
+
+// Used until the API responds, and as the fallback when it is unreachable.
+// The backend ships the same defaults in app/services/partner_settings.py.
+export const defaultPartner: PartnerInfo = {
+  name: 'GTC',
+  relationship: 'Đối tác đồng thương hiệu',
+  website: 'REPLACE_GTC_WEBSITE_URL',
+  founded_year: '20XX',
+  introduction:
+    'GTC là đối tác sàn giao dịch được giới thiệu trong hệ sinh thái AlgoForge, hướng tới trải nghiệm tiếp cận thị trường minh bạch, linh hoạt và giàu tính công nghệ.',
+  note: 'Nội dung GTC hiện là dữ liệu minh họa. Hãy thay thế bằng thông tin đã được doanh nghiệp xác minh trước khi công bố chính thức.',
+  benefits: [
+    'Hạ tầng giao dịch định hướng công nghệ',
+    'Kết nối hệ sinh thái công cụ AlgoForge',
+    'Đồng hành cùng nhà giao dịch trong quá trình vận hành',
+  ],
+};
+
 export const siteContent = {
   brand: {
     name: 'AlgoForge',
     tagline: 'Công nghệ vững vàng cho hành trình giao dịch kỷ luật.',
     description:
       'Nền tảng tuyển chọn công cụ giao dịch tự động, chỉ báo và tiện ích MetaTrader dành cho nhà giao dịch hiện đại.',
-  },
-  partner: {
-    name: 'GTC',
-    relationship: 'Đối tác đồng thương hiệu',
-    website: 'REPLACE_GTC_WEBSITE_URL',
-    foundedYear: '20XX',
-    introduction:
-      'GTC là đối tác sàn giao dịch được giới thiệu trong hệ sinh thái AlgoForge, hướng tới trải nghiệm tiếp cận thị trường minh bạch, linh hoạt và giàu tính công nghệ.',
-    note: 'Nội dung GTC hiện là dữ liệu minh họa. Hãy thay thế bằng thông tin đã được doanh nghiệp xác minh trước khi công bố chính thức.',
-    benefits: [
-      'Hạ tầng giao dịch định hướng công nghệ',
-      'Kết nối hệ sinh thái công cụ AlgoForge',
-      'Đồng hành cùng nhà giao dịch trong quá trình vận hành',
-    ],
   },
   team: [
     {
@@ -132,8 +147,8 @@ export const isDemoValue = (value: string): boolean => {
   return normalized.length === 0 || normalized.startsWith('REPLACE_');
 };
 
-export const getPartnerWebsite = (): string | null => {
-  const value = siteContent.partner.website.trim();
+export const getPartnerWebsite = (partner: PartnerInfo): string | null => {
+  const value = partner.website.trim();
   if (isDemoValue(value)) return null;
   return /^https?:\/\//i.test(value) ? value : `https://${value}`;
 };
