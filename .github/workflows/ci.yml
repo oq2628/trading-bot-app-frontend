@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck and build
+        # vite.config.ts fails the build when VITE_API_BASE_URL is undefined,
+        # so this also proves the deployment configuration is present.
+        run: npm run build
+
+      - name: Lint
+        # Not a gate yet: the repository carries 76 pre-existing errors, almost
+        # all @typescript-eslint/no-explicit-any inherited from before CI
+        # existed. Failing the build on them would block every pull request, so
+        # the count is reported instead. Drive it to zero, then swap this for a
+        # plain `npm run lint`.
+        continue-on-error: true
+        run: npm run lint
