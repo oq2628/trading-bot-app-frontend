@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import { errorMessage } from '../utils/errors';
 import { LogIn, UserPlus, Mail, Key, User } from 'lucide-react';
 import { Box, Container, Typography, Button, InputBase, CircularProgress } from '@mui/material';
 import { glassPanelSx, btnPrimarySx, authContainerSx } from '../theme';
@@ -80,8 +81,8 @@ export const Login: React.FC = () => {
         setPassword('');
         setConfirmPassword('');
       }
-    } catch (err: any) {
-      setError(err.message || 'Quá trình xác thực xảy ra lỗi.');
+    } catch (err) {
+      setError(errorMessage(err, 'Quá trình xác thực xảy ra lỗi.'));
     } finally {
       setLoading(false);
     }
@@ -351,7 +352,9 @@ export const Login: React.FC = () => {
               padding: '1rem',
               fontSize: '0.8rem',
               color: 'text.secondary',
-              lineHeight: '1.4'
+              lineHeight: '1.4',
+              wordBreak: 'break-word',
+              overflowWrap: 'anywhere'
             }}
           >
             <Typography component="strong" sx={{ color: 'primary.main', display: 'block', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 700 }}>

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Box, Button, IconButton, Typography } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import { btnPrimarySx, glassPanelSx } from '../theme';
 
 const navItems = [
@@ -24,6 +25,7 @@ const navItems = [
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
+  const { partner } = useSiteSettings();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -125,7 +127,7 @@ export const Navbar: React.FC = () => {
         </Box>
         <Box sx={{ minWidth: 0 }}>
           <Typography sx={{ color: '#fff', fontSize: { xs: '1rem', sm: '1.18rem' }, fontWeight: 850, lineHeight: 1.05, letterSpacing: '-.02em' }}>AlgoForge</Typography>
-          <Typography sx={{ display: { xs: 'none', sm: 'block' }, color: '#818cf8', fontSize: '0.58rem', fontWeight: 800, letterSpacing: '.13em', textTransform: 'uppercase', mt: 0.35 }}>Partnered with GTC</Typography>
+          <Typography sx={{ display: { xs: 'none', sm: 'block' }, color: '#818cf8', fontSize: '0.58rem', fontWeight: 800, letterSpacing: '.13em', textTransform: 'uppercase', mt: 0.35, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Partnered with {partner.name}</Typography>
         </Box>
       </Box>
 
@@ -153,7 +155,7 @@ export const Navbar: React.FC = () => {
             </Button>
 
             {showDropdown && (
-              <Box role="menu" sx={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: 286, overflow: 'hidden', borderRadius: '16px', border: '1px solid rgba(255,255,255,.09)', background: 'rgba(9,11,19,.96)', boxShadow: '0 24px 70px rgba(0,0,0,.6)', backdropFilter: 'blur(24px)' }}>
+              <Box role="menu" sx={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: 286, maxWidth: 'calc(100vw - 32px)', overflow: 'hidden', borderRadius: '16px', border: '1px solid rgba(255,255,255,.09)', background: 'rgba(9,11,19,.96)', boxShadow: '0 24px 70px rgba(0,0,0,.6)', backdropFilter: 'blur(24px)' }}>
                 <Box sx={{ p: 2, borderBottom: '1px solid rgba(255,255,255,.06)' }}>
                   <Typography sx={{ color: '#fff', fontSize: '0.9rem', fontWeight: 750, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.full_name}</Typography>
                   <Typography sx={{ color: 'text.secondary', fontSize: '0.73rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</Typography>

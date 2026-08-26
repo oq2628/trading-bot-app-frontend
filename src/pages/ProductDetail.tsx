@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import { errorMessage } from '../utils/errors';
 import { getExchangeRate } from '../api/exchange';
 import { ArrowLeft, CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
 import { Toast } from '../components/Toast';
 import { activeSortedVariants, formatVariantDuration } from '../utils/variants';
 import { Box, Container, Typography, Button, Dialog, DialogTitle, DialogContent, CircularProgress, InputBase } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx } from '../theme';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, panelPaddingSx, dialogPaperSx, breakLongValueSx, labelValueRowSx } from '../theme';
 
 interface Product {
   id: string;
@@ -89,8 +90,8 @@ export const ProductDetail: React.FC = () => {
       } catch (rateErr) {
         console.error("Failed to fetch exchange rate", rateErr);
       }
-    } catch (err: any) {
-      setError(err.message || 'Không thể lấy thông tin công cụ giao dịch.');
+    } catch (err) {
+      setError(errorMessage(err, 'Không thể lấy thông tin công cụ giao dịch.'));
     } finally {
       setLoading(false);
     }
@@ -118,8 +119,8 @@ export const ProductDetail: React.FC = () => {
       });
       setAppliedVoucher(res);
       setToast({ message: 'Áp dụng mã giảm giá thành công!', type: 'success' });
-    } catch (err: any) {
-      setVoucherError(err.message || 'Mã giảm giá không hợp lệ.');
+    } catch (err) {
+      setVoucherError(errorMessage(err, 'Mã giảm giá không hợp lệ.'));
       setAppliedVoucher(null);
     } finally {
       setValidatingVoucher(false);
@@ -153,8 +154,8 @@ export const ProductDetail: React.FC = () => {
       setShowCheckoutModal(false);
       await refreshUser();
       navigate('/dashboard?payment=success');
-    } catch (err: any) {
-      setToast({ message: err.message || 'Thanh toán thất bại.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Thanh toán thất bại.'), type: 'error' });
     } finally {
       setPurchasing(false);
     }
@@ -237,7 +238,7 @@ export const ProductDetail: React.FC = () => {
 
           {/* Right Column: Buying Box & Specifications */}
           <Grid size={{ xs: 12, md: 5 }}>
-            <Box sx={{ ...glassPanelSx, padding: '2rem', marginBottom: '2rem', border: '1px solid rgba(99, 102, 241, 0.15)' }}>
+            <Box sx={{ ...glassPanelSx, padding: panelPaddingSx, marginBottom: '2rem', border: '1px solid rgba(99, 102, 241, 0.15)' }}>
               <Box component="span" sx={{
                 fontSize: '0.75rem',
                 fontWeight: 800,
@@ -257,7 +258,7 @@ export const ProductDetail: React.FC = () => {
                 {product.title}
               </Typography>
               
-              <Typography sx={{ color: 'text.disabled', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+              <Typography sx={{ color: 'text.disabled', fontSize: '0.85rem', marginBottom: '1.5rem', ...breakLongValueSx }}>
                 Mã sản phẩm: {product.id}
               </Typography>
 
@@ -451,9 +452,8 @@ export const ProductDetail: React.FC = () => {
           paper: {
             sx: {
               ...glassPanelSx,
-              padding: '2rem',
+              ...dialogPaperSx,
               maxWidth: '480px',
-              width: '100%',
               border: '1px solid rgba(99, 102, 241, 0.3)',
               background: 'rgba(20, 22, 33, 0.9)',
               backgroundImage: 'none',
@@ -481,16 +481,16 @@ export const ProductDetail: React.FC = () => {
             return (
               <>
                 <Box sx={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '1.25rem', marginBottom: '1.25rem' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-                    <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>Công cụ</Typography>
-                    <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem' }}>{product.title}</Typography>
+                  <Box sx={{ ...labelValueRowSx, marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+                    <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem', flexShrink: 0 }}>Công cụ</Typography>
+                    <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem', textAlign: 'right', ...breakLongValueSx }}>{product.title}</Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-                    <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>Gói bản quyền</Typography>
-                    <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.95rem' }}>{selectedVariant.name}</Typography>
+                  <Box sx={{ ...labelValueRowSx, marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+                    <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem', flexShrink: 0 }}>Gói bản quyền</Typography>
+                    <Typography sx={{ color: '#fff', fontWeight: 500, fontSize: '0.95rem', textAlign: 'right', ...breakLongValueSx }}>{selectedVariant.name}</Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem', fontSize: '1.1rem' }}>
-                    <Typography sx={{ color: 'text.primary', fontWeight: 600, fontSize: '1.1rem' }}>Tổng tiền</Typography>
+                  <Box sx={{ ...labelValueRowSx, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem', fontSize: '1.1rem' }}>
+                    <Typography sx={{ color: 'text.primary', fontWeight: 600, fontSize: '1.1rem', flexShrink: 0 }}>Tổng tiền</Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                       {appliedVoucher && (
                         <Typography sx={{ color: 'text.disabled', textDecoration: 'line-through', fontSize: '0.9rem', marginBottom: '0.15rem' }}>

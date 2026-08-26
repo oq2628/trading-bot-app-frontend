@@ -1,12 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BadgeCheck, Building2, FileText, Handshake, ShieldAlert, Users } from 'lucide-react';
+import { ArrowRight, BadgeCheck, Building2, FileText, Handshake, ShieldAlert } from 'lucide-react';
 import { Box, Button, Container, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { siteContent } from '../config/siteContent';
+import { LEGAL_SLUGS, LEGAL_TITLES } from '../config/legal';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import { btnPrimarySx, glassPanelSx, pageContainerSx, pageTitleSx } from '../theme';
 
-export const About: React.FC = () => (
+export const About: React.FC = () => {
+  const { partner, about } = useSiteSettings();
+
+  return (
   <Container maxWidth="xl" sx={{ ...pageContainerSx, pt: { xs: 1, md: 2 } }}>
     <Box component="header" sx={{ position: 'relative', overflow: 'hidden', p: { xs: 3, sm: 5, md: 7 }, borderRadius: { xs: '20px', md: '28px' }, border: '1px solid rgba(129,140,248,.18)', background: 'radial-gradient(circle at 85% 15%, rgba(79,70,229,.28), transparent 35%), linear-gradient(135deg, rgba(18,22,38,.96), rgba(7,9,16,.96))', mb: { xs: 6, md: 9 } }}>
       <Typography sx={{ color: '#818cf8', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '.13em', textTransform: 'uppercase', mb: 1.3 }}>Về AlgoForge</Typography>
@@ -14,7 +19,7 @@ export const About: React.FC = () => (
         Nơi công nghệ giao dịch gặp trải nghiệm hỗ trợ có trách nhiệm
       </Typography>
       <Typography sx={{ color: 'text.secondary', fontSize: { xs: '0.98rem', md: '1.1rem' }, lineHeight: 1.8, maxWidth: 760 }}>
-        {siteContent.brand.name} được định hướng như một website bán và quản lý công cụ giao dịch số. Trong trải nghiệm đồng thương hiệu, GTC là đối tác được giới thiệu để mở rộng điểm chạm cho nhà giao dịch.
+        {siteContent.brand.name} được định hướng như một website bán và quản lý công cụ giao dịch số. Trong trải nghiệm đồng thương hiệu, {partner.name} là đối tác được giới thiệu để mở rộng điểm chạm cho nhà giao dịch.
       </Typography>
     </Box>
 
@@ -37,65 +42,54 @@ export const About: React.FC = () => (
         <Box component="section" sx={{ ...glassPanelSx, p: { xs: 3, md: 4.5 }, width: '100%', background: 'linear-gradient(145deg, rgba(79,70,229,.16), rgba(10,12,20,.85))' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 2 }}>
             <Box sx={{ color: '#a5b4fc', display: 'flex' }}><Handshake size={23} /></Box>
-            <Typography variant="h2" sx={{ fontSize: '1.55rem' }}>AlgoForge × GTC</Typography>
+            <Typography variant="h2" sx={{ fontSize: '1.55rem', wordBreak: 'break-word' }}>{siteContent.brand.name} × {partner.name}</Typography>
           </Box>
-          <Typography sx={{ color: 'text.secondary', lineHeight: 1.8, mb: 2 }}>{siteContent.partner.introduction}</Typography>
+          <Typography sx={{ color: 'text.secondary', lineHeight: 1.8, mb: 2 }}>{partner.introduction}</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#cbd5e1', fontSize: '0.86rem' }}>
-            <BadgeCheck size={17} color="#818cf8" /> Đối tác đồng thương hiệu · Thành lập {siteContent.partner.foundedYear}
+            <BadgeCheck size={17} color="#818cf8" />
+            {partner.relationship}{partner.founded_year ? ` · Thành lập ${partner.founded_year}` : ''}
           </Box>
         </Box>
       </Grid>
     </Grid>
 
-    <Box component="section" sx={{ mb: { xs: 7, md: 10 } }}>
-      <Typography sx={{ color: '#818cf8', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '.13em', textTransform: 'uppercase', mb: 1 }}>Đội ngũ</Typography>
-      <Typography variant="h2" sx={{ fontSize: { xs: '1.8rem', md: '2.45rem' }, mb: 1 }}>Những nhóm cùng vận hành trải nghiệm</Typography>
-      <Typography sx={{ color: 'text.secondary', maxWidth: 680, lineHeight: 1.7, mb: 3 }}>Tên cá nhân và hình ảnh thật có thể được bổ sung sau; bản demo sử dụng mô tả theo chức năng để tránh tạo danh tính giả.</Typography>
-      <Grid container spacing={3}>
-        {siteContent.team.map((member, index) => (
-          <Grid key={member.name} size={{ xs: 12, md: 4 }} sx={{ display: 'flex' }}>
-            <Box sx={{ ...glassPanelSx, p: 3, width: '100%' }}>
-              <Box sx={{ width: 48, height: 48, borderRadius: '14px', display: 'grid', placeItems: 'center', color: '#c7d2fe', background: index === 1 ? 'rgba(6,182,212,.12)' : 'rgba(99,102,241,.12)', border: '1px solid rgba(129,140,248,.2)', mb: 2 }}>
-                <Users size={23} />
-              </Box>
-              <Typography variant="h3" sx={{ fontSize: '1.15rem', mb: 0.4 }}>{member.name}</Typography>
-              <Typography sx={{ color: '#818cf8', fontSize: '0.76rem', fontWeight: 750, letterSpacing: '.05em', textTransform: 'uppercase', mb: 1.2 }}>{member.role}</Typography>
-              <Typography sx={{ color: 'text.secondary', fontSize: '0.88rem', lineHeight: 1.65 }}>{member.description}</Typography>
+    {about.milestones.length > 0 && (
+      <Box component="section" sx={{ mb: { xs: 7, md: 10 } }}>
+        <Typography sx={{ color: '#818cf8', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '.13em', textTransform: 'uppercase', mb: 1 }}>Dòng thời gian</Typography>
+        <Typography variant="h2" sx={{ fontSize: { xs: '1.8rem', md: '2.45rem' }, mb: 3 }}>Các cột mốc phát triển</Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2 }}>
+          {about.milestones.map((item, index) => (
+            <Box key={`${item.year}-${item.title}`} sx={{ p: 3, borderRadius: '16px', border: '1px solid rgba(255,255,255,.07)', background: 'rgba(255,255,255,.025)', position: 'relative' }}>
+              <Typography sx={{ color: '#818cf8', fontWeight: 850, fontSize: '0.8rem', mb: 1.1 }}>0{index + 1}{item.year ? ` · ${item.year}` : ''}</Typography>
+              <Typography variant="h3" sx={{ fontSize: '1.12rem', mb: 0.8 }}>{item.title}</Typography>
+              <Typography sx={{ color: 'text.secondary', fontSize: '0.86rem', lineHeight: 1.65 }}>{item.description}</Typography>
             </Box>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
-
-    <Box component="section" sx={{ mb: { xs: 7, md: 10 } }}>
-      <Typography sx={{ color: '#818cf8', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '.13em', textTransform: 'uppercase', mb: 1 }}>Dòng thời gian demo</Typography>
-      <Typography variant="h2" sx={{ fontSize: { xs: '1.8rem', md: '2.45rem' }, mb: 3 }}>Các cột mốc phát triển</Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2 }}>
-        {siteContent.timeline.map((item, index) => (
-          <Box key={`${item.year}-${item.title}`} sx={{ p: 3, borderRadius: '16px', border: '1px solid rgba(255,255,255,.07)', background: 'rgba(255,255,255,.025)', position: 'relative' }}>
-            <Typography sx={{ color: '#818cf8', fontWeight: 850, fontSize: '0.8rem', mb: 1.1 }}>0{index + 1} · {item.year}</Typography>
-            <Typography variant="h3" sx={{ fontSize: '1.12rem', mb: 0.8 }}>{item.title}</Typography>
-            <Typography sx={{ color: 'text.secondary', fontSize: '0.86rem', lineHeight: 1.65 }}>{item.description}</Typography>
-          </Box>
-        ))}
+          ))}
+        </Box>
       </Box>
-    </Box>
+    )}
 
     <Box component="section">
       <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', md: 'end' }, flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', gap: 2, mb: 3 }}>
         <Box>
-          <Typography sx={{ color: '#818cf8', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '.13em', textTransform: 'uppercase', mb: 1 }}>Khung chính sách</Typography>
-          <Typography variant="h2" sx={{ fontSize: { xs: '1.8rem', md: '2.45rem' } }}>Nội dung cần hoàn thiện trước khi công bố</Typography>
+          <Typography sx={{ color: '#818cf8', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '.13em', textTransform: 'uppercase', mb: 1 }}>Chính sách</Typography>
+          <Typography variant="h2" sx={{ fontSize: { xs: '1.8rem', md: '2.45rem' } }}>Điều khoản và cam kết</Typography>
         </Box>
-        <Box sx={{ color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 0.8, fontSize: '0.82rem' }}><ShieldAlert size={17} /> Không phải tư vấn pháp lý</Box>
+        <Box sx={{ color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 0.8, fontSize: '0.82rem' }}><ShieldAlert size={17} /> Không phải tư vấn đầu tư</Box>
       </Box>
       <Grid container spacing={2}>
-        {siteContent.policies.map(policy => (
-          <Grid key={policy.title} size={{ xs: 12, sm: 6, lg: 4 }} sx={{ display: 'flex' }}>
-            <Box sx={{ p: 2.6, borderRadius: '15px', width: '100%', border: '1px solid rgba(255,255,255,.07)', background: 'rgba(255,255,255,.025)' }}>
+        {LEGAL_SLUGS.map(slug => (
+          <Grid key={slug} size={{ xs: 12, sm: 6, lg: 4 }} sx={{ display: 'flex' }}>
+            <Box
+              component={Link}
+              to={`/legal/${slug}`}
+              sx={{ p: 2.6, borderRadius: '15px', width: '100%', textDecoration: 'none', border: '1px solid rgba(255,255,255,.07)', background: 'rgba(255,255,255,.025)', transition: 'border-color .2s', '&:hover': { borderColor: 'rgba(129,140,248,.4)' } }}
+            >
               <FileText size={20} color="#818cf8" />
-              <Typography variant="h3" sx={{ fontSize: '1.05rem', mt: 1.3, mb: 0.7 }}>{policy.title}</Typography>
-              <Typography sx={{ color: 'text.secondary', fontSize: '0.84rem', lineHeight: 1.65 }}>{policy.summary}</Typography>
+              <Typography variant="h3" sx={{ fontSize: '1.05rem', mt: 1.3, mb: 0.7 }}>{LEGAL_TITLES[slug]}</Typography>
+              <Typography sx={{ color: 'text.secondary', fontSize: '0.84rem', lineHeight: 1.65, display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                Xem chi tiết <ArrowRight size={14} />
+              </Typography>
             </Box>
           </Grid>
         ))}
@@ -111,6 +105,7 @@ export const About: React.FC = () => (
       </Box>
     </Box>
   </Container>
-);
+  );
+};
 
 export default About;

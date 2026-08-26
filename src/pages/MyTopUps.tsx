@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import api, { API_BASE_URL } from '../utils/api';
+import { errorMessage } from '../utils/errors';
 import { getExchangeRate } from '../api/exchange';
 import { useAuth } from '../context/AuthContext';
 import { Toast } from '../components/Toast';
@@ -7,7 +8,7 @@ import { ConfirmationDialog } from '../components/ConfirmationDialog';
 import { CheckCircle2, XCircle, AlertTriangle, Coins, RefreshCw, Plus, CreditCard, ArrowRight, X } from 'lucide-react';
 import { Box, Container, Typography, Button, InputBase, Table, TableHead, TableRow, TableCell, TableBody, Dialog, DialogTitle, DialogContent, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx } from '../theme';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx, panelPaddingSx, dialogPaperSx, breakLongValueSx, labelValueRowSx } from '../theme';
 
 interface TopUp {
   id: string;
@@ -57,8 +58,8 @@ export const MyTopUps: React.FC = () => {
       if (rateData && rateData.conversion_rate) {
         setExchangeRate(rateData.conversion_rate);
       }
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể lấy danh sách yêu cầu nạp tiền.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể lấy danh sách yêu cầu nạp tiền.'), type: 'error' });
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -133,8 +134,8 @@ export const MyTopUps: React.FC = () => {
       loadTopUps();
       // Open the detail modal directly for the newly created transaction
       handleOpenDetail(data);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể tạo mã QR nạp tiền.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể tạo mã QR nạp tiền.'), type: 'error' });
     } finally {
       setSubmitting(false);
     }
@@ -161,8 +162,8 @@ export const MyTopUps: React.FC = () => {
         stopPolling();
       }
       setConfirmingTopUpCancel(null);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể hủy yêu cầu nạp tiền.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể hủy yêu cầu nạp tiền.'), type: 'error' });
     } finally {
       setConfirmingTopUpCancelLoading(false);
     }
@@ -188,7 +189,7 @@ export const MyTopUps: React.FC = () => {
       } else {
         setToast({ message: 'Giao dịch đang chờ thanh toán.', type: 'info' });
       }
-    } catch (err: any) {
+    } catch (err) {
       setToast({ message: 'Lỗi cập nhật trạng thái.', type: 'error' });
     }
   };
@@ -258,7 +259,7 @@ export const MyTopUps: React.FC = () => {
         <Box
           sx={{
             ...glassPanelSx,
-            padding: '2rem',
+            padding: panelPaddingSx,
             marginBottom: '2.5rem',
             display: 'flex',
             alignItems: 'center',
@@ -328,7 +329,7 @@ export const MyTopUps: React.FC = () => {
         <Grid container spacing={4}>
           {/* Balance Status Card */}
           <Grid size={{ xs: 12, md: 4 }}>
-            <Box sx={{ ...glassPanelSx, padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', height: 'fit-content' }}>
+            <Box sx={{ ...glassPanelSx, padding: panelPaddingSx, display: 'flex', flexDirection: 'column', gap: '1.5rem', height: 'fit-content' }}>
               <Typography variant="h2" sx={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem' }}>
                 <CreditCard size={18} color="#6366f1" />
                 Tài khoản Ví
@@ -351,7 +352,7 @@ export const MyTopUps: React.FC = () => {
 
           {/* Transactions list */}
           <Grid size={{ xs: 12, md: 8 }}>
-            <Box sx={{ ...glassPanelSx, padding: '2rem', height: '100%' }}>
+            <Box sx={{ ...glassPanelSx, padding: panelPaddingSx, height: '100%' }}>
               <Typography variant="h2" sx={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', margin: 0 }}>
                 Lịch sử Giao dịch
               </Typography>
@@ -452,9 +453,8 @@ export const MyTopUps: React.FC = () => {
           paper: {
             sx: {
               ...glassPanelSx,
-              padding: '2rem',
+              ...dialogPaperSx,
               maxWidth: '420px',
-              width: '100%',
               background: 'rgba(20, 22, 33, 0.9)',
               backgroundImage: 'none',
             }
@@ -519,9 +519,8 @@ export const MyTopUps: React.FC = () => {
           paper: {
             sx: {
               ...glassPanelSx,
-              padding: '2rem',
+              ...dialogPaperSx,
               maxWidth: '650px',
-              width: '100%',
               background: 'rgba(20, 22, 33, 0.9)',
               backgroundImage: 'none',
               scrollbarWidth: 'none',
@@ -655,30 +654,30 @@ export const MyTopUps: React.FC = () => {
                 <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Số tiền (VND):</Typography>
                 <Typography component="span" sx={{ fontWeight: 700, color: 'success.main', fontSize: '0.875rem' }}>{activeTopUp.amount_vnd.toLocaleString()} VND</Typography>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.35rem' }}>
-                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Nội dung chuyển khoản:</Typography>
-                <Typography component="span" sx={{ fontWeight: 700, color: 'primary.main', fontFamily: 'monospace', fontSize: '0.875rem' }}>{activeTopUp.payment_reference}</Typography>
+              <Box sx={{ ...labelValueRowSx, borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.35rem' }}>
+                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', flexShrink: 0 }}>Nội dung chuyển khoản:</Typography>
+                <Typography component="span" sx={{ fontWeight: 700, color: 'primary.main', fontFamily: 'monospace', fontSize: '0.875rem', textAlign: 'right', ...breakLongValueSx }}>{activeTopUp.payment_reference}</Typography>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.35rem' }}>
-                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Thời gian tạo:</Typography>
-                <Typography component="span" sx={{ fontSize: '0.875rem' }}>{new Date(activeTopUp.created_at).toLocaleString()}</Typography>
+              <Box sx={{ ...labelValueRowSx, borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.35rem' }}>
+                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', flexShrink: 0 }}>Thời gian tạo:</Typography>
+                <Typography component="span" sx={{ fontSize: '0.875rem', textAlign: 'right' }}>{new Date(activeTopUp.created_at).toLocaleString()}</Typography>
               </Box>
               {activeTopUp.acb_transaction_id && (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.35rem' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Mã giao dịch ACB:</Typography>
-                  <Typography component="span" sx={{ fontFamily: 'monospace', fontSize: '0.875rem' }}>{activeTopUp.acb_transaction_id}</Typography>
+                <Box sx={{ ...labelValueRowSx, borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.35rem' }}>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', flexShrink: 0 }}>Mã giao dịch ACB:</Typography>
+                  <Typography component="span" sx={{ fontFamily: 'monospace', fontSize: '0.875rem', textAlign: 'right', ...breakLongValueSx }}>{activeTopUp.acb_transaction_id}</Typography>
                 </Box>
               )}
               {activeTopUp.paid_at && (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>Thời gian xử lý:</Typography>
-                  <Typography component="span" sx={{ fontSize: '0.875rem' }}>{new Date(activeTopUp.paid_at).toLocaleString()}</Typography>
+                <Box sx={labelValueRowSx}>
+                  <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', flexShrink: 0 }}>Thời gian xử lý:</Typography>
+                  <Typography component="span" sx={{ fontSize: '0.875rem', textAlign: 'right' }}>{new Date(activeTopUp.paid_at).toLocaleString()}</Typography>
                 </Box>
               )}
             </Box>
 
             {/* Action Buttons */}
-            <Box sx={{ display: 'flex', gap: '0.75rem', width: '100%', marginTop: '0.5rem' }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: '0.75rem', width: '100%', marginTop: '0.5rem' }}>
               <Button
                 type="button"
                 onClick={handleCloseDetail}
@@ -761,9 +760,9 @@ export const MyTopUps: React.FC = () => {
           paper: {
             sx: {
               ...glassPanelSx,
+              ...dialogPaperSx,
               padding: '1rem',
               maxWidth: '500px',
-              width: '100%',
               background: 'rgba(20, 22, 33, 0.95)',
               backgroundImage: 'none',
               display: 'flex',

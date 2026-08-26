@@ -158,6 +158,48 @@ export const pageTitleSx = {
   lineHeight: 1.12,
 };
 
+// Panels keep a tighter inner gutter on phones so their content is not squeezed
+// into ~260px once the page container padding is taken into account.
+export const panelPaddingSx = { xs: '1.25rem', sm: '2rem' };
+
+// MUI defaults a Dialog paper to 32px of margin on every side, which leaves a
+// 360px screen with under 300px of usable width. Halve it on phones.
+export const dialogPaperSx = {
+  padding: panelPaddingSx,
+  margin: { xs: '16px', sm: '32px' },
+  width: { xs: 'calc(100% - 32px)', sm: 'calc(100% - 64px)' },
+  maxHeight: { xs: 'calc(100% - 32px)', sm: 'calc(100% - 64px)' },
+};
+
+// Long unbroken values (UUIDs, transfer references, API keys) must be allowed to
+// wrap, otherwise they push their container wider than the viewport.
+export const breakLongValueSx = { wordBreak: 'break-word' as const, overflowWrap: 'anywhere' as const };
+
+// A label/value row that stays readable when the value is long: the value wraps
+// and aligns right instead of overflowing the row.
+export const labelValueRowSx = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'baseline',
+  gap: '0.75rem',
+  minWidth: 0,
+};
+
+// The admin panel's form field styling. Defined here rather than inside
+// Admin.tsx so the settings panels split out of that file share one definition
+// instead of each carrying a copy that drifts.
+export const adminInputSx = {
+  width: '100%',
+  backgroundColor: 'rgba(255, 255, 255, 0.03)',
+  border: '1px solid rgba(255, 255, 255, 0.06)',
+  borderRadius: '8px',
+  padding: '0.65rem 0.85rem',
+  color: '#fff',
+  fontSize: '0.9rem',
+  fontFamily: '"Outfit", sans-serif',
+  '& input': { padding: 0, '&::placeholder': { color: '#6b7280', opacity: 1 } },
+};
+
 export const glassCardSx = {
   background: 'rgba(20, 22, 33, 0.3)',
   backdropFilter: 'blur(12px)',

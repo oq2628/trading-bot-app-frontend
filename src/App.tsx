@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SiteSettingsProvider } from './context/SiteSettingsContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
+import { LegalPage } from './pages/LegalPage';
 import { Storefront } from './pages/Storefront';
 import { ProductDetail } from './pages/ProductDetail';
 import { Dashboard } from './pages/Dashboard';
@@ -63,7 +65,7 @@ const AppContent: React.FC = () => {
     <Router>
       <ScrollToTop />
       <Navbar />
-      <Box component="main" sx={{ minHeight: 'calc(100vh - 180px)' }}>
+      <Box component="main" sx={{ minHeight: { xs: 'calc(100vh - 120px)', md: 'calc(100vh - 180px)' } }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Storefront />} />
@@ -71,6 +73,8 @@ const AppContent: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/support" element={<Support />} />
           <Route path="/about" element={<About />} />
+          {/* Terms, privacy and refund policy. One component, keyed by slug. */}
+          <Route path="/legal/:slug" element={<LegalPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           
@@ -123,7 +127,9 @@ const AppContent: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <AuthProvider>
-      <AppContent />
+      <SiteSettingsProvider>
+        <AppContent />
+      </SiteSettingsProvider>
     </AuthProvider>
   );
 };
