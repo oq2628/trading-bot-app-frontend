@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import { errorMessage } from '../utils/errors';
 import { LogIn, UserPlus, Mail, Key, User } from 'lucide-react';
 import { Box, Container, Typography, Button, InputBase, CircularProgress } from '@mui/material';
 import { glassPanelSx, btnPrimarySx, authContainerSx } from '../theme';
@@ -80,8 +81,8 @@ export const Login: React.FC = () => {
         setPassword('');
         setConfirmPassword('');
       }
-    } catch (err: any) {
-      setError(err.message || 'Quá trình xác thực xảy ra lỗi.');
+    } catch (err) {
+      setError(errorMessage(err, 'Quá trình xác thực xảy ra lỗi.'));
     } finally {
       setLoading(false);
     }

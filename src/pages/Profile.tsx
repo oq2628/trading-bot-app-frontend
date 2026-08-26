@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../utils/api';
+import { errorMessage } from '../utils/errors';
 import { Toast } from '../components/Toast';
 import { User, Wallet, Save, ArrowUpRight, Calendar, MapPin, Phone, X, RefreshCw } from 'lucide-react';
 import { Box, Container, Typography, Button, InputBase, CircularProgress } from '@mui/material';
@@ -107,8 +108,8 @@ export const Profile: React.FC = () => {
       });
       await refreshUser();
       setToast({ message: 'Thông tin cá nhân được cập nhật thành công.', type: 'success' });
-    } catch (err: any) {
-      setToast({ message: err.message || 'Cập nhật hồ sơ thất bại.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Cập nhật hồ sơ thất bại.'), type: 'error' });
     } finally {
       setSaving(false);
     }
@@ -128,8 +129,8 @@ export const Profile: React.FC = () => {
       setAmount('');
       setToast({ message: 'Đã tạo mã QR nạp tiền thành công. Vui lòng thanh toán để tiếp tục.', type: 'success' });
       startPolling(data.id);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể tạo mã QR.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể tạo mã QR.'), type: 'error' });
     } finally {
       setTransacting(false);
     }

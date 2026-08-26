@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import { errorMessage } from '../utils/errors';
 import { getExchangeRate } from '../api/exchange';
 import { Download, ShoppingBag, ShieldCheck, RefreshCw, Info, Key, Copy, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -138,8 +139,8 @@ export const Dashboard: React.FC = () => {
       setToast({ message: 'Liên kết bản quyền với tài khoản MT4/MT5 thành công.', type: 'success' });
       setBindInputs(prev => ({ ...prev, [licenseId]: '' }));
       loadOrders(true);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Liên kết tài khoản thất bại.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Liên kết tài khoản thất bại.'), type: 'error' });
     } finally {
       setBindingId(null);
     }
@@ -151,8 +152,8 @@ export const Dashboard: React.FC = () => {
       const data = await api.get<{ api_key: string }>(`/api/license/${licenseId}/key`);
       await navigator.clipboard.writeText(data.api_key);
       setToast({ message: 'Đã sao chép Khóa bản quyền vào bộ nhớ tạm.', type: 'success' });
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể sao chép Khóa bản quyền.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể sao chép Khóa bản quyền.'), type: 'error' });
     } finally {
       setCopyingKeyId(null);
     }
@@ -167,8 +168,8 @@ export const Dashboard: React.FC = () => {
       setToast({ message: 'Đã tạo Khóa bản quyền mới và sao chép vào bộ nhớ tạm.', type: 'success' });
       setRegeneratingId(null);
       await loadOrders(true);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Tạo lại Khóa bản quyền thất bại.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Tạo lại Khóa bản quyền thất bại.'), type: 'error' });
     } finally {
       setRegeneratingLoading(false);
     }
@@ -237,8 +238,8 @@ export const Dashboard: React.FC = () => {
       setRenewingOrder(null);
       setSelectedVariantId('');
       await loadOrders(true);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Thanh toán thất bại.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Thanh toán thất bại.'), type: 'error' });
     } finally {
       setRenewing(false);
     }
@@ -258,8 +259,8 @@ export const Dashboard: React.FC = () => {
       if (rateData && rateData.conversion_rate) {
         setExchangeRate(rateData.conversion_rate);
       }
-    } catch (err: any) {
-      setError(err.message || 'Không thể tải danh mục sản phẩm đã mua.');
+    } catch (err) {
+      setError(errorMessage(err, 'Không thể tải danh mục sản phẩm đã mua.'));
     } finally {
       if (!silent) {
         setLoading(false);
@@ -273,8 +274,8 @@ export const Dashboard: React.FC = () => {
       try {
         const detail = await api.get<OrderDetail>(`/api/orders/${orderId}`);
         setOrderDetails(prev => ({ ...prev, [orderId]: detail.purchases }));
-      } catch (err: any) {
-        setToast({ message: err.message || 'Không thể tải chi tiết đơn hàng.', type: 'error' });
+      } catch (err) {
+        setToast({ message: errorMessage(err, 'Không thể tải chi tiết đơn hàng.'), type: 'error' });
         return;
       }
     }
@@ -295,8 +296,8 @@ export const Dashboard: React.FC = () => {
 
       await api.downloadFile(productId, fallbackFilename);
       setToast({ message: 'Tải xuống tệp tin bảo mật thành công.', type: 'success' });
-    } catch (err: any) {
-      setToast({ message: err.message || 'Tải xuống tệp tin thất bại.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Tải xuống tệp tin thất bại.'), type: 'error' });
     } finally {
       setDownloadingId(null);
     }

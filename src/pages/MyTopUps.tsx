@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import api, { API_BASE_URL } from '../utils/api';
+import { errorMessage } from '../utils/errors';
 import { getExchangeRate } from '../api/exchange';
 import { useAuth } from '../context/AuthContext';
 import { Toast } from '../components/Toast';
@@ -57,8 +58,8 @@ export const MyTopUps: React.FC = () => {
       if (rateData && rateData.conversion_rate) {
         setExchangeRate(rateData.conversion_rate);
       }
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể lấy danh sách yêu cầu nạp tiền.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể lấy danh sách yêu cầu nạp tiền.'), type: 'error' });
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -133,8 +134,8 @@ export const MyTopUps: React.FC = () => {
       loadTopUps();
       // Open the detail modal directly for the newly created transaction
       handleOpenDetail(data);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể tạo mã QR nạp tiền.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể tạo mã QR nạp tiền.'), type: 'error' });
     } finally {
       setSubmitting(false);
     }
@@ -161,8 +162,8 @@ export const MyTopUps: React.FC = () => {
         stopPolling();
       }
       setConfirmingTopUpCancel(null);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể hủy yêu cầu nạp tiền.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể hủy yêu cầu nạp tiền.'), type: 'error' });
     } finally {
       setConfirmingTopUpCancelLoading(false);
     }
@@ -188,7 +189,7 @@ export const MyTopUps: React.FC = () => {
       } else {
         setToast({ message: 'Giao dịch đang chờ thanh toán.', type: 'info' });
       }
-    } catch (err: any) {
+    } catch (err) {
       setToast({ message: 'Lỗi cập nhật trạng thái.', type: 'error' });
     }
   };

@@ -67,6 +67,8 @@ src/
 
 ## Lint
 
-`npm run lint` hiện báo 74 lỗi, gần như toàn bộ là `@typescript-eslint/no-explicit-any` có từ trước khi dự án có CI. CI chạy lint nhưng **chưa chặn merge** vì chúng — nếu chặn thì mọi pull request đều bị block. Giảm dần về 0 rồi bỏ `continue-on-error` trong `.github/workflows/ci.yml`.
+`npm run lint` hiện báo **27 lỗi**, giảm từ 76. Phần còn lại là vi phạm quy tắc react-hooks (cần tái cấu trúc thật, không sửa máy móc được) và một số kiểu phản hồi API vẫn để `any`. CI chạy lint nhưng **chưa chặn merge** vì chúng — nếu chặn thì mọi pull request đều bị block. Giảm về 0 rồi bỏ `continue-on-error` trong `.github/workflows/ci.yml`.
 
-Đừng thêm lỗi mới. Ngưỡng hiện tại là 74.
+Đừng thêm lỗi mới. Ngưỡng hiện tại là 27.
+
+Xử lý lỗi trong catch dùng `errorMessage(err, 'thông báo dự phòng')` từ `src/utils/errors.ts` — đừng quay lại `catch (err: any)`.

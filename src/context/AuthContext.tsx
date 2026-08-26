@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return;
 
     let socket: WebSocket | null = null;
-    let reconnectTimeoutId: any = null;
+    let reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null;
     let isCleanup = false;
 
     const connectWS = () => {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import { errorMessage } from '../utils/errors';
 import { getExchangeRate } from '../api/exchange';
 import { ArrowLeft, CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
 import { Toast } from '../components/Toast';
@@ -89,8 +90,8 @@ export const ProductDetail: React.FC = () => {
       } catch (rateErr) {
         console.error("Failed to fetch exchange rate", rateErr);
       }
-    } catch (err: any) {
-      setError(err.message || 'Không thể lấy thông tin công cụ giao dịch.');
+    } catch (err) {
+      setError(errorMessage(err, 'Không thể lấy thông tin công cụ giao dịch.'));
     } finally {
       setLoading(false);
     }
@@ -118,8 +119,8 @@ export const ProductDetail: React.FC = () => {
       });
       setAppliedVoucher(res);
       setToast({ message: 'Áp dụng mã giảm giá thành công!', type: 'success' });
-    } catch (err: any) {
-      setVoucherError(err.message || 'Mã giảm giá không hợp lệ.');
+    } catch (err) {
+      setVoucherError(errorMessage(err, 'Mã giảm giá không hợp lệ.'));
       setAppliedVoucher(null);
     } finally {
       setValidatingVoucher(false);
@@ -153,8 +154,8 @@ export const ProductDetail: React.FC = () => {
       setShowCheckoutModal(false);
       await refreshUser();
       navigate('/dashboard?payment=success');
-    } catch (err: any) {
-      setToast({ message: err.message || 'Thanh toán thất bại.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Thanh toán thất bại.'), type: 'error' });
     } finally {
       setPurchasing(false);
     }
