@@ -1,22 +1,27 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api, { API_BASE_URL } from '../utils/api';
+import { errorMessage } from '../utils/errors';
 import { getExchangeRate } from '../api/exchange';
 import {
   Upload, Trash2, History, Plus, FileCode, CreditCard,
   DollarSign, Edit, Eye, EyeOff, Search, Users, Tag,
   Calendar, ShoppingBag, RefreshCw, X, AlertTriangle, Coins,
-  Handshake, Save, RotateCcw, ExternalLink
+  Handshake, Save, RotateCcw, ExternalLink, Phone, FileText as FileTextIcon, Mail
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Toast } from '../components/Toast';
 import { ConfirmationDialog } from '../components/ConfirmationDialog';
 import { activeSortedVariants, formatVariantDuration, shortestVariant } from '../utils/variants';
 import { useSiteSettings } from '../context/SiteSettingsContext';
+import { AboutSettingsPanel } from '../components/admin/AboutSettingsPanel';
+import { ContactSettingsPanel } from '../components/admin/ContactSettingsPanel';
+import { LegalSettingsPanel } from '../components/admin/LegalSettingsPanel';
+import { SmtpSettingsPanel } from '../components/admin/SmtpSettingsPanel';
 import { getPartnerWebsite, type PartnerInfo } from '../config/siteContent';
 import { Box, Container, Typography, Button, InputBase, Table, TableHead, TableRow, TableCell, TableBody, Dialog, DialogTitle, DialogContent, CircularProgress, Select, MenuItem, FormControl } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx, panelPaddingSx, dialogPaperSx, breakLongValueSx } from '../theme';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx, panelPaddingSx, dialogPaperSx, breakLongValueSx, adminInputSx } from '../theme';
 
 interface Transaction {
   id: string;
@@ -171,7 +176,7 @@ export const Admin: React.FC = () => {
   }, [user]);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'vouchers' | 'topups' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'vouchers' | 'topups' | 'settings' | 'contact' | 'legal' | 'smtp'>('dashboard');
 
   // Common Loading & Error States
   const [loading, setLoading] = useState(true);
@@ -329,8 +334,8 @@ export const Admin: React.FC = () => {
 
       const stats = await api.get<any>(url);
       setDashboardStats(stats);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch dashboard metrics.');
+    } catch (err) {
+      setError(errorMessage(err, 'Failed to fetch dashboard metrics.'));
     }
   };
 
@@ -338,8 +343,8 @@ export const Admin: React.FC = () => {
     try {
       const data = await api.get<Product[]>('/api/products');
       setProducts(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch catalog inventory.');
+    } catch (err) {
+      setError(errorMessage(err, 'Failed to fetch catalog inventory.'));
     }
   };
 
@@ -347,8 +352,8 @@ export const Admin: React.FC = () => {
     try {
       const data = await api.get<Order[]>('/api/admin/orders');
       setOrders(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch order list.');
+    } catch (err) {
+      setError(errorMessage(err, 'Failed to fetch order list.'));
     }
   };
 
@@ -356,8 +361,8 @@ export const Admin: React.FC = () => {
     try {
       const data = await api.get<User[]>('/api/admin/users');
       setUsersList(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch user directory.');
+    } catch (err) {
+      setError(errorMessage(err, 'Failed to fetch user directory.'));
     }
   };
 
@@ -365,8 +370,8 @@ export const Admin: React.FC = () => {
     try {
       const data = await api.get<Voucher[]>('/api/admin/vouchers');
       setVouchers(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch voucher list.');
+    } catch (err) {
+      setError(errorMessage(err, 'Failed to fetch voucher list.'));
     }
   };
 
@@ -386,8 +391,8 @@ export const Admin: React.FC = () => {
       } catch (qrErr) {
         console.error('Failed to load custom QR settings', qrErr);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch top-up transactions.');
+    } catch (err) {
+      setError(errorMessage(err, 'Failed to fetch top-up transactions.'));
     }
   };
 
@@ -485,7 +490,9 @@ export const Admin: React.FC = () => {
       else if (activeTab === 'vouchers') await loadVouchersData();
       else if (activeTab === 'topups') await loadTopUpsData();
       else if (activeTab === 'settings') await refreshPartner();
-    } catch (err) {
+      // 'contact', 'legal' and 'smtp' are self-contained panels that load
+      // their own data on mount.
+    } catch {
       // Caught inside subfunctions
     } finally {
       if (shouldShowSpinner) {
@@ -510,7 +517,7 @@ export const Admin: React.FC = () => {
     api.get<any>('/api/admin/dashboard').then((stats) => {
       setDashboardStats(stats);
     }).catch((err) => {
-      setError(err.message || 'Failed to fetch dashboard metrics.');
+      setError(errorMessage(err, 'Failed to fetch dashboard metrics.'));
     });
   };
 
@@ -650,8 +657,8 @@ export const Admin: React.FC = () => {
       setProductFileSelectedName('');
 
       loadProductsData();
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể tạo sản phẩm.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể tạo sản phẩm.'), type: 'error' });
     } finally {
       setSubmittingProduct(false);
     }
@@ -664,8 +671,8 @@ export const Admin: React.FC = () => {
       await api.postForm(`/api/admin/products/${productId}/upload-file`, formData);
       setToast({ message: 'Cập nhật file binary công cụ thành công!', type: 'success' });
       loadProductsData();
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể tải lên file binary.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể tải lên file binary.'), type: 'error' });
     } finally {
       setReplacingProductId(null);
     }
@@ -685,8 +692,8 @@ export const Admin: React.FC = () => {
       setToast({ message: 'Xóa sản phẩm thành công!', type: 'success' });
       loadProductsData();
       setConfirmingProductDelete(null);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể xóa sản phẩm.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể xóa sản phẩm.'), type: 'error' });
     } finally {
       setConfirmingProductDeleteLoading(false);
     }
@@ -737,8 +744,8 @@ export const Admin: React.FC = () => {
       setToast({ message: 'Cập nhật thông tin sản phẩm thành công!', type: 'success' });
       setEditingProduct(null);
       loadProductsData();
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể cập nhật thông tin sản phẩm.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể cập nhật thông tin sản phẩm.'), type: 'error' });
     } finally {
       setSubmittingProduct(false);
     }
@@ -803,8 +810,8 @@ export const Admin: React.FC = () => {
       const updatedProduct = await api.get<Product>(`/api/products/${editingProduct.id}`);
       setEditingProduct(updatedProduct);
       loadProductsData();
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể tạo gói bản quyền.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể tạo gói bản quyền.'), type: 'error' });
     } finally {
       setAddingVariant(false);
     }
@@ -826,8 +833,8 @@ export const Admin: React.FC = () => {
       const updatedProduct = await api.get<Product>(`/api/products/${editingProduct.id}`);
       setEditingProduct(updatedProduct);
       loadProductsData();
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể xóa gói bản quyền.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể xóa gói bản quyền.'), type: 'error' });
     } finally {
       setDeletingVariantId(null);
     }
@@ -838,8 +845,8 @@ export const Admin: React.FC = () => {
       const data = await api.get<OrderDetail>(`/api/admin/orders/${orderId}`);
       setViewingOrder(data);
       setBindingAccountInput('');
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể lấy thông tin chi tiết đơn hàng.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể lấy thông tin chi tiết đơn hàng.'), type: 'error' });
     }
   };
 
@@ -893,8 +900,8 @@ export const Admin: React.FC = () => {
       if (viewingOrder && viewingOrder.id === purchaseId) {
         handleViewOrderDetail(purchaseId);
       }
-    } catch (err: any) {
-      setToast({ message: err.message || 'Cập nhật trạng thái đơn hàng thất bại.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Cập nhật trạng thái đơn hàng thất bại.'), type: 'error' });
     } finally {
       setUpdatingOrderStatus(false);
     }
@@ -940,8 +947,8 @@ export const Admin: React.FC = () => {
         setViewingUser(updated);
       }
       setEditingUser(null);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Cập nhật thông tin người dùng thất bại.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Cập nhật thông tin người dùng thất bại.'), type: 'error' });
     } finally {
       setUpdatingUser(false);
     }
@@ -970,9 +977,9 @@ export const Admin: React.FC = () => {
         setViewingUser({ ...viewingUser, is_deleted: !u.is_deleted });
       }
       setConfirmingUserAction(null);
-    } catch (err: any) {
+    } catch (err) {
       const displayAction = actionText === 'restore' ? 'khôi phục' : 'tạm ngưng';
-      setToast({ message: err.message || `Không thể ${displayAction} tài khoản người dùng.`, type: 'error' });
+      setToast({ message: errorMessage(err, `Không thể ${displayAction} tài khoản người dùng.`), type: 'error' });
     } finally {
       setConfirmingUserActionLoading(false);
     }
@@ -1028,8 +1035,8 @@ export const Admin: React.FC = () => {
       setVoucherIsActive(true);
       setEditingVoucher(null);
       loadVouchersData();
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể lưu chiến dịch Voucher.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể lưu chiến dịch Voucher.'), type: 'error' });
     } finally {
       setSubmittingVoucher(false);
     }
@@ -1043,8 +1050,8 @@ export const Admin: React.FC = () => {
       await api.delete(`/api/admin/vouchers/${voucherId}`);
       setToast({ message: 'Xóa chiến dịch Voucher thành công!', type: 'success' });
       loadVouchersData();
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể xóa voucher.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể xóa voucher.'), type: 'error' });
     }
   };
 
@@ -1071,8 +1078,8 @@ export const Admin: React.FC = () => {
       setTopUpTargetUserId('');
       setTopUpAmount('');
       loadTopUpsData();
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể tạo yêu cầu nạp tiền.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể tạo yêu cầu nạp tiền.'), type: 'error' });
     } finally {
       setSubmittingTopUp(false);
     }
@@ -1091,7 +1098,7 @@ export const Admin: React.FC = () => {
     if (!editingTopUp) return;
     setUpdatingTopUp(true);
     try {
-      const payload: any = {
+      const payload = {
         status: editTopUpStatus,
         error_message: editTopUpErrorMessage || null,
         acb_transaction_id: editTopUpTransactionId || null,
@@ -1104,8 +1111,8 @@ export const Admin: React.FC = () => {
         setViewingTopUp(updated);
       }
       setEditingTopUp(null);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể cập nhật yêu cầu nạp tiền.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể cập nhật yêu cầu nạp tiền.'), type: 'error' });
     } finally {
       setUpdatingTopUp(false);
     }
@@ -1127,8 +1134,8 @@ export const Admin: React.FC = () => {
         setViewingTopUp(updated);
       }
       setConfirmingTopUpCancel(null);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Hủy yêu cầu nạp tiền thất bại.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Hủy yêu cầu nạp tiền thất bại.'), type: 'error' });
     } finally {
       setConfirmingTopUpCancelLoading(false);
     }
@@ -1156,8 +1163,8 @@ export const Admin: React.FC = () => {
         }
       }
       setConfirmingTopUpManualCredit(null);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể cộng tiền thủ công.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể cộng tiền thủ công.'), type: 'error' });
     } finally {
       setConfirmingTopUpManualCreditLoading(false);
     }
@@ -1183,8 +1190,8 @@ export const Admin: React.FC = () => {
         setViewingTopUp(null);
       }
       setConfirmingTopUpDelete(null);
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể xóa bản ghi nạp tiền.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể xóa bản ghi nạp tiền.'), type: 'error' });
     } finally {
       setConfirmingTopUpDeleteLoading(false);
     }
@@ -1198,8 +1205,8 @@ export const Admin: React.FC = () => {
         setViewingTopUp(updated);
       }
       setToast({ message: 'Cập nhật trạng thái giao dịch thành công.', type: 'success' });
-    } catch (err: any) {
-      setToast({ message: err.message || 'Không thể cập nhật trạng thái giao dịch.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Không thể cập nhật trạng thái giao dịch.'), type: 'error' });
     }
   };
 
@@ -1220,8 +1227,8 @@ export const Admin: React.FC = () => {
       const data = await api.postForm<{ qr_code_url: string; has_custom_qr: boolean }>('/api/admin/settings/qr-code', formData);
       setCustomQrUrl(data.qr_code_url);
       setToast({ message: 'Upload custom QR code thành công!', type: 'success' });
-    } catch (err: any) {
-      setToast({ message: err.message || 'Upload custom QR code thất bại.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Upload custom QR code thất bại.'), type: 'error' });
     } finally {
       setUploadingQr(false);
     }
@@ -1233,8 +1240,8 @@ export const Admin: React.FC = () => {
       await api.delete('/api/admin/settings/qr-code');
       setCustomQrUrl(null);
       setToast({ message: 'Đã xóa custom QR code thành công!', type: 'success' });
-    } catch (err: any) {
-      setToast({ message: err.message || 'Xóa custom QR code thất bại.', type: 'error' });
+    } catch (err) {
+      setToast({ message: errorMessage(err, 'Xóa custom QR code thất bại.'), type: 'error' });
     } finally {
       setDeletingQr(false);
     }
@@ -1288,17 +1295,8 @@ export const Admin: React.FC = () => {
     );
   }
 
-  const inputSx = {
-    width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    border: '1px solid rgba(255, 255, 255, 0.06)',
-    borderRadius: '8px',
-    padding: '0.65rem 0.85rem',
-    color: '#fff',
-    fontSize: '0.9rem',
-    fontFamily: '"Outfit", sans-serif',
-    '& input': { padding: 0, '&::placeholder': { color: '#6b7280', opacity: 1 } }
-  };
+  // Shared with the settings panels split out of this file.
+  const inputSx = adminInputSx;
 
   const selectSx = {
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -1383,7 +1381,10 @@ export const Admin: React.FC = () => {
             { id: 'users', label: 'Quản lý tài khoản', icon: <Users size={14} /> },
             { id: 'vouchers', label: 'Chiến dịch sale / voucher', icon: <Tag size={14} /> },
             { id: 'topups', label: 'Quản lý nạp tiền', icon: <Coins size={14} /> },
-            { id: 'settings', label: 'Cài đặt đối tác', icon: <Handshake size={14} /> }
+            { id: 'settings', label: 'Đối tác & cột mốc', icon: <Handshake size={14} /> },
+            { id: 'contact', label: 'Thông tin liên hệ', icon: <Phone size={14} /> },
+            { id: 'legal', label: 'Trang pháp lý', icon: <FileTextIcon size={14} /> },
+            { id: 'smtp', label: 'Cài đặt email', icon: <Mail size={14} /> }
           ].map(t => {
             const isSel = activeTab === t.id;
             return (
@@ -2303,6 +2304,18 @@ export const Admin: React.FC = () => {
               </>
             )}
 
+            {activeTab === 'contact' && (
+              <ContactSettingsPanel onToast={(message, type) => setToast({ message, type })} />
+            )}
+
+            {activeTab === 'legal' && (
+              <LegalSettingsPanel onToast={(message, type) => setToast({ message, type })} />
+            )}
+
+            {activeTab === 'smtp' && (
+              <SmtpSettingsPanel onToast={(message, type) => setToast({ message, type })} />
+            )}
+
             {/* TAB 7: SITE SETTINGS - PARTNER */}
             {activeTab === 'settings' && (
               <Box component="form" onSubmit={handleSavePartner} sx={{ ...glassPanelSx, padding: panelPaddingSx }}>
@@ -2503,6 +2516,10 @@ export const Admin: React.FC = () => {
                   </Box>
                 </Box>
               </Box>
+)}
+
+            {activeTab === 'settings' && (
+              <AboutSettingsPanel onToast={(message, type) => setToast({ message, type })} />
             )}
           </Box>
         )}
@@ -3878,8 +3895,7 @@ export const Admin: React.FC = () => {
                       await handleUploadFileDirect(replacingProductId, replacingSelectedFile);
                       setReplacingProductId(null);
                       setReplacingSelectedFile(null);
-                    } catch (err) {
-                      // Handled by handleUploadFileDirect
+                    } catch {                 // Handled by handleUploadFileDirect
                     } finally {
                       setUploadingReplacingFile(false);
                     }

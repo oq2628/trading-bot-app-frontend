@@ -21,7 +21,7 @@ import { ProductCard } from '../components/ProductCard';
 import { getPartnerWebsite, siteContent } from '../config/siteContent';
 import { useSiteSettings } from '../context/SiteSettingsContext';
 import { btnOutlineGradientSx, btnPrimarySx, glassPanelSx, pageContainerSx } from '../theme';
-import heroImage from '../assets/algoforge-hero.png';
+import heroImage from '../assets/algoforge-hero.webp';
 
 interface ProductShowcaseProps {
   eyebrow: string;
@@ -467,13 +467,6 @@ export const Home: React.FC = () => {
         onRetry={loadProducts}
       />
 
-      <Box sx={{ mt: { xs: 8, md: 11 }, p: { xs: 3, md: 4 }, borderRadius: '18px', display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2, background: 'rgba(245,158,11,.07)', border: '1px solid rgba(245,158,11,.2)' }}>
-        <ShieldCheck size={24} color="#f59e0b" />
-        <Box>
-          <Typography sx={{ color: '#fef3c7', fontWeight: 750, mb: 0.4 }}>Bản dựng nội dung minh họa</Typography>
-          <Typography sx={{ color: '#c8bfa9', fontSize: '0.86rem', lineHeight: 1.6 }}>{siteContent.demoNotice}</Typography>
-        </Box>
-      </Box>
     </Container>
   );
 };

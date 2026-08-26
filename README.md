@@ -1,73 +1,74 @@
-# React + TypeScript + Vite
+# AlgoForge — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19 + TypeScript + Vite + MUI. Giao diện cửa hàng, luồng thanh toán, quản lý license và trang quản trị cho AlgoForge.
 
-Currently, two official plugins are available:
+Cần backend chạy kèm: [`oq2628/trading-bot-app-backend`](https://github.com/oq2628/trading-bot-app-backend).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Chạy môi trường phát triển
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm ci        # không dùng npm install, để tôn trọng lockfile
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+`.env.development` đã trỏ sẵn về `http://localhost:8000`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Cấu hình
+
+Chỉ có một biến môi trường, và nó **bắt buộc** khi build:
+
+| Biến | Ý nghĩa |
+|---|---|
+| `VITE_API_BASE_URL` | Origin của backend, **không** có dấu `/` ở cuối. Chuỗi rỗng nghĩa là *cùng origin*. |
+
+Vite nhúng giá trị này vào bundle lúc build chứ không đọc lúc chạy, nên nó được quyết định tại thời điểm build và không đổi được sau đó.
+
+- **Production:** `.env.production` để trống — reverse proxy phục vụ bundle này và chuyển tiếp `/api/*` sang backend, nên request luôn cùng origin và không cần cấu hình CORS.
+- **Development:** `.env.development` trỏ về uvicorn cục bộ.
+- **Origin khác:** đặt `VITE_API_BASE_URL=https://api.example.com` khi build.
+
+`vite.config.ts` **làm fail `npm run build`** nếu biến không được định nghĩa. Trước đây API URL bị hardcode `http://localhost:8000` ngay trong `src/utils/api.ts`, nên mọi bản build production đều bị ghim vào chính máy đã tạo ra nó. Chốt chặn này tồn tại để điều đó không tái diễn. (Giá trị rỗng là hợp lệ; chỉ *không định nghĩa* mới bị coi là sai cấu hình.)
+
+---
+
+## Build
+
+```bash
+npm run build     # tsc -b && vite build
+npm run preview   # xem thử bản build
+npm run lint
 ```
+
+---
+
+## Cấu trúc
+
+```
+src/
+  components/       Thành phần dùng chung (Navbar, Footer, Toast, ...)
+    admin/          Các panel cài đặt tách khỏi Admin.tsx
+  config/           Nội dung tĩnh và kiểu dữ liệu khớp schema backend
+  context/          AuthContext (phiên đăng nhập, WebSocket số dư)
+                    SiteSettingsContext (đối tác, liên hệ, giới thiệu)
+  pages/            Các trang gắn với route
+  utils/api.ts      Client fetch, header xác thực, xử lý 401
+  theme.ts          Token MUI và style dùng chung
+```
+
+**Nội dung lấy từ API, không hardcode.** Thông tin đối tác, kênh liên hệ, tài liệu pháp lý và cột mốc phát triển đều do quản trị viên chỉnh trong trang admin và nạp qua `SiteSettingsContext`. Giá trị để trống sẽ khiến phần tương ứng tự ẩn thay vì hiển thị link chết hoặc nội dung giả — đừng thêm giá trị placeholder vào `siteContent.ts`.
+
+**Token nằm trong `localStorage`.** `api.ts` gắn nó vào mọi request. Khi backend trả 401 mà đang có token, phiên đã hết hạn: token bị xoá và người dùng bị chuyển về `/login`. Request không kèm token thì bỏ qua — 401 từ endpoint đăng nhập là sai mật khẩu chứ không phải hết phiên.
+
+---
+
+## Lint
+
+`npm run lint` hiện báo **27 lỗi**, giảm từ 76. Phần còn lại là vi phạm quy tắc react-hooks (cần tái cấu trúc thật, không sửa máy móc được) và một số kiểu phản hồi API vẫn để `any`. CI chạy lint nhưng **chưa chặn merge** vì chúng — nếu chặn thì mọi pull request đều bị block. Giảm về 0 rồi bỏ `continue-on-error` trong `.github/workflows/ci.yml`.
+
+Đừng thêm lỗi mới. Ngưỡng hiện tại là 27.
+
+Xử lý lỗi trong catch dùng `errorMessage(err, 'thông báo dự phòng')` từ `src/utils/errors.ts` — đừng quay lại `catch (err: any)`.
