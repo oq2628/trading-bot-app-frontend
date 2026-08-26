@@ -21,7 +21,7 @@ import { ProductCard } from '../components/ProductCard';
 import { getPartnerWebsite, siteContent } from '../config/siteContent';
 import { useSiteSettings } from '../context/SiteSettingsContext';
 import { btnOutlineGradientSx, btnPrimarySx, glassPanelSx, pageContainerSx } from '../theme';
-import heroImage from '../assets/algoforge-hero.png';
+import heroImage from '../assets/algoforge-hero.webp';
 
 interface ProductShowcaseProps {
   eyebrow: string;

@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       socket = new WebSocket(wsUrl);
 
       socket.onopen = () => {
-        console.log('Real-time WebSocket connected');
+        // Nothing to do: the socket only pushes balance updates.
       };
 
       socket.onmessage = (event) => {
@@ -83,8 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       };
 
-      socket.onclose = (event) => {
-        console.log('Real-time WebSocket disconnected', event.reason);
+      socket.onclose = () => {
         if (!isCleanup) {
           reconnectTimeoutId = setTimeout(connectWS, 3000);
         }

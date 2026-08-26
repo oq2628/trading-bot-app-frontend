@@ -35,30 +35,52 @@ function getHeaders(isMultipart = false): HeadersInit {
   return headers;
 }
 
+/**
+ * Turn a fetch Response into data, or throw with the API's own message.
+ *
+ * A 401 while holding a token means the session is gone -- expired, revoked, or
+ * the account deleted. Every caller used to receive a generic "An error
+ * occurred" and the stale token stayed in localStorage, so the app kept
+ * retrying with a credential the server had already rejected. Clear it and send
+ * the user to the login page instead.
+ *
+ * Requests made without a token are left alone: a 401 from the login endpoint
+ * is a wrong password, not an expired session, and redirecting there would loop.
+ */
+async function handleResponse<T>(response: Response, parseBody: boolean): Promise<T> {
+  if (response.status === 401 && localStorage.getItem('token')) {
+    localStorage.removeItem('token');
+    // A full navigation rather than a router push: this runs outside React and
+    // has no access to the router, and discarding all in-memory state is the
+    // right outcome for a session that no longer exists.
+    window.location.href = '/login';
+    throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+  }
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({ detail: 'Request failed' }));
+    throw new Error(errData.detail || 'An error occurred');
+  }
+
+  return parseBody ? response.json() : (undefined as T);
+}
+
 export const api = {
   async get<T>(path: string): Promise<T> {
     const response = await fetch(`${API_BASE_URL}${path}`, {
       method: 'GET',
       headers: getHeaders(),
     });
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({ detail: 'Request failed' }));
-      throw new Error(errData.detail || 'An error occurred');
-    }
-    return response.json();
+    return handleResponse<T>(response, true);
   },
 
-  async post<T>(path: string, body: any): Promise<T> {
+  async post<T>(path: string, body: unknown): Promise<T> {
     const response = await fetch(`${API_BASE_URL}${path}`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(body),
     });
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({ detail: 'Request failed' }));
-      throw new Error(errData.detail || 'An error occurred');
-    }
-    return response.json();
+    return handleResponse<T>(response, true);
   },
 
   async postForm<T>(path: string, formData: FormData): Promise<T> {
@@ -67,11 +89,7 @@ export const api = {
       headers: getHeaders(true),
       body: formData,
     });
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({ detail: 'Request failed' }));
-      throw new Error(errData.detail || 'An error occurred');
-    }
-    return response.json();
+    return handleResponse<T>(response, true);
   },
 
   async putForm<T>(path: string, formData: FormData): Promise<T> {
@@ -80,24 +98,16 @@ export const api = {
       headers: getHeaders(true),
       body: formData,
     });
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({ detail: 'Request failed' }));
-      throw new Error(errData.detail || 'An error occurred');
-    }
-    return response.json();
+    return handleResponse<T>(response, true);
   },
 
-  async put<T>(path: string, body: any): Promise<T> {
+  async put<T>(path: string, body: unknown): Promise<T> {
     const response = await fetch(`${API_BASE_URL}${path}`, {
       method: 'PUT',
       headers: getHeaders(),
       body: JSON.stringify(body),
     });
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({ detail: 'Request failed' }));
-      throw new Error(errData.detail || 'An error occurred');
-    }
-    return response.json();
+    return handleResponse<T>(response, true);
   },
 
   async delete(path: string): Promise<void> {
@@ -105,10 +115,7 @@ export const api = {
       method: 'DELETE',
       headers: getHeaders(),
     });
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({ detail: 'Request failed' }));
-      throw new Error(errData.detail || 'An error occurred');
-    }
+    await handleResponse<void>(response, false);
   },
 
   async downloadFile(productId: string, filename: string): Promise<void> {

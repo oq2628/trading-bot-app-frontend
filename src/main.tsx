@@ -5,7 +5,9 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { theme } from './theme.ts'
 import App from './App.tsx'
 
-const socialImageUrl = new URL('/og.png', window.location.origin).toString()
+// Social crawlers need an absolute URL; index.html can only carry a relative
+// one, so it is rewritten here at runtime.
+const socialImageUrl = new URL('/og.jpg', window.location.origin).toString()
 document.querySelectorAll<HTMLMetaElement>('meta[property="og:image"], meta[name="twitter:image"]')
   .forEach(meta => meta.setAttribute('content', socialImageUrl))
 
