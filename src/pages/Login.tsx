@@ -340,30 +340,6 @@ export const Login: React.FC = () => {
               )}
             </Button>
           </Box>
-        
-        {/* Bootstrap Hint */}
-        {mode === 'email' && (
-          <Box
-            sx={{
-              marginTop: '2rem',
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: '8px',
-              padding: '1rem',
-              fontSize: '0.8rem',
-              color: 'text.secondary',
-              lineHeight: '1.4',
-              wordBreak: 'break-word',
-              overflowWrap: 'anywhere'
-            }}
-          >
-            <Typography component="strong" sx={{ color: 'primary.main', display: 'block', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 700 }}>
-              Tài khoản thử nghiệm hệ thống:
-            </Typography>
-            • Admin: <Box component="code" sx={{ color: '#fff' }}>admin@tradingbot.com</Box> / pass: <Box component="code" sx={{ color: '#fff' }}>admin123</Box><br/>
-            • Buyer: <Box component="code" sx={{ color: '#fff' }}>buyer@tradingbot.com</Box> / pass: <Box component="code" sx={{ color: '#fff' }}>buyer123</Box>
-          </Box>
-        )}
       </Box>
     </Container>
   );
