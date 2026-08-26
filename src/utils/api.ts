@@ -1,4 +1,24 @@
-export const API_BASE_URL = 'http://localhost:8000';
+// Base URL of the backend API.
+//
+// Production serves the frontend and the backend from one origin (Caddy
+// proxies /api/* to uvicorn), so VITE_API_BASE_URL is an empty string there
+// and every request below becomes a same-origin relative URL. Development
+// points at the local uvicorn on a different port.
+//
+// vite.config.ts refuses to produce a production build when the variable is
+// unset, so a bundle can never ship with the development default baked in.
+const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
+
+// A trailing slash would produce "//api/..." once a path is appended.
+export const API_BASE_URL = configuredBaseUrl.replace(/\/+$/, '');
+
+// Origin for WebSocket connections, derived from the same setting so the two
+// can never drift apart. When API_BASE_URL is empty the API is same-origin, so
+// the socket follows the page's own protocol and host — which also keeps it on
+// wss:// wherever the page is served over TLS.
+export const WS_BASE_URL = API_BASE_URL
+  ? API_BASE_URL.replace(/^http/, 'ws')
+  : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;
 
 function getHeaders(isMultipart = false): HeadersInit {
   const token = localStorage.getItem('token');

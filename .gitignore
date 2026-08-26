@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+# Environment files. .env can hold deployment-specific values and must not
+# be committed; the checked-in .env.example and .env.development are the
+# only two that are safe to track.
+.env
+.env.*
+!.env.example
+!.env.development
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

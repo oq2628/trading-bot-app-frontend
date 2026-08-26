@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import api, { API_BASE_URL } from '../utils/api';
+import api, { WS_BASE_URL } from '../utils/api';
 
 interface User {
   id: string;
@@ -59,9 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsHost = API_BASE_URL.replace(/^https?:\/\//, '') || window.location.host;
-      const wsUrl = `${wsProtocol}//${wsHost}/api/ws?token=${token}`;
+      const wsUrl = `${WS_BASE_URL}/api/ws?token=${token}`;
 
       socket = new WebSocket(wsUrl);
 
