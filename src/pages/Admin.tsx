@@ -13,6 +13,7 @@ import { Toast } from '../components/Toast';
 import { ConfirmationDialog } from '../components/ConfirmationDialog';
 import { activeSortedVariants, formatVariantDuration, shortestVariant } from '../utils/variants';
 import { useSiteSettings } from '../context/SiteSettingsContext';
+import { AboutSettingsPanel } from '../components/admin/AboutSettingsPanel';
 import { ContactSettingsPanel } from '../components/admin/ContactSettingsPanel';
 import { LegalSettingsPanel } from '../components/admin/LegalSettingsPanel';
 import { SmtpSettingsPanel } from '../components/admin/SmtpSettingsPanel';
@@ -1379,7 +1380,7 @@ export const Admin: React.FC = () => {
             { id: 'users', label: 'Quản lý tài khoản', icon: <Users size={14} /> },
             { id: 'vouchers', label: 'Chiến dịch sale / voucher', icon: <Tag size={14} /> },
             { id: 'topups', label: 'Quản lý nạp tiền', icon: <Coins size={14} /> },
-            { id: 'settings', label: 'Cài đặt đối tác', icon: <Handshake size={14} /> },
+            { id: 'settings', label: 'Đối tác & cột mốc', icon: <Handshake size={14} /> },
             { id: 'contact', label: 'Thông tin liên hệ', icon: <Phone size={14} /> },
             { id: 'legal', label: 'Trang pháp lý', icon: <FileTextIcon size={14} /> },
             { id: 'smtp', label: 'Cài đặt email', icon: <Mail size={14} /> }
@@ -2514,6 +2515,10 @@ export const Admin: React.FC = () => {
                   </Box>
                 </Box>
               </Box>
+)}
+
+            {activeTab === 'settings' && (
+              <AboutSettingsPanel onToast={(message, type) => setToast({ message, type })} />
             )}
           </Box>
         )}

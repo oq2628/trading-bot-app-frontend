@@ -66,13 +66,6 @@ export const Support: React.FC = () => {
       })}
     </Grid>
 
-    <Box sx={{ mt: { xs: 5, md: 7 }, p: { xs: 2.5, md: 3.2 }, borderRadius: '16px', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { sm: 'center' }, gap: 2, background: 'rgba(99,102,241,.07)', border: '1px solid rgba(129,140,248,.18)' }}>
-      <MessageCircle size={24} color="#818cf8" />
-      <Box>
-        <Typography sx={{ color: '#fff', fontWeight: 750, mb: 0.35 }}>Lưu ý về dữ liệu demo</Typography>
-        <Typography sx={{ color: 'text.secondary', fontSize: '0.84rem', lineHeight: 1.6 }}>{siteContent.demoNotice}</Typography>
-      </Box>
-    </Box>
   </Container>
   );
 };

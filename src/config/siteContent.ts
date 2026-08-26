@@ -13,11 +13,6 @@ export interface TeamMember {
   description: string;
 }
 
-export interface PolicyItem {
-  title: string;
-  summary: string;
-}
-
 // Mirrors the backend PartnerInfo schema (GET /api/settings/partner). Field
 // names are snake_case to match the API payload exactly.
 export interface PartnerInfo {
@@ -35,11 +30,13 @@ export interface PartnerInfo {
 export const defaultPartner: PartnerInfo = {
   name: 'GTC',
   relationship: 'Đối tác đồng thương hiệu',
-  website: 'REPLACE_GTC_WEBSITE_URL',
-  founded_year: '20XX',
+  // Blank rather than a placeholder: Home and About hide these fields when
+  // empty, so an unconfigured install shows nothing instead of '20XX'.
+  website: '',
+  founded_year: '',
   introduction:
     'GTC là đối tác sàn giao dịch được giới thiệu trong hệ sinh thái AlgoForge, hướng tới trải nghiệm tiếp cận thị trường minh bạch, linh hoạt và giàu tính công nghệ.',
-  note: 'Nội dung GTC hiện là dữ liệu minh họa. Hãy thay thế bằng thông tin đã được doanh nghiệp xác minh trước khi công bố chính thức.',
+  note: '',
   benefits: [
     'Hạ tầng giao dịch định hướng công nghệ',
     'Kết nối hệ sinh thái công cụ AlgoForge',
@@ -74,6 +71,21 @@ export const defaultContact: ContactInfo = {
   business_tax_id: '',
 };
 
+// Mirrors the backend AboutInfo schema (GET /api/settings/about). Empty by
+// default: the About page hides the timeline rather than showing placeholder
+// years, which is what the hardcoded "20XX" entries used to do.
+export interface Milestone {
+  year: string;
+  title: string;
+  description: string;
+}
+
+export interface AboutInfo {
+  milestones: Milestone[];
+}
+
+export const defaultAbout: AboutInfo = { milestones: [] };
+
 export const siteContent = {
   brand: {
     name: 'AlgoForge',
@@ -88,9 +100,9 @@ export const siteContent = {
       description: 'Xây dựng, kiểm thử và duy trì các công cụ giao dịch trong danh mục.',
     },
     {
-      name: 'Nhóm Đồng hành GTC',
+      name: 'Nhóm Đồng hành Đối tác',
       role: 'Partner Success',
-      description: 'Cung cấp thông tin kết nối và hướng dẫn trải nghiệm dịch vụ GTC.',
+      description: 'Cung cấp thông tin kết nối và hướng dẫn trải nghiệm dịch vụ từ đối tác.',
     },
     {
       name: 'Nhóm Hỗ trợ Khách hàng',
@@ -98,33 +110,6 @@ export const siteContent = {
       description: 'Tiếp nhận câu hỏi về cài đặt, bản quyền và quá trình sử dụng sản phẩm.',
     },
   ] as TeamMember[],
-  timeline: [
-    { year: '20XX', title: 'Khởi tạo AlgoForge', description: 'Bắt đầu xây dựng kho công cụ giao dịch có quy trình quản lý bản quyền tập trung.' },
-    { year: '20XX', title: 'Mở rộng hệ sinh thái', description: 'Bổ sung robot EA, chỉ báo và script phục vụ nhiều phong cách giao dịch.' },
-    { year: 'Hiện tại', title: 'Đồng hành cùng GTC', description: 'Phát triển trải nghiệm đồng thương hiệu và hệ thống hỗ trợ đa kênh.' },
-  ],
-  policies: [
-    {
-      title: 'Điều khoản sử dụng',
-      summary: 'Quy định demo về tài khoản, phạm vi sử dụng website và trách nhiệm của người dùng.',
-    },
-    {
-      title: 'Quyền riêng tư',
-      summary: 'Mô tả demo về dữ liệu được thu thập, mục đích xử lý và cách người dùng yêu cầu hỗ trợ.',
-    },
-    {
-      title: 'Mua hàng & bản quyền',
-      summary: 'Mô tả demo về thời hạn gói, quyền tải xuống, kích hoạt và gia hạn sản phẩm.',
-    },
-    {
-      title: 'Hoàn tiền',
-      summary: 'Khung chính sách demo để thay bằng điều kiện hoàn tiền chính thức của doanh nghiệp.',
-    },
-    {
-      title: 'Cảnh báo rủi ro',
-      summary: 'Công cụ giao dịch không đảm bảo lợi nhuận; kết quả quá khứ không đại diện cho kết quả tương lai.',
-    },
-  ] as PolicyItem[],
   supportChannels: [
     {
       key: 'email',
@@ -157,8 +142,6 @@ export const siteContent = {
       actionLabel: 'Mở Messenger',
     },
   ] as SupportChannel[],
-  demoNotice:
-    'Thông tin doanh nghiệp, đội ngũ, mốc thời gian, chính sách và liên kết liên hệ trên bản dựng này là nội dung minh họa.',
 };
 
 const normalizeSuffix = (value: string): string => value.trim().replace(/^@/, '').replace(/^\/+/, '');
