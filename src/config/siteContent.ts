@@ -4,7 +4,6 @@ export interface SupportChannel {
   key: SupportChannelKey;
   label: string;
   description: string;
-  suffix: string;
   actionLabel: string;
 }
 
@@ -46,6 +45,33 @@ export const defaultPartner: PartnerInfo = {
     'Kết nối hệ sinh thái công cụ AlgoForge',
     'Đồng hành cùng nhà giao dịch trong quá trình vận hành',
   ],
+};
+
+// Mirrors the backend ContactInfo schema (GET /api/settings/contact).
+// Every field is optional: a blank value means the channel is not published
+// yet, and the UI hides it rather than rendering a dead link.
+export interface ContactInfo {
+  email: string;
+  zalo: string;
+  discord: string;
+  telegram: string;
+  facebook: string;
+  hotline: string;
+  business_name: string;
+  business_address: string;
+  business_tax_id: string;
+}
+
+export const defaultContact: ContactInfo = {
+  email: '',
+  zalo: '',
+  discord: '',
+  telegram: '',
+  facebook: '',
+  hotline: '',
+  business_name: '',
+  business_address: '',
+  business_tax_id: '',
 };
 
 export const siteContent = {
@@ -104,35 +130,30 @@ export const siteContent = {
       key: 'email',
       label: 'Email',
       description: 'Gửi câu hỏi chi tiết về sản phẩm, tài khoản hoặc bản quyền.',
-      suffix: 'REPLACE_EMAIL_ADDRESS',
       actionLabel: 'Gửi email',
     },
     {
       key: 'zalo',
       label: 'Zalo',
       description: 'Trao đổi nhanh với tài khoản hoặc Official Account của AlgoForge.',
-      suffix: 'REPLACE_ZALO_ID',
       actionLabel: 'Nhắn qua Zalo',
     },
     {
       key: 'discord',
       label: 'Discord',
       description: 'Tham gia cộng đồng để trao đổi cấu hình và kinh nghiệm sử dụng.',
-      suffix: 'REPLACE_DISCORD_INVITE',
       actionLabel: 'Vào Discord',
     },
     {
       key: 'telegram',
       label: 'Telegram',
       description: 'Mở cuộc trò chuyện trực tiếp hoặc tham gia nhóm hỗ trợ Telegram.',
-      suffix: 'REPLACE_TELEGRAM_USERNAME_OR_INVITE',
       actionLabel: 'Mở Telegram',
     },
     {
       key: 'facebook',
       label: 'Facebook',
       description: 'Bắt đầu cuộc trò chuyện với AlgoForge qua Facebook Messenger.',
-      suffix: 'REPLACE_FACEBOOK_USERNAME',
       actionLabel: 'Mở Messenger',
     },
   ] as SupportChannel[],
@@ -153,28 +174,27 @@ export const getPartnerWebsite = (partner: PartnerInfo): string | null => {
   return /^https?:\/\//i.test(value) ? value : `https://${value}`;
 };
 
-export const getSupportHref = (channel: SupportChannel): string | null => {
-  if (isDemoValue(channel.suffix)) return null;
+export const getSupportHref = (key: SupportChannelKey, contact: ContactInfo): string | null => {
+  const raw = (contact[key] || '').trim();
+  if (isDemoValue(raw)) return null;
 
-  const suffix = normalizeSuffix(channel.suffix);
-  switch (channel.key) {
+  const suffix = normalizeSuffix(raw);
+  switch (key) {
     case 'email':
-      return `mailto:${channel.suffix.trim()}?subject=${encodeURIComponent('Yêu cầu hỗ trợ từ website AlgoForge')}`;
+      return `mailto:${raw}?subject=${encodeURIComponent('Yêu cầu hỗ trợ từ website AlgoForge')}`;
     case 'zalo':
       return `https://zalo.me/${suffix}`;
     case 'discord':
-      return `https://discord.gg/${suffix}`;
+      // A full invite URL is accepted as-is so an admin can paste what Discord gives them.
+      return /^https?:\/\//i.test(raw) ? raw : `https://discord.gg/${suffix}`;
     case 'telegram':
-      return `https://t.me/${suffix}`;
+      return /^https?:\/\//i.test(raw) ? raw : `https://t.me/${suffix}`;
     case 'facebook':
-      return `https://m.me/${suffix}`;
+      return /^https?:\/\//i.test(raw) ? raw : `https://m.me/${suffix}`;
     default:
       return null;
   }
 };
 
-export const getSupportChannel = (key: SupportChannelKey): SupportChannel => {
-  const channel = siteContent.supportChannels.find(item => item.key === key);
-  if (!channel) throw new Error(`Unknown support channel: ${key}`);
-  return channel;
-};
+export const getSupportChannel = (key: SupportChannelKey): SupportChannel =>
+  siteContent.supportChannels.find(channel => channel.key === key) as SupportChannel;

@@ -5,6 +5,7 @@ import { SiteSettingsProvider } from './context/SiteSettingsContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
+import { LegalPage } from './pages/LegalPage';
 import { Storefront } from './pages/Storefront';
 import { ProductDetail } from './pages/ProductDetail';
 import { Dashboard } from './pages/Dashboard';
@@ -72,6 +73,8 @@ const AppContent: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/support" element={<Support />} />
           <Route path="/about" element={<About />} />
+          {/* Terms, privacy and refund policy. One component, keyed by slug. */}
+          <Route path="/legal/:slug" element={<LegalPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           

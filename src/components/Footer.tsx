@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ExternalLink, MessageCircle, MessagesSquare, Send, TrendingUp } from 'lucide-react';
 import { Box, Container, IconButton, Typography } from '@mui/material';
 import { getSupportChannel, getSupportHref, siteContent, type SupportChannelKey } from '../config/siteContent';
+import { LEGAL_SLUGS, LEGAL_TITLES } from '../config/legal';
 import { useSiteSettings } from '../context/SiteSettingsContext';
 
 const footerChannels: SupportChannelKey[] = ['zalo', 'telegram', 'facebook'];
@@ -14,7 +15,7 @@ const channelIcon = (key: SupportChannelKey) => {
 };
 
 export const Footer: React.FC = () => {
-  const { partner } = useSiteSettings();
+  const { partner, contact } = useSiteSettings();
 
   return (
     <Box component="footer" sx={{ mt: { xs: 7, md: 10 }, borderTop: '1px solid rgba(255,255,255,0.07)', background: 'rgba(5, 7, 12, 0.75)' }}>
@@ -47,12 +48,23 @@ export const Footer: React.FC = () => {
           </Box>
 
           <Box>
+            <Typography sx={{ color: '#fff', fontWeight: 750, mb: 1.4 }}>Pháp lý</Typography>
+            <Box component="nav" aria-label="Chính sách" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1 }}>
+              {LEGAL_SLUGS.map(slug => (
+                <Box key={slug} component={Link} to={`/legal/${slug}`} sx={{ color: 'text.secondary', textDecoration: 'none', fontSize: '0.88rem', '&:hover': { color: '#fff' } }}>
+                  {LEGAL_TITLES[slug]}
+                </Box>
+              ))}
+            </Box>
+          </Box>
+
+          <Box>
             <Typography sx={{ color: '#fff', fontWeight: 750, mb: 0.6 }}>Kết nối hỗ trợ</Typography>
-            <Typography sx={{ color: 'text.secondary', fontSize: '0.82rem', mb: 1.5 }}>Điền suffix trong cấu hình để kích hoạt liên kết.</Typography>
+            <Typography sx={{ color: 'text.secondary', fontSize: '0.82rem', mb: 1.5 }}>Chọn kênh bạn thuận tiện nhất để liên hệ với đội ngũ.</Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
               {footerChannels.map(key => {
                 const channel = getSupportChannel(key);
-                const href = getSupportHref(channel);
+                const href = getSupportHref(key, contact);
                 return href ? (
                   <IconButton
                     key={key}
@@ -77,9 +89,17 @@ export const Footer: React.FC = () => {
 
         <Box sx={{ mt: 5, pt: 2.5, borderTop: '1px solid rgba(255,255,255,.06)', display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', gap: 1 }}>
           <Typography sx={{ color: 'text.disabled', fontSize: '0.76rem' }}>© {new Date().getFullYear()} AlgoForge Marketplace. All rights reserved.</Typography>
-          <Typography component={Link} to="/about" sx={{ color: 'text.disabled', textDecoration: 'none', fontSize: '0.76rem', display: 'inline-flex', alignItems: 'center', gap: 0.5, '&:hover': { color: 'text.secondary' } }}>
-            Nội dung demo & chính sách <ExternalLink size={12} />
-          </Typography>
+          {contact.business_name ? (
+            <Typography sx={{ color: 'text.disabled', fontSize: '0.76rem', textAlign: { xs: 'left', sm: 'right' } }}>
+              {contact.business_name}
+              {contact.business_tax_id ? ` · MST ${contact.business_tax_id}` : ''}
+              {contact.business_address ? ` · ${contact.business_address}` : ''}
+            </Typography>
+          ) : (
+            <Typography component={Link} to="/about" sx={{ color: 'text.disabled', textDecoration: 'none', fontSize: '0.76rem', display: 'inline-flex', alignItems: 'center', gap: 0.5, '&:hover': { color: 'text.secondary' } }}>
+              Về chúng tôi <ExternalLink size={12} />
+            </Typography>
+          )}
         </Box>
       </Container>
     </Box>

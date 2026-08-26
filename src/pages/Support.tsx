@@ -3,6 +3,7 @@ import { AtSign, Headphones, Mail, MessageCircle, MessagesSquare, Send } from 'l
 import { Box, Button, Container, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { getSupportHref, siteContent, type SupportChannelKey } from '../config/siteContent';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import { btnPrimarySx, glassPanelSx, pageContainerSx, pageTitleSx } from '../theme';
 
 const channelVisual: Record<SupportChannelKey, { icon: React.ReactNode; color: string }> = {
@@ -13,7 +14,10 @@ const channelVisual: Record<SupportChannelKey, { icon: React.ReactNode; color: s
   facebook: { icon: <MessagesSquare size={24} />, color: '#3b82f6' },
 };
 
-export const Support: React.FC = () => (
+export const Support: React.FC = () => {
+  const { contact } = useSiteSettings();
+
+  return (
   <Container maxWidth="xl" sx={{ ...pageContainerSx, pt: { xs: 1, md: 2 } }}>
     <Box component="header" sx={{ textAlign: 'center', maxWidth: 760, mx: 'auto', mb: { xs: 4, md: 6 } }}>
       <Box sx={{ width: 54, height: 54, mx: 'auto', mb: 2, display: 'grid', placeItems: 'center', borderRadius: '16px', color: '#c7d2fe', background: 'rgba(79,70,229,.16)', border: '1px solid rgba(129,140,248,.25)' }}>
@@ -22,13 +26,13 @@ export const Support: React.FC = () => (
       <Typography sx={{ color: '#818cf8', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '.13em', textTransform: 'uppercase', mb: 1 }}>Trung tâm hỗ trợ</Typography>
       <Typography variant="h1" sx={{ ...pageTitleSx, fontSize: { xs: '2.2rem', md: '3.2rem' }, mb: 1.4 }}>Kết nối với AlgoForge theo cách thuận tiện nhất</Typography>
       <Typography sx={{ color: 'text.secondary', fontSize: { xs: '0.98rem', md: '1.08rem' }, lineHeight: 1.75 }}>
-        Chọn email hoặc nền tảng nhắn tin bạn thường sử dụng. Các nút sẽ tự mở đúng cuộc trò chuyện sau khi suffix thật được điền trong cấu hình.
+        Chọn email hoặc nền tảng nhắn tin bạn thường sử dụng. Các kênh chưa được cấu hình sẽ hiển thị trạng thái đang cập nhật.
       </Typography>
     </Box>
 
     <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
       {siteContent.supportChannels.map(channel => {
-        const href = getSupportHref(channel);
+        const href = getSupportHref(channel.key, contact);
         const visual = channelVisual[channel.key];
         const opensNewTab = channel.key !== 'email';
 
@@ -55,11 +59,6 @@ export const Support: React.FC = () => (
                 ) : (
                   <Button disabled sx={{ ...btnPrimarySx, width: '100%' }}>Đang cập nhật</Button>
                 )}
-                {!href && (
-                  <Typography sx={{ color: 'text.disabled', textAlign: 'center', fontSize: '0.72rem', mt: 1 }}>
-                    Thay giá trị {channel.suffix} để kích hoạt
-                  </Typography>
-                )}
               </Box>
             </Box>
           </Grid>
@@ -75,6 +74,7 @@ export const Support: React.FC = () => (
       </Box>
     </Box>
   </Container>
-);
+  );
+};
 
 export default Support;

@@ -185,6 +185,21 @@ export const labelValueRowSx = {
   minWidth: 0,
 };
 
+// The admin panel's form field styling. Defined here rather than inside
+// Admin.tsx so the settings panels split out of that file share one definition
+// instead of each carrying a copy that drifts.
+export const adminInputSx = {
+  width: '100%',
+  backgroundColor: 'rgba(255, 255, 255, 0.03)',
+  border: '1px solid rgba(255, 255, 255, 0.06)',
+  borderRadius: '8px',
+  padding: '0.65rem 0.85rem',
+  color: '#fff',
+  fontSize: '0.9rem',
+  fontFamily: '"Outfit", sans-serif',
+  '& input': { padding: 0, '&::placeholder': { color: '#6b7280', opacity: 1 } },
+};
+
 export const glassCardSx = {
   background: 'rgba(20, 22, 33, 0.3)',
   backdropFilter: 'blur(12px)',

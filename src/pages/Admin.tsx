@@ -6,17 +6,20 @@ import {
   Upload, Trash2, History, Plus, FileCode, CreditCard,
   DollarSign, Edit, Eye, EyeOff, Search, Users, Tag,
   Calendar, ShoppingBag, RefreshCw, X, AlertTriangle, Coins,
-  Handshake, Save, RotateCcw, ExternalLink
+  Handshake, Save, RotateCcw, ExternalLink, Phone, FileText as FileTextIcon, Mail
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Toast } from '../components/Toast';
 import { ConfirmationDialog } from '../components/ConfirmationDialog';
 import { activeSortedVariants, formatVariantDuration, shortestVariant } from '../utils/variants';
 import { useSiteSettings } from '../context/SiteSettingsContext';
+import { ContactSettingsPanel } from '../components/admin/ContactSettingsPanel';
+import { LegalSettingsPanel } from '../components/admin/LegalSettingsPanel';
+import { SmtpSettingsPanel } from '../components/admin/SmtpSettingsPanel';
 import { getPartnerWebsite, type PartnerInfo } from '../config/siteContent';
 import { Box, Container, Typography, Button, InputBase, Table, TableHead, TableRow, TableCell, TableBody, Dialog, DialogTitle, DialogContent, CircularProgress, Select, MenuItem, FormControl } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx, panelPaddingSx, dialogPaperSx, breakLongValueSx } from '../theme';
+import { glassPanelSx, btnPrimarySx, btnSecondarySx, pageContainerSx, pageTitleSx, panelPaddingSx, dialogPaperSx, breakLongValueSx, adminInputSx } from '../theme';
 
 interface Transaction {
   id: string;
@@ -171,7 +174,7 @@ export const Admin: React.FC = () => {
   }, [user]);
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'vouchers' | 'topups' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'vouchers' | 'topups' | 'settings' | 'contact' | 'legal' | 'smtp'>('dashboard');
 
   // Common Loading & Error States
   const [loading, setLoading] = useState(true);
@@ -485,6 +488,8 @@ export const Admin: React.FC = () => {
       else if (activeTab === 'vouchers') await loadVouchersData();
       else if (activeTab === 'topups') await loadTopUpsData();
       else if (activeTab === 'settings') await refreshPartner();
+      // 'contact', 'legal' and 'smtp' are self-contained panels that load
+      // their own data on mount.
     } catch (err) {
       // Caught inside subfunctions
     } finally {
@@ -1288,17 +1293,8 @@ export const Admin: React.FC = () => {
     );
   }
 
-  const inputSx = {
-    width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    border: '1px solid rgba(255, 255, 255, 0.06)',
-    borderRadius: '8px',
-    padding: '0.65rem 0.85rem',
-    color: '#fff',
-    fontSize: '0.9rem',
-    fontFamily: '"Outfit", sans-serif',
-    '& input': { padding: 0, '&::placeholder': { color: '#6b7280', opacity: 1 } }
-  };
+  // Shared with the settings panels split out of this file.
+  const inputSx = adminInputSx;
 
   const selectSx = {
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -1383,7 +1379,10 @@ export const Admin: React.FC = () => {
             { id: 'users', label: 'Quản lý tài khoản', icon: <Users size={14} /> },
             { id: 'vouchers', label: 'Chiến dịch sale / voucher', icon: <Tag size={14} /> },
             { id: 'topups', label: 'Quản lý nạp tiền', icon: <Coins size={14} /> },
-            { id: 'settings', label: 'Cài đặt đối tác', icon: <Handshake size={14} /> }
+            { id: 'settings', label: 'Cài đặt đối tác', icon: <Handshake size={14} /> },
+            { id: 'contact', label: 'Thông tin liên hệ', icon: <Phone size={14} /> },
+            { id: 'legal', label: 'Trang pháp lý', icon: <FileTextIcon size={14} /> },
+            { id: 'smtp', label: 'Cài đặt email', icon: <Mail size={14} /> }
           ].map(t => {
             const isSel = activeTab === t.id;
             return (
@@ -2301,6 +2300,18 @@ export const Admin: React.FC = () => {
                   </DialogContent>
                 </Dialog>
               </>
+            )}
+
+            {activeTab === 'contact' && (
+              <ContactSettingsPanel onToast={(message, type) => setToast({ message, type })} />
+            )}
+
+            {activeTab === 'legal' && (
+              <LegalSettingsPanel onToast={(message, type) => setToast({ message, type })} />
+            )}
+
+            {activeTab === 'smtp' && (
+              <SmtpSettingsPanel onToast={(message, type) => setToast({ message, type })} />
             )}
 
             {/* TAB 7: SITE SETTINGS - PARTNER */}
